@@ -6,30 +6,44 @@ from prompt_toolkit.shortcuts import message_dialog, button_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from prompt_toolkit.shortcuts import button_dialog
 from colorama import Fore, Style as ColoramaStyle
+from PIL import ImageGrab
+
+# Grab the contents of the screen
 
 
 # Define style
-style = PromptStyle.from_dict({
-    'dialog': 'bg:#88ff88',
-    'button': 'bg:#ffffff #000000',
-    'dialog.body': 'bg:#44cc44 #ffffff',
-    'dialog shadow': 'bg:#003800',
-})
+style = PromptStyle.from_dict(
+    {
+        "dialog": "bg:#88ff88",
+        "button": "bg:#ffffff #000000",
+        "dialog.body": "bg:#44cc44 #ffffff",
+        "dialog shadow": "bg:#003800",
+    }
+)
+
 
 def main():
     message_dialog(
-        title='Self Driving Computer',
-        text='Ask a computer to do anything.',
-        style=style
+        title="Self Driving Computer",
+        text="Ask a computer to do anything.",
+        style=style,
     ).run()
 
-    os.system('clear')  # Clears the terminal screen
+    os.system("clear")  # Clears the terminal screen
 
-    bot_1_name = prompt('What would you like the computer to do? ')
+    bot_1_name = prompt("What would you like the computer to do? ")
 
-    bot_1_system_prompt = { "role": "system", "content": f"You are a self driving computer that can do anything."}
+    bot_1_system_prompt = {
+        "role": "system",
+        "content": f"You are a self driving computer that can do anything.",
+    }
 
-    os.system('clear')  # Clears the terminal screen
+    screen = ImageGrab.grab()
+
+    # Save the image file
+    screen.save("full_screenshot.png")
+
+    os.system("clear")  # Clears the terminal screen
 
 
 if __name__ == "__main__":
