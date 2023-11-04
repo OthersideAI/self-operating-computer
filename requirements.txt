@@ -1,0 +1,17 @@
+aiohttp==3.8.6
+aiosignal==1.3.1
+async-timeout==4.0.3
+attrs==23.1.0
+certifi==2023.7.22
+charset-normalizer==3.3.2
+colorama==0.4.6
+frozenlist==1.4.0
+idna==3.4
+multidict==6.0.4
+openai==0.28.1
+prompt-toolkit==3.0.39
+requests==2.31.0
+tqdm==4.66.1
+urllib3==2.0.7
+wcwidth==0.2.9
+yarl==1.9.2
