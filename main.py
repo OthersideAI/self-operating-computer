@@ -2,16 +2,15 @@
 Self Driving Computer
 """
 import os
+import requests
+import base64
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog, button_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from colorama import Fore, Style as ColoramaStyle
 from dotenv import load_dotenv
-import pyautogui
-import requests
-import base64
-import os
-import time
+from PIL import ImageGrab
+
 
 load_dotenv()  # This method will load the variables from .env
 
@@ -95,21 +94,22 @@ def main():
     bot_1_name = prompt("What would you like the computer to do? ")
     print(f"Computer: {bot_1_name}")
 
-    # bot_1_system_prompt = {
-    #     "role": "system",
-    #     "content": f"You are a self driving computer that can do anything.",
-    # }
+    bot_1_system_prompt = {
+        "role": "system",
+        "content": f"You are a self driving computer that can do anything.",
+    }
 
-    screenshot = pyautogui.screenshot()
-    print("screen grabbed", screenshot)
+    screen = ImageGrab.grab()
 
     # Save the image file
-    screenshot.save("screenshot.png")
+    screen.save("screenshot.png")
     print("Screenshot saved")
     print("about to call api")
 
     result = call_api()
     prompt(f"result: {result}")
+
+    # os.system("clear")  # Clears the terminal screen
 
 
 if __name__ == "__main__":
