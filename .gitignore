@@ -160,3 +160,6 @@ cython_debug/
 #.idea/
 
 .DS_Store
+
+# Avoid sending testing screenshots up
+screenshot.png
