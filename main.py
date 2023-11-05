@@ -3,6 +3,7 @@ Self Driving Computer
 """
 import os
 import requests
+import time
 import base64
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog, button_dialog
@@ -17,10 +18,20 @@ load_dotenv()  # This method will load the variables from .env
 # Now you can use the environment variables, e.g.,
 replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
 
+PROMPT = """
+Objective: {objective}
+Based on this objective, what x & y location should we first click on this screenshot. 
+"""
 
-def call_api():
+
+def format_prompt(objective):
+    return PROMPT.format(objective=objective)
+
+
+def call_api(objective):
     print("Calling API")
     print("[replicate_api_key], ", replicate_api_key)
+    visual_prompt = format_prompt(objective)
     # Load the image and convert it to base64
     with open("screenshot.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -30,7 +41,7 @@ def call_api():
         "version": "2facb4a474a0462c15041b78b1ad70952ea46b5ec6ad29583c0b29dbd4249591",
         "input": {
             "image": f"data:image/png;base64,{img_base64}",
-            "prompt": "what does this say?",
+            "prompt": visual_prompt,
         },
     }
 
@@ -92,12 +103,7 @@ def main():
     os.system("clear")  # Clears the terminal screen
 
     bot_1_name = prompt("What would you like the computer to do? ")
-    print(f"Computer: {bot_1_name}")
-
-    bot_1_system_prompt = {
-        "role": "system",
-        "content": f"You are a self driving computer that can do anything.",
-    }
+    print(f"bot_1_name: {bot_1_name}")
 
     screen = ImageGrab.grab()
 
@@ -106,7 +112,7 @@ def main():
     print("Screenshot saved")
     print("about to call api")
 
-    result = call_api()
+    result = call_api(bot_1_name)
     prompt(f"result: {result}")
 
     # os.system("clear")  # Clears the terminal screen
