@@ -1,14 +1,75 @@
+"""
+Self Driving Computer
+"""
 import os
-import time
-import sys
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog, button_dialog
 from prompt_toolkit.styles import Style as PromptStyle
-from prompt_toolkit.shortcuts import button_dialog
 from colorama import Fore, Style as ColoramaStyle
-from PIL import ImageGrab
+from dotenv import load_dotenv
+import pyautogui
+import requests
+import base64
+import os
+import time
 
-# Grab the contents of the screen
+load_dotenv()  # This method will load the variables from .env
+
+# Now you can use the environment variables, e.g.,
+replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
+
+
+def call_api():
+    print("Calling API")
+    print("[replicate_api_key], ", replicate_api_key)
+    # Load the image and convert it to base64
+    with open("screenshot.png", "rb") as img_file:
+        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+    # Prepare the payload
+    payload = {
+        "version": "2facb4a474a0462c15041b78b1ad70952ea46b5ec6ad29583c0b29dbd4249591",
+        "input": {
+            "image": f"data:image/png;base64,{img_base64}",
+            "prompt": "what does this say?",
+        },
+    }
+
+    # Prepare the headers
+    headers = {
+        "Authorization": f"Token {replicate_api_key}",
+        "Content-Type": "application/json",
+    }
+
+    # Make the request
+    response = requests.post(
+        "https://api.replicate.com/v1/predictions", json=payload, headers=headers
+    )
+    print("initial request response", response.json())
+
+    # Get the prediction ID
+    prediction_id = response.json()["id"]
+
+    # Poll the "get" URL until the prediction is ready
+    while True:
+        print("Polling prediction status")
+        response = requests.get(
+            f"https://api.replicate.com/v1/predictions/{prediction_id}", headers=headers
+        )
+        print("polling response", response.json())
+        status = response.json()["status"]
+        if status == "succeeded":
+            print("Prediction succeeded")
+            output = response.json()["output"]
+            print(f"output, {output}")
+            return output
+            break
+        elif status == "failed":
+            print("Prediction failed")
+            return "failed"
+            break
+
+        time.sleep(1)  # wait a second before checking again
 
 
 # Define style
@@ -32,18 +93,23 @@ def main():
     os.system("clear")  # Clears the terminal screen
 
     bot_1_name = prompt("What would you like the computer to do? ")
+    print(f"Computer: {bot_1_name}")
 
-    bot_1_system_prompt = {
-        "role": "system",
-        "content": f"You are a self driving computer that can do anything.",
-    }
+    # bot_1_system_prompt = {
+    #     "role": "system",
+    #     "content": f"You are a self driving computer that can do anything.",
+    # }
 
-    screen = ImageGrab.grab()
+    screenshot = pyautogui.screenshot()
+    print("screen grabbed", screenshot)
 
     # Save the image file
-    screen.save("full_screenshot.png")
+    screenshot.save("screenshot.png")
+    print("Screenshot saved")
+    print("about to call api")
 
-    os.system("clear")  # Clears the terminal screen
+    result = call_api()
+    prompt(f"result: {result}")
 
 
 if __name__ == "__main__":
