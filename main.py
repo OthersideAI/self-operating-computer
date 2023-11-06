@@ -20,7 +20,11 @@ replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
 
 PROMPT = """
 Objective: {objective}
-Based on this objective, what x & y location should we first click on this screenshot. 
+Based on this objective, what x & y location should we first click on this screenshot. Use this format below. 
+
+{{ x: 'some x coordinate', y: 'some y coordinate' }}
+
+Respond with the json object and nothing else. 
 """
 
 
