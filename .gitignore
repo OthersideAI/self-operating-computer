@@ -164,3 +164,4 @@ cython_debug/
 # Avoid sending testing screenshots up
 screenshot.png
 screenshot_with_grid.png
+screenshot_with_labeled_grid.png

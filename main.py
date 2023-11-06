@@ -10,7 +10,7 @@ from prompt_toolkit.shortcuts import message_dialog, button_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from colorama import Fore, Style as ColoramaStyle
 from dotenv import load_dotenv
-from PIL import ImageGrab, Image, ImageDraw
+from PIL import ImageGrab, Image, ImageDraw, ImageFont
 
 
 load_dotenv()  # This method will load the variables from .env
@@ -37,7 +37,7 @@ def call_api(objective):
     print("[replicate_api_key], ", replicate_api_key)
     visual_prompt = format_prompt(objective)
     # Load the image and convert it to base64
-    with open("screenshot_with_grid.png", "rb") as img_file:
+    with open("screenshot_with_labeled_grid.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     # Prepare the payload
@@ -97,7 +97,7 @@ style = PromptStyle.from_dict(
 )
 
 
-def add_grid_to_image(image_path, grid_interval):
+def add_labeled_grid_to_image(image_path, grid_interval):
     # Load the image
     image = Image.open(image_path)
 
@@ -107,19 +107,45 @@ def add_grid_to_image(image_path, grid_interval):
     # Get the image size
     width, height = image.size
 
+    # Define a larger font for the labels
+    font_size = 20
+    try:
+        # Try to use a default font
+        font = ImageFont.truetype("arial.ttf", size=font_size)
+    except IOError:
+        # If the default font is not available, a fallback font will be used.
+        font = ImageFont.load_default()
+
+    # Calculate label background size based on the font size
+    label_background_size = (font_size + 6, font_size + 6)
+
+    # Function to draw text with a white rectangle background
+    def draw_label_with_background(position, text, font_size):
+        background_position = (
+            position[0],
+            position[1],
+            position[0] + label_background_size[0],
+            position[1] + label_background_size[1],
+        )
+        draw.rectangle(background_position, fill="white")
+        draw.text((position[0] + 3, position[1] + 3), text, fill="black", font=font)
+
     # Draw vertical lines at every `grid_interval` pixels
     for x in range(0, width, grid_interval):
         line = ((x, 0), (x, height))
         draw.line(line, fill="blue")
+        # Add the label to the right of the line with a white background
+        draw_label_with_background((x + 2, 2), str(x), font_size)
 
     # Draw horizontal lines at every `grid_interval` pixels
     for y in range(0, height, grid_interval):
         line = ((0, y), (width, y))
         draw.line(line, fill="blue")
+        # Add the label below the line with a white background
+        draw_label_with_background((2, y + 2), str(y), font_size)
 
     # Save the image with the grid
-    image.save("screenshot_with_grid.png")
-    image.show()
+    image.save("screenshot_with_labeled_grid.png")
 
 
 # Assuming you have saved
@@ -142,7 +168,7 @@ def main():
     # Save the image file
     screen.save("screenshot.png")
 
-    add_grid_to_image("screenshot.png", 50)
+    add_labeled_grid_to_image("screenshot.png", 100)
     print("Screenshot saved")
     print("about to call api")
 
