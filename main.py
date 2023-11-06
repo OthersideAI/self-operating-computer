@@ -29,12 +29,12 @@ Respond with the json object and nothing else.
 """
 
 PROMPT_TEST = """
-Can you see the blue lines, can you read any of the numbers? 
+Can you see the blue lines, can you read any of the numbers? If so, please share some of the numbers. 
 """
 
 
 def format_prompt(objective):
-    return PROMPT.format(objective=objective)
+    return PROMPT_TEST.format(objective=objective)
 
 
 def call_api(objective):
@@ -121,7 +121,7 @@ def add_labeled_grid_to_image(image_path, grid_interval):
             "Specific TrueType font not found; install the font or check the font name."
         )
 
-    font_size = 50  # Adjust this size as needed
+    font_size = grid_interval / 4  # Adjust this size as needed
     font = ImageFont.truetype(font_path, size=font_size)
 
     # Define the estimated background size based on the font size
@@ -185,7 +185,7 @@ def main():
     # Save the image file
     screen.save("screenshot.png")
 
-    add_labeled_grid_to_image("screenshot.png", 200)
+    add_labeled_grid_to_image("screenshot.png", 400)
     print("Screenshot saved")
     print("about to call api")
 
