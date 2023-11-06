@@ -11,6 +11,7 @@ from prompt_toolkit.styles import Style as PromptStyle
 from colorama import Fore, Style as ColoramaStyle
 from dotenv import load_dotenv
 from PIL import ImageGrab, Image, ImageDraw, ImageFont
+import matplotlib.font_manager as fm
 
 
 load_dotenv()  # This method will load the variables from .env
@@ -59,7 +60,6 @@ def call_api(objective):
     response = requests.post(
         "https://api.replicate.com/v1/predictions", json=payload, headers=headers
     )
-    print("initial request response", response.json())
 
     # Get the prediction ID
     prediction_id = response.json()["id"]
@@ -70,8 +70,8 @@ def call_api(objective):
         response = requests.get(
             f"https://api.replicate.com/v1/predictions/{prediction_id}", headers=headers
         )
-        print("polling response", response.json())
         status = response.json()["status"]
+        print("polling response, status", status)
         if status == "succeeded":
             print("Prediction succeeded")
             output = response.json()["output"]
@@ -107,42 +107,54 @@ def add_labeled_grid_to_image(image_path, grid_interval):
     # Get the image size
     width, height = image.size
 
-    # Define a larger font for the labels
-    font_size = 20
-    try:
-        # Try to use a default font
-        font = ImageFont.truetype("arial.ttf", size=font_size)
-    except IOError:
-        # If the default font is not available, a fallback font will be used.
-        font = ImageFont.load_default()
+    # Get the path to a TrueType font included with matplotlib
+    font_paths = fm.findSystemFonts(fontpaths=None, fontext="ttf")
+    # Just as an example, take the first available TrueType font
+    font_path = font_paths[0] if font_paths else None
+    if not font_path:
+        raise RuntimeError("No TrueType font found; install a ttf font or matplotlib.")
 
-    # Calculate label background size based on the font size
-    label_background_size = (font_size + 6, font_size + 6)
+    print("font_path", font_path)
+
+    font_size = 30  # Adjust this size as needed
+    font = ImageFont.truetype(font_path, size=font_size)
+
+    # Define the estimated background size based on the font size
+    background_width = (
+        font_size * 3
+    )  # Estimate that each character is approximately 3 times the font size wide
+    background_height = (
+        font_size  # The height of the background is the same as the font size
+    )
 
     # Function to draw text with a white rectangle background
-    def draw_label_with_background(position, text, font_size):
+    def draw_label_with_background(position, text, draw, font, bg_width, bg_height):
         background_position = (
             position[0],
             position[1],
-            position[0] + label_background_size[0],
-            position[1] + label_background_size[1],
+            position[0] + bg_width,
+            position[1] + bg_height,
         )
         draw.rectangle(background_position, fill="white")
-        draw.text((position[0] + 3, position[1] + 3), text, fill="black", font=font)
+        draw.text((position[0] + 3, position[1]), text, fill="black", font=font)
 
     # Draw vertical lines at every `grid_interval` pixels
     for x in range(0, width, grid_interval):
         line = ((x, 0), (x, height))
         draw.line(line, fill="blue")
         # Add the label to the right of the line with a white background
-        draw_label_with_background((x + 2, 2), str(x), font_size)
+        draw_label_with_background(
+            (x + 2, 2), str(x), draw, font, background_width, background_height
+        )
 
     # Draw horizontal lines at every `grid_interval` pixels
     for y in range(0, height, grid_interval):
         line = ((0, y), (width, y))
         draw.line(line, fill="blue")
         # Add the label below the line with a white background
-        draw_label_with_background((2, y + 2), str(y), font_size)
+        draw_label_with_background(
+            (2, y + 2), str(y), draw, font, background_width, background_height
+        )
 
     # Save the image with the grid
     image.save("screenshot_with_labeled_grid.png")
@@ -172,8 +184,8 @@ def main():
     print("Screenshot saved")
     print("about to call api")
 
-    result = call_api(bot_1_name)
-    prompt(f"result: {result}")
+    # result = call_api(bot_1_name)
+    # prompt(f"result: {result}")
 
     # os.system("clear")  # Clears the terminal screen
 
