@@ -10,7 +10,7 @@ from prompt_toolkit.shortcuts import message_dialog, button_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from colorama import Fore, Style as ColoramaStyle
 from dotenv import load_dotenv
-from PIL import ImageGrab
+from PIL import ImageGrab, Image, ImageDraw
 
 
 load_dotenv()  # This method will load the variables from .env
@@ -37,7 +37,7 @@ def call_api(objective):
     print("[replicate_api_key], ", replicate_api_key)
     visual_prompt = format_prompt(objective)
     # Load the image and convert it to base64
-    with open("screenshot.png", "rb") as img_file:
+    with open("screenshot_with_grid.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     # Prepare the payload
@@ -97,6 +97,34 @@ style = PromptStyle.from_dict(
 )
 
 
+def add_grid_to_image(image_path, grid_interval):
+    # Load the image
+    image = Image.open(image_path)
+
+    # Create a drawing object
+    draw = ImageDraw.Draw(image)
+
+    # Get the image size
+    width, height = image.size
+
+    # Draw vertical lines at every `grid_interval` pixels
+    for x in range(0, width, grid_interval):
+        line = ((x, 0), (x, height))
+        draw.line(line, fill="blue")
+
+    # Draw horizontal lines at every `grid_interval` pixels
+    for y in range(0, height, grid_interval):
+        line = ((0, y), (width, y))
+        draw.line(line, fill="blue")
+
+    # Save the image with the grid
+    image.save("screenshot_with_grid.png")
+    image.show()
+
+
+# Assuming you have saved
+
+
 def main():
     message_dialog(
         title="Self Driving Computer",
@@ -113,6 +141,8 @@ def main():
 
     # Save the image file
     screen.save("screenshot.png")
+
+    add_grid_to_image("screenshot.png", 50)
     print("Screenshot saved")
     print("about to call api")
 
