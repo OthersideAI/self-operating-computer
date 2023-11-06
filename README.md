@@ -1,7 +1,27 @@
-## Name ideas:
-#### Autobot? 
-#### Self Driving Computer
-#### Generalist Computer Agent
+## Self Driving Computer
+A system that takes a *screenshot image input* and *a objective* and then outputs *the next keyboard or mouse action*
+
+#### Name ideas:
+- Autobot? 
+- Self Driving Computer
+- Generalist Computer Agent
 
 ### Instructions
-- On Mac, Make sure to give permissions to the Terminal app in both "Screen Recording" and "Accessibility" in the "Security & Privacy" page of "System Preferences"
+Create virtual environment. 
+```
+python3 -m venv venv
+```
+Activate it
+```
+source venv/bin/activate
+```
+Install requirements. 
+```
+pip install -r requirements.txt
+```
+Run it!
+```
+python main.py
+```
+
+- On Mac, make sure to give permissions to the Terminal app in both "Screen Recording" and "Accessibility" in the "Security & Privacy" page of "System Preferences"
