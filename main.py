@@ -28,6 +28,10 @@ Based on this objective, what x & y location should we first click on this scree
 Respond with the json object and nothing else. 
 """
 
+PROMPT_TEST = """
+Can you see the blue lines, can you read any of the numbers? 
+"""
+
 
 def format_prompt(objective):
     return PROMPT.format(objective=objective)
@@ -35,10 +39,10 @@ def format_prompt(objective):
 
 def call_api(objective):
     print("Calling API")
-    print("[replicate_api_key], ", replicate_api_key)
-    visual_prompt = format_prompt(objective)
+    v_prompt = format_prompt(objective)
+    print("v_prompt", v_prompt)
     # Load the image and convert it to base64
-    with open("screenshot_with_labeled_grid.png", "rb") as img_file:
+    with open("screenshot_with_grid.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     # Prepare the payload
@@ -46,7 +50,7 @@ def call_api(objective):
         "version": "2facb4a474a0462c15041b78b1ad70952ea46b5ec6ad29583c0b29dbd4249591",
         "input": {
             "image": f"data:image/png;base64,{img_base64}",
-            "prompt": visual_prompt,
+            "prompt": v_prompt,
         },
     }
 
@@ -109,14 +113,15 @@ def add_labeled_grid_to_image(image_path, grid_interval):
 
     # Get the path to a TrueType font included with matplotlib
     font_paths = fm.findSystemFonts(fontpaths=None, fontext="ttf")
-    # Just as an example, take the first available TrueType font
-    font_path = font_paths[0] if font_paths else None
+    # Filter for specific font name (e.g., 'Arial.ttf')
+
+    font_path = next((path for path in font_paths if "Arial" in path), None)
     if not font_path:
-        raise RuntimeError("No TrueType font found; install a ttf font or matplotlib.")
+        raise RuntimeError(
+            "Specific TrueType font not found; install the font or check the font name."
+        )
 
-    print("font_path", font_path)
-
-    font_size = 30  # Adjust this size as needed
+    font_size = 50  # Adjust this size as needed
     font = ImageFont.truetype(font_path, size=font_size)
 
     # Define the estimated background size based on the font size
@@ -157,7 +162,7 @@ def add_labeled_grid_to_image(image_path, grid_interval):
         )
 
     # Save the image with the grid
-    image.save("screenshot_with_labeled_grid.png")
+    image.save("screenshot_with_grid.png")
 
 
 # Assuming you have saved
@@ -172,20 +177,20 @@ def main():
 
     os.system("clear")  # Clears the terminal screen
 
-    bot_1_name = prompt("What would you like the computer to do? ")
-    print(f"bot_1_name: {bot_1_name}")
+    user_response = prompt("What would you like the computer to do? ")
+    print(f"user_response: {user_response}")
 
     screen = ImageGrab.grab()
 
     # Save the image file
     screen.save("screenshot.png")
 
-    add_labeled_grid_to_image("screenshot.png", 100)
+    add_labeled_grid_to_image("screenshot.png", 200)
     print("Screenshot saved")
     print("about to call api")
 
-    # result = call_api(bot_1_name)
-    # prompt(f"result: {result}")
+    result = call_api(user_response)
+    prompt(f"result: {result}")
 
     # os.system("clear")  # Clears the terminal screen
 
