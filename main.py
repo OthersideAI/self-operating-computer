@@ -14,6 +14,7 @@ from colorama import Fore, Style as ColoramaStyle
 from dotenv import load_dotenv
 from PIL import ImageGrab, Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
+import pyautogui
 
 
 load_dotenv()  # This method will load the variables from .env
@@ -121,6 +122,18 @@ style = PromptStyle.from_dict(
         "dialog shadow": "bg:#003800",
     }
 )
+
+
+def click_at_percentage(x_percentage, y_percentage):
+    # Get the size of the primary monitor
+    screen_width, screen_height = pyautogui.size()
+
+    # Calculate the x and y coordinates in pixels
+    x_pixel = int(screen_width * float(x_percentage))
+    y_pixel = int(screen_height * float(y_percentage))
+
+    # Move the mouse to the calculated position and click
+    pyautogui.click(x_pixel, y_pixel)
 
 
 def add_labeled_grid_to_image(image_path, grid_interval):
