@@ -38,6 +38,7 @@ Respond with the json object and nothing else.
 PROMPT_CLICK = """
 Your goal is to guess the starting X & Y location things on in a screenshot in percentage (%) of page size.
 
+
 Example are below. 
 __
 Object: Window with a Banana in it
@@ -46,6 +47,8 @@ __
 Object: Microsoft Outlook
 Location: {{ "x": "0.2", "y": "0.1" }} 
 __
+
+IMPORTANT: respond with nothing but the `Location: {{ "x": "percent", "y": "percent" }}`
 
 Ok, here the real test. 
 
@@ -74,14 +77,15 @@ def call_openai_api(objective):
         "Content-Type": "application/json",
         "Authorization": f"Bearer {openai_api_key}",
     }
-
+    v_prompt = format_prompt(objective)
+    print("v_prompt", v_prompt)
     payload = {
         "model": "gpt-4-vision-preview",
         "messages": [
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "What’s in this image?"},
+                    {"type": "text", "text": v_prompt},
                     {
                         "type": "image_url",
                         "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
@@ -96,7 +100,8 @@ def call_openai_api(objective):
         "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
     )
     result = response.json()
-    print("result", result)
+    content = result["choices"][0]["message"]["content"]
+    return content
 
 
 def call_replicate_api(objective):
@@ -354,13 +359,13 @@ def main():
     try:
         print(f"result: {result}")
         print("let us parse")
-        # parsed_result = extract_json_from_string(result)
-        # if parsed_result:
-        #     print("Loaded result", parsed_result)
-        #     click_at_percentage(parsed_result["x"], parsed_result["y"])
-        #     pretty_type("Hello, World!")
-        # else:
-        #     print("Failed to parse the result")
+        parsed_result = extract_json_from_string(result)
+        if parsed_result:
+            print("Loaded result", parsed_result)
+            click_at_percentage(parsed_result["x"], parsed_result["y"])
+            pretty_type("Hello, World!")
+        else:
+            print("Failed to parse the result")Hello, 
     except:
         print("failed to handle result")
 
