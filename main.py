@@ -4,6 +4,9 @@ Self Driving Computer
 import os
 import time
 import base64
+import json
+import math
+import time
 import requests
 
 
@@ -37,10 +40,10 @@ Your goal is to guess the starting X & Y location things on in a screenshot in p
 Example are below. 
 __
 Object: Window with a Banana in it
-Location: {{ x: '0.5', y: '0.6' }} # this means 50% of the way across the page and 60% of the way down the page
+Location: {{ "x": "0.5", "y": "0.6" }} # this means 50% of the way across the page and 60% of the way down the page
 __
 Object: Microsoft Outlook
-Location: {{ x: '0.2', y: '0.1' }} 
+Location: {{ "x": "0.2", "y": "0.1" }} 
 __
 
 Ok, here the real test. 
@@ -124,7 +127,10 @@ style = PromptStyle.from_dict(
 )
 
 
-def click_at_percentage(x_percentage, y_percentage):
+def click_at_percentage(
+    x_percentage, y_percentage, duration=1.5, circle_radius=50, circle_duration=0.5
+):
+    print("clicking at percentage", x_percentage, y_percentage)
     # Get the size of the primary monitor
     screen_width, screen_height = pyautogui.size()
 
@@ -132,7 +138,18 @@ def click_at_percentage(x_percentage, y_percentage):
     x_pixel = int(screen_width * float(x_percentage))
     y_pixel = int(screen_height * float(y_percentage))
 
-    # Move the mouse to the calculated position and click
+    # Move to the position smoothly
+    pyautogui.moveTo(x_pixel, y_pixel, duration=duration)
+
+    # Circular movement
+    start_time = time.time()
+    while time.time() - start_time < circle_duration:
+        angle = ((time.time() - start_time) / circle_duration) * 2 * math.pi
+        x = x_pixel + math.cos(angle) * circle_radius
+        y = y_pixel + math.sin(angle) * circle_radius
+        pyautogui.moveTo(x, y, duration=0.1)
+
+    # Finally, click
     pyautogui.click(x_pixel, y_pixel)
 
 
@@ -289,9 +306,35 @@ def main():
     print("about to call api")
 
     result = call_api(user_response)
-    prompt(f"result: {result}")
+    try:
+        print(f"result: {result}")
+        print("let us parse")
+        parsed_result = extract_json_from_string(result)
+        if parsed_result:
+            print("Loaded result", parsed_result)
+            click_at_percentage(parsed_result["x"], parsed_result["y"])
+        else:
+            print("Failed to parse the result")
+    except:
+        print("failed to handle result")
 
     # os.system("clear")  # Clears the terminal screen
+
+
+def extract_json_from_string(s):
+    print("extracting json from string", s)
+    try:
+        # Find the start of the JSON structure
+        json_start = s.find("{")
+        if json_start == -1:
+            return None
+
+        # Extract the JSON part and convert it to a dictionary
+        json_str = s[json_start:]
+        return json.loads(json_str)
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return None
 
 
 if __name__ == "__main__":
