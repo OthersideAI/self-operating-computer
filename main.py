@@ -52,7 +52,7 @@ Object: {objective}
 
 """
 
-USER_QUESTION_CLICK = "What would you like to click?"
+USER_QUESTION_CLICK = "What would you like to type 'hello world'?"
 
 USER_QUESTION = "What would you like the computer to do? "
 
@@ -281,6 +281,13 @@ def add_labeled_cross_grid_to_image(image_path, grid_interval):
     image.save("screenshot_with_grid.png")
 
 
+def pretty_type(text, delay=0.15):
+    for char in text:
+        pyautogui.write(char)
+        # Add a random delay to make it look more like natural typing
+        time.sleep(delay)
+
+
 # Assuming you have saved
 
 
@@ -313,6 +320,7 @@ def main():
         if parsed_result:
             print("Loaded result", parsed_result)
             click_at_percentage(parsed_result["x"], parsed_result["y"])
+            pretty_type("Hello, World!")
         else:
             print("Failed to parse the result")
     except:
