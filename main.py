@@ -2,9 +2,11 @@
 Self Driving Computer
 """
 import os
-import requests
 import time
 import base64
+import requests
+
+
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog, button_dialog
 from prompt_toolkit.styles import Style as PromptStyle
@@ -28,13 +30,31 @@ Based on this objective, what x & y location should we first click on this scree
 Respond with the json object and nothing else. 
 """
 
-PROMPT_TEST = """
-By looking at the coordinates on the image, tell me one of the X Y coordinates options to click the white Terminal app behind the grid. 
+PROMPT_CLICK = """
+Your goal is to guess the starting X & Y location things on in a screenshot in percentage (%) of page size.
+
+Example are below. 
+__
+Object: Window with a Banana in it
+Location: {{ x: '0.5', y: '0.6' }} # this means 50% of the way across the page and 60% of the way down the page
+__
+Object: Microsoft Outlook
+Location: {{ x: '0.2', y: '0.1' }} 
+__
+
+Ok, here the real test. 
+
+Object: {objective}
+
 """
+
+USER_QUESTION_CLICK = "What would you like to click?"
+
+USER_QUESTION = "What would you like the computer to do? "
 
 
 def format_prompt(objective):
-    return PROMPT_TEST.format(objective=objective)
+    return PROMPT_CLICK.format(objective=objective)
 
 
 def call_api(objective):
@@ -79,8 +99,10 @@ def call_api(objective):
         if status == "succeeded":
             print("Prediction succeeded")
             output = response.json()["output"]
-            print(f"output, {output}")
-            return output
+            # concatinate array into string
+            final_output = " ".join(output)
+            print(f"output, {final_output}")
+            return final_output
             break
         elif status == "failed":
             print("Prediction failed")
@@ -241,7 +263,7 @@ def main():
 
     os.system("clear")  # Clears the terminal screen
 
-    user_response = prompt("What would you like the computer to do? ")
+    user_response = prompt(USER_QUESTION_CLICK)
     print(f"user_response: {user_response}")
 
     screen = ImageGrab.grab()
