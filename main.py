@@ -26,46 +26,51 @@ load_dotenv()  # This method will load the variables from .env
 replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
-PROMPT = """
-Objective: {objective}
-Based on this objective, what x & y location should we first click on this screenshot. Use this format below. 
-
-{{ x: 'some x coordinate', y: 'some y coordinate' }}
-
-Respond with the json object and nothing else. 
-"""
-
-PROMPT_CLICK = """
-Your goal is to guess the starting X & Y location things on in a screenshot in percentage (%) of page size.
-
+PROMPT_POSITION = """
+From looking at a screenshot, your goal is to guess the X & Y location on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
 Example are below. 
 __
-Object: Window with a Banana in it
+Objective: Click on the Banana 
 Location: {{ "x": "0.5", "y": "0.6" }} # this means 50% of the way across the page and 60% of the way down the page
 __
-Object: Microsoft Outlook
-Location: {{ "x": "0.2", "y": "0.1" }} 
+Objective: Write an email in Outlook
+Location: {{ "x": "0.2", "y": "0.1" }} # this is the location of the outlook app
+__
+Objective: Open Spotify
+Location: {{ "x": "0.2", "y": "0.9" }} 
 __
 
-IMPORTANT: respond with nothing but the `Location: {{ "x": "percent", "y": "percent" }}`
+IMPORTANT: respond with nothing but the `Location: {{ "x": "percent", "y": "percent" }}` and do not comment.
 
 Ok, here the real test. 
 
-Object: {objective}
+Objective: {objective}
 
 """
 
-USER_QUESTION_CLICK = "What would you like to type 'hello world'?"
+PROMPT_TYPE = """
+You are a professional writer. Based on the objective below, decide what you should write. 
 
-USER_QUESTION = "What would you like the computer to do? "
+IMPORTANT: Respond directly with what you are going to write and nothing else!
+
+Objective: {objective}
+Writing:
+"""
 
 
-def format_prompt(objective):
-    return PROMPT_CLICK.format(objective=objective)
+USER_QUESTION = "What would you like the computer to do?"
 
 
-def call_openai_api(objective):
+def format_prompt_click(objective):
+    return PROMPT_POSITION.format(objective=objective)
+
+
+def format_prompt_type(objective):
+    return PROMPT_TYPE.format(objective=objective)
+
+
+def call_openai_api_for_click(objective):
     # Function to encode the image
 
     with open("screenshot_with_grid.png", "rb") as img_file:
@@ -77,8 +82,8 @@ def call_openai_api(objective):
         "Content-Type": "application/json",
         "Authorization": f"Bearer {openai_api_key}",
     }
-    v_prompt = format_prompt(objective)
-    print("v_prompt", v_prompt)
+    v_prompt = format_prompt_click(objective)
+    # print("format_prompt_click", v_prompt)
     payload = {
         "model": "gpt-4-vision-preview",
         "messages": [
@@ -104,10 +109,37 @@ def call_openai_api(objective):
     return content
 
 
+def call_openai_api_for_type(objective):
+    # Function to encode the image
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai_api_key}",
+    }
+    v_prompt = format_prompt_type(objective)
+
+    payload = {
+        "model": "gpt-4-vision-preview",
+        "messages": [
+            {
+                "role": "user",
+                "content": v_prompt,
+            }
+        ],
+        "max_tokens": 1000,
+    }
+
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
+    )
+    result = response.json()
+    content = result["choices"][0]["message"]["content"]
+    return content
+
+
 def call_replicate_api(objective):
-    print("Calling API")
-    v_prompt = format_prompt(objective)
-    print("v_prompt", v_prompt)
+    v_prompt = format_prompt_click(objective)
+
     # Load the image and convert it to base64
     with open("screenshot_with_grid.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -137,22 +169,21 @@ def call_replicate_api(objective):
 
     # Poll the "get" URL until the prediction is ready
     while True:
-        print("Polling prediction status")
         response = requests.get(
             f"https://api.replicate.com/v1/predictions/{prediction_id}", headers=headers
         )
         status = response.json()["status"]
-        print("polling response, status", status)
+
+        # print("polling response, status", status)
         if status == "succeeded":
-            print("Prediction succeeded")
             output = response.json()["output"]
             # concatinate array into string
             final_output = " ".join(output)
-            print(f"output, {final_output}")
+
             return final_output
             break
         elif status == "failed":
-            print("Prediction failed")
+            # print("Prediction failed")
             return "failed"
             break
 
@@ -173,7 +204,6 @@ style = PromptStyle.from_dict(
 def click_at_percentage(
     x_percentage, y_percentage, duration=1.5, circle_radius=50, circle_duration=0.5
 ):
-    print("clicking at percentage", x_percentage, y_percentage)
     # Get the size of the primary monitor
     screen_width, screen_height = pyautogui.size()
 
@@ -324,7 +354,7 @@ def add_labeled_cross_grid_to_image(image_path, grid_interval):
     image.save("screenshot_with_grid.png")
 
 
-def pretty_type(text, delay=0.15):
+def pretty_type(text, delay=0.0005):
     for char in text:
         pyautogui.write(char)
         # Add a random delay to make it look more like natural typing
@@ -343,8 +373,7 @@ def main():
 
     os.system("clear")  # Clears the terminal screen
 
-    user_response = prompt(USER_QUESTION_CLICK)
-    print(f"user_response: {user_response}")
+    user_response = prompt(USER_QUESTION + "\n")
 
     screen = ImageGrab.grab()
 
@@ -352,20 +381,20 @@ def main():
     screen.save("screenshot.png")
 
     add_labeled_cross_grid_to_image("screenshot.png", 400)
-    print("Screenshot saved")
-    print("about to call api")
 
-    result = call_openai_api(user_response)
+    click_result = call_openai_api_for_click(user_response)
+    type_result = call_openai_api_for_type(user_response)
+
     try:
-        print(f"result: {result}")
-        print("let us parse")
-        parsed_result = extract_json_from_string(result)
+        # print(f"click_result: {click_result}")
+        # print(f"type_result: {type_result}")
+
+        parsed_result = extract_json_from_string(click_result)
         if parsed_result:
-            print("Loaded result", parsed_result)
             click_at_percentage(parsed_result["x"], parsed_result["y"])
-            pretty_type("Hello, World!")
+            pretty_type(type_result)
         else:
-            print("Failed to parse the result")Hello, 
+            print("Failed to parse the result")
     except:
         print("failed to handle result")
 
@@ -373,7 +402,7 @@ def main():
 
 
 def extract_json_from_string(s):
-    print("extracting json from string", s)
+    # print("extracting json from string", s)
     try:
         # Find the start of the JSON structure
         json_start = s.find("{")
