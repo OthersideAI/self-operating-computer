@@ -1,7 +1,8 @@
-## Self Driving Computer
+## Self Operating Computer
 A system that takes a *screenshot image input* and *a objective* and then outputs *the next keyboard or mouse action*
 
 #### Name ideas:
+Leaving it as Self Operating Computer for now
 - Autobot? 
 - Self Driving Computer
 - Generalist Computer Agent
