@@ -24,6 +24,7 @@ load_dotenv()  # This method will load the variables from .env
 
 # Now you can use the environment variables, e.g.,
 replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 PROMPT = """
 Objective: {objective}
@@ -61,7 +62,44 @@ def format_prompt(objective):
     return PROMPT_CLICK.format(objective=objective)
 
 
-def call_api(objective):
+def call_openai_api(objective):
+    # Function to encode the image
+
+    with open("screenshot_with_grid.png", "rb") as img_file:
+        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+    # Path to your image
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai_api_key}",
+    }
+
+    payload = {
+        "model": "gpt-4-vision-preview",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "What’s in this image?"},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
+        ],
+        "max_tokens": 300,
+    }
+
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
+    )
+    result = response.json()
+    print("result", result)
+
+
+def call_replicate_api(objective):
     print("Calling API")
     v_prompt = format_prompt(objective)
     print("v_prompt", v_prompt)
@@ -312,17 +350,17 @@ def main():
     print("Screenshot saved")
     print("about to call api")
 
-    result = call_api(user_response)
+    result = call_openai_api(user_response)
     try:
         print(f"result: {result}")
         print("let us parse")
-        parsed_result = extract_json_from_string(result)
-        if parsed_result:
-            print("Loaded result", parsed_result)
-            click_at_percentage(parsed_result["x"], parsed_result["y"])
-            pretty_type("Hello, World!")
-        else:
-            print("Failed to parse the result")
+        # parsed_result = extract_json_from_string(result)
+        # if parsed_result:
+        #     print("Loaded result", parsed_result)
+        #     click_at_percentage(parsed_result["x"], parsed_result["y"])
+        #     pretty_type("Hello, World!")
+        # else:
+        #     print("Failed to parse the result")
     except:
         print("failed to handle result")
 
