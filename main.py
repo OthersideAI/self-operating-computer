@@ -19,12 +19,17 @@ from PIL import ImageGrab, Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
 import pyautogui
 
+from openai import OpenAI
+
+client = OpenAI()
+client.api_key = os.getenv("OPENAI_API_KEY")
+
 
 load_dotenv()  # This method will load the variables from .env
 
 # Now you can use the environment variables, e.g.,
 replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
-openai_api_key = os.getenv("OPENAI_API_KEY")
+
 
 # Define style
 style = PromptStyle.from_dict(
@@ -70,6 +75,16 @@ Writing:
 
 USER_QUESTION = "What would you like the computer to do?"
 
+PROMPT = """
+You are a Self Operating Computer. You use the same visual and input interfaces (i.e. screenshot, click & type) as a human, except you are superhuman. 
+
+You will receive an objective from the user and you will decide the exact click and keyboard type actions to accomplish that goal. 
+
+
+"""
+
+# def agent_loop():
+
 
 def format_prompt_click(objective):
     return PROMPT_POSITION.format(objective=objective)
@@ -85,21 +100,15 @@ def call_openai_api_for_click(objective):
     with open("screenshot_with_grid.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    # Path to your image
+    click_prompt = format_prompt_click(objective)
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {openai_api_key}",
-    }
-    v_prompt = format_prompt_click(objective)
-    # print("format_prompt_click", v_prompt)
-    payload = {
-        "model": "gpt-4-vision-preview",
-        "messages": [
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": v_prompt},
+                    {"type": "text", "text": click_prompt},
                     {
                         "type": "image_url",
                         "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
@@ -107,42 +116,30 @@ def call_openai_api_for_click(objective):
                 ],
             }
         ],
-        "max_tokens": 300,
-    }
-
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
+        max_tokens=300,
     )
-    result = response.json()
-    content = result["choices"][0]["message"]["content"]
+
+    result = response.choices[0]
+    print("result1", result)
+    content = result.message.content
     return content
 
 
 def call_openai_api_for_type(objective):
     # Function to encode the image
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {openai_api_key}",
-    }
-    v_prompt = format_prompt_type(objective)
-
-    payload = {
-        "model": "gpt-4-vision-preview",
-        "messages": [
-            {
-                "role": "user",
-                "content": v_prompt,
-            }
+    type_prompt = format_prompt_type(objective)
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "user", "content": type_prompt},
         ],
-        "max_tokens": 1000,
-    }
-
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
+        max_tokens=1000,
     )
-    result = response.json()
-    content = result["choices"][0]["message"]["content"]
+
+    result = response.choices[0]
+    print("result2", result)
+    content = result.message.content
     return content
 
 
