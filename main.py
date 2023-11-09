@@ -58,7 +58,6 @@ Objective: {objective}
 Writing:
 """
 
-
 USER_QUESTION = "What would you like the computer to do?"
 
 
@@ -366,7 +365,7 @@ def pretty_type(text, delay=0.0005):
 
 def main():
     message_dialog(
-        title="Self Driving Computer",
+        title="Self Operating Computer",
         text="Ask a computer to do anything.",
         style=style,
     ).run()
