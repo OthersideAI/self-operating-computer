@@ -26,6 +26,16 @@ load_dotenv()  # This method will load the variables from .env
 replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
+# Define style
+style = PromptStyle.from_dict(
+    {
+        "dialog": "bg:#88ff88",
+        "button": "bg:#ffffff #000000",
+        "dialog.body": "bg:#44cc44 #ffffff",
+        "dialog shadow": "bg:#003800",
+    }
+)
+
 PROMPT_POSITION = """
 From looking at a screenshot, your goal is to guess the X & Y location on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
@@ -189,19 +199,8 @@ def call_replicate_api(objective):
         time.sleep(1)  # wait a second before checking again
 
 
-# Define style
-style = PromptStyle.from_dict(
-    {
-        "dialog": "bg:#88ff88",
-        "button": "bg:#ffffff #000000",
-        "dialog.body": "bg:#44cc44 #ffffff",
-        "dialog shadow": "bg:#003800",
-    }
-)
-
-
 def click_at_percentage(
-    x_percentage, y_percentage, duration=1.5, circle_radius=50, circle_duration=0.5
+    x_percentage, y_percentage, duration=0.5, circle_radius=50, circle_duration=0.5
 ):
     # Get the size of the primary monitor
     screen_width, screen_height = pyautogui.size()
@@ -353,7 +352,7 @@ def add_labeled_cross_grid_to_image(image_path, grid_interval):
     image.save("screenshot_with_grid.png")
 
 
-def pretty_type(text, delay=0.0005):
+def keyboard_type(text, delay=0.00005):
     for char in text:
         pyautogui.write(char)
         # Add a random delay to make it look more like natural typing
@@ -391,7 +390,7 @@ def main():
         parsed_result = extract_json_from_string(click_result)
         if parsed_result:
             click_at_percentage(parsed_result["x"], parsed_result["y"])
-            pretty_type(type_result)
+            keyboard_type(type_result)
         else:
             print("Failed to parse the result")
     except:
