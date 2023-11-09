@@ -27,9 +27,6 @@ client.api_key = os.getenv("OPENAI_API_KEY")
 
 load_dotenv()  # This method will load the variables from .env
 
-# Now you can use the environment variables, e.g.,
-replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
-
 
 # Define style
 style = PromptStyle.from_dict(
@@ -141,59 +138,6 @@ def call_openai_api_for_type(objective):
     print("result2", result)
     content = result.message.content
     return content
-
-
-def call_replicate_api(objective):
-    v_prompt = format_prompt_click(objective)
-
-    # Load the image and convert it to base64
-    with open("screenshot_with_grid.png", "rb") as img_file:
-        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-    # Prepare the payload
-    payload = {
-        "version": "2facb4a474a0462c15041b78b1ad70952ea46b5ec6ad29583c0b29dbd4249591",
-        "input": {
-            "image": f"data:image/png;base64,{img_base64}",
-            "prompt": v_prompt,
-        },
-    }
-
-    # Prepare the headers
-    headers = {
-        "Authorization": f"Token {replicate_api_key}",
-        "Content-Type": "application/json",
-    }
-
-    # Make the request
-    response = requests.post(
-        "https://api.replicate.com/v1/predictions", json=payload, headers=headers
-    )
-
-    # Get the prediction ID
-    prediction_id = response.json()["id"]
-
-    # Poll the "get" URL until the prediction is ready
-    while True:
-        response = requests.get(
-            f"https://api.replicate.com/v1/predictions/{prediction_id}", headers=headers
-        )
-        status = response.json()["status"]
-
-        # print("polling response, status", status)
-        if status == "succeeded":
-            output = response.json()["output"]
-            # concatinate array into string
-            final_output = " ".join(output)
-
-            return final_output
-            break
-        elif status == "failed":
-            # print("Prediction failed")
-            return "failed"
-            break
-
-        time.sleep(1)  # wait a second before checking again
 
 
 def click_at_percentage(
