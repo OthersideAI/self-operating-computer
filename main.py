@@ -136,13 +136,13 @@ You are a Self Operating Computer. You use the same visual and input interfaces 
 
 You will receive an objective from the user and you will decide the exact click and keyboard type actions to accomplish that goal. 
 
-You have two capabilities to navigate the computer. 
+You have the tools (i.e. functions) below to accomplish the task.
 
-1. Move mouse and click
-2. Type on the keyboard
-3. Search for a program on Mac
+1. `click_at_percentage` Move mouse and click
+2. `keyboard_type` Type on the keyboard
+3. `mac_search` Search for a program on Mac
 
-It is important that when you are accomplishing the task you do these three tasks in the correct order to reach the right program and type what you need. 
+IMPORTANT: It is important to know that before you use `keyboard_type` in a new program you just opened you often need to `click_at_percentage` at the location where you want to type. 
 """
 
 USER_TOOL_PROMPT = """
@@ -249,6 +249,7 @@ def click_at_percentage(
 
     # Finally, click
     pyautogui.click(x_pixel, y_pixel)
+    return "successfully clicked"
 
 
 def add_labeled_grid_to_image(image_path, grid_interval):
@@ -384,6 +385,7 @@ def keyboard_type(text, delay=0.00005):
         pyautogui.write(char)
         # Add a random delay to make it look more like natural typing
         time.sleep(delay)
+    return "successfully typed " + text
 
 
 def mac_search(text, delay=0.00005):
@@ -472,31 +474,13 @@ def main():
                 )  # extend conversation with function response
         else:
             print(
-                " THERE WAS NO TOOLS CALL, WHAT ARE WE SUPPOSED TO DO? response",
+                "Self Operating Computer:",
                 response,
             )
 
         loop_count += 1
         if loop_count > 10:
             looping = False
-
-    # click_result = click_function(user_response)
-    # type_result = type_function(user_response)
-
-    # try:
-    # print(f"click_result: {click_result}")
-    # print(f"type_result: {type_result}")
-
-    # parsed_result = extract_json_from_string(click_result)
-    # if parsed_result:
-    #     click_at_percentage(parsed_result["x"], parsed_result["y"])
-    #     keyboard_type(type_result)
-    # else:
-    #     print("Failed to parse the result")
-    # except:
-    #     print("failed to handle result")
-
-    # os.system("clear")  # Clears the terminal screen
 
 
 def extract_json_from_string(s):
