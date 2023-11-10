@@ -207,25 +207,6 @@ def click_function(objective):
     return content
 
 
-def type_function(objective):
-    # Function to encode the image
-    # TODO: Remove the API call here and just do a type?
-
-    type_prompt = format_prompt_type(objective)
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "user", "content": type_prompt},
-        ],
-        max_tokens=1000,
-    )
-
-    result = response.choices[0]
-    print("result2", result)
-    content = result.message.content
-    return content
-
-
 def click_at_percentage(
     x_percentage, y_percentage, duration=0.5, circle_radius=50, circle_duration=0.5
 ):
