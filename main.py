@@ -42,8 +42,8 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "mouse_click",
-            "description": "This function moves the mouse to the specified X & Y location and clicks.",
+            "name": "click_at_percentage",
+            "description": "This function moves the mouse to the specified X & Y location and clicks. The X & Y are specified in the following format as an example: { 'x': '0.5', 'y': '0.6' }",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -147,12 +147,6 @@ It is important that when you are accomplishing the task you do these three task
 
 USER_TOOL_PROMPT = """
 Objective: {objective}
-
-__
-Page (click on a window)
-
-|window 1 (google) | window 2 | window 3 |
-
 """
 
 # def agent_loop():
@@ -396,9 +390,9 @@ def mac_search(text, delay=0.00005):
     # First, simulate pressing Command + Spacebar to open Spotlight
     print("pressing command space")
     # Press and release Command and Space separately
-    pyautogui.keyDown('command')
-    pyautogui.press('space')
-    pyautogui.keyUp('command')
+    pyautogui.keyDown("command")
+    pyautogui.press("space")
+    pyautogui.keyUp("command")
     # Now type the text
     for char in text:
         pyautogui.write(char)
@@ -406,10 +400,11 @@ def mac_search(text, delay=0.00005):
 
     time.sleep(0.05)
     pyautogui.press("enter")
+    return "successfully opened " + text + " on Mac"
 
 
 available_functions = {
-    "mouse_click": click_at_percentage,
+    "click_at_percentage": click_at_percentage,
     "keyboard_type": keyboard_type,
     "mac_search": mac_search,
 }  # only one function in this example, but you can have multiple
@@ -441,33 +436,49 @@ def main():
 
     add_labeled_cross_grid_to_image("screenshot.png", 400)
 
-    response = general_call(messages)
-    print("general call result", response)
+    looping = True
+    loop_count = 0
 
-    tool_calls = response.tool_calls
+    while looping:
+        print("looping messages", messages)
+        response = general_call(messages)
+        print("general call result", response)
 
-    for tool_call in tool_calls:
-        function_name = tool_call.function.name
-        function_to_call = available_functions[function_name]
-        function_args = json.loads(tool_call.function.arguments)
-        if function_name == "mouse_click":
-            function_response = mouse_click(
-                function_args["x"], function_args["y"], duration=0.5
-            )
-        elif function_name == "keyboard_type":
-            function_response = keyboard_type(function_args["type_value"])
+        tool_calls = response.tool_calls
+
+        if tool_calls:
+            messages.append(response)
+            for tool_call in tool_calls:
+                function_name = tool_call.function.name
+                function_to_call = available_functions[function_name]
+                function_args = json.loads(tool_call.function.arguments)
+                if function_name == "click_at_percentage":
+                    function_response = click_at_percentage(
+                        function_args["x"], function_args["y"], duration=0.5
+                    )
+                elif function_name == "keyboard_type":
+                    function_response = keyboard_type(function_args["type_value"])
+                else:
+                    print("mac_search")
+                    print("search value", function_args["type_value"])
+                    function_response = mac_search(function_args["type_value"])
+                messages.append(
+                    {
+                        "tool_call_id": tool_call.id,
+                        "role": "tool",
+                        "name": function_name,
+                        "content": function_response,
+                    }
+                )  # extend conversation with function response
         else:
-            print("mac_search")
-            print("search value", function_args["type_value"])
-            function_response = mac_search(function_args["type_value"])
-        messages.append(
-            {
-                "tool_call_id": tool_call.id,
-                "role": "tool",
-                "name": function_name,
-                "content": function_response,
-            }
-        )  # extend conversation with function response
+            print(
+                " THERE WAS NO TOOLS CALL, WHAT ARE WE SUPPOSED TO DO? response",
+                response,
+            )
+
+        loop_count += 1
+        if loop_count > 10:
+            looping = False
 
     # click_result = click_function(user_response)
     # type_result = type_function(user_response)
