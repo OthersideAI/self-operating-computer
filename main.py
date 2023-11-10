@@ -38,6 +38,65 @@ style = PromptStyle.from_dict(
     }
 )
 
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "mouse_click",
+            "description": "This function moves the mouse to the specified X & Y location and clicks.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "x": {
+                        "type": "string",
+                        "description": "The X axis location of where to click in percent (%) of screen width.",
+                    },
+                    "y": {
+                        "type": "string",
+                        "description": "The Y axis location of where to click in percent (%) of screen height.",
+                    },
+                },
+                "required": ["click_location"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "keyboard_type",
+            "description": "This function types the specified text on the keyboard.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "type_value": {
+                        "type": "string",
+                        "description": "The text to type on the keyboard.",
+                    },
+                },
+                "required": ["click_location"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "mac_search",
+            "description": "This function search's Mac for programs",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "type_value": {
+                        "type": "string",
+                        "description": "The text to do on Mac search.",
+                    },
+                },
+                "required": ["click_location"],
+            },
+        },
+    },
+]
+
+
 PROMPT_POSITION = """
 From looking at a screenshot, your goal is to guess the X & Y location on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
@@ -72,11 +131,27 @@ Writing:
 
 USER_QUESTION = "What would you like the computer to do?"
 
-PROMPT = """
+SYSTEM_PROMPT = """
 You are a Self Operating Computer. You use the same visual and input interfaces (i.e. screenshot, click & type) as a human, except you are superhuman. 
 
 You will receive an objective from the user and you will decide the exact click and keyboard type actions to accomplish that goal. 
 
+You have two capabilities to navigate the computer. 
+
+1. Move mouse and click
+2. Type on the keyboard
+3. Search for a program on Mac
+
+It is important that when you are accomplishing the task you do these three tasks in the correct order to reach the right program and type what you need. 
+"""
+
+USER_TOOL_PROMPT = """
+Objective: {objective}
+
+__
+Page (click on a window)
+
+|window 1 (google) | window 2 | window 3 |
 
 """
 
@@ -91,8 +166,24 @@ def format_prompt_type(objective):
     return PROMPT_TYPE.format(objective=objective)
 
 
-def call_openai_api_for_click(objective):
+def format_prompt_tool(objective):
+    return USER_TOOL_PROMPT.format(objective=objective)
+
+
+def general_call(messages):
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=messages,
+        tools=tools,
+        tool_choice="auto",  # auto is default, but we'll be explicit
+    )
+
+    return response.choices[0].message
+
+
+def click_function(objective):
     # Function to encode the image
+    # TODO: This will have a separate vision call to get the right x & y location?
 
     with open("screenshot_with_grid.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -122,8 +213,9 @@ def call_openai_api_for_click(objective):
     return content
 
 
-def call_openai_api_for_type(objective):
+def type_function(objective):
     # Function to encode the image
+    # TODO: Remove the API call here and just do a type?
 
     type_prompt = format_prompt_type(objective)
     response = client.chat.completions.create(
@@ -300,7 +392,27 @@ def keyboard_type(text, delay=0.00005):
         time.sleep(delay)
 
 
-# Assuming you have saved
+def mac_search(text, delay=0.00005):
+    # First, simulate pressing Command + Spacebar to open Spotlight
+    print("pressing command space")
+    # Press and release Command and Space separately
+    pyautogui.keyDown('command')
+    pyautogui.press('space')
+    pyautogui.keyUp('command')
+    # Now type the text
+    for char in text:
+        pyautogui.write(char)
+        time.sleep(delay)
+
+    time.sleep(0.05)
+    pyautogui.press("enter")
+
+
+available_functions = {
+    "mouse_click": click_at_percentage,
+    "keyboard_type": keyboard_type,
+    "mac_search": mac_search,
+}  # only one function in this example, but you can have multiple
 
 
 def main():
@@ -313,6 +425,14 @@ def main():
     os.system("clear")  # Clears the terminal screen
 
     user_response = prompt(USER_QUESTION + "\n")
+    print("user_response", user_response)
+
+    system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
+    user_prompt = {
+        "role": "user",
+        "content": USER_TOOL_PROMPT.format(objective=user_response),
+    }
+    messages = [system_prompt, user_prompt]
 
     screen = ImageGrab.grab()
 
@@ -321,21 +441,49 @@ def main():
 
     add_labeled_cross_grid_to_image("screenshot.png", 400)
 
-    click_result = call_openai_api_for_click(user_response)
-    type_result = call_openai_api_for_type(user_response)
+    response = general_call(messages)
+    print("general call result", response)
 
-    try:
-        # print(f"click_result: {click_result}")
-        # print(f"type_result: {type_result}")
+    tool_calls = response.tool_calls
 
-        parsed_result = extract_json_from_string(click_result)
-        if parsed_result:
-            click_at_percentage(parsed_result["x"], parsed_result["y"])
-            keyboard_type(type_result)
+    for tool_call in tool_calls:
+        function_name = tool_call.function.name
+        function_to_call = available_functions[function_name]
+        function_args = json.loads(tool_call.function.arguments)
+        if function_name == "mouse_click":
+            function_response = mouse_click(
+                function_args["x"], function_args["y"], duration=0.5
+            )
+        elif function_name == "keyboard_type":
+            function_response = keyboard_type(function_args["type_value"])
         else:
-            print("Failed to parse the result")
-    except:
-        print("failed to handle result")
+            print("mac_search")
+            print("search value", function_args["type_value"])
+            function_response = mac_search(function_args["type_value"])
+        messages.append(
+            {
+                "tool_call_id": tool_call.id,
+                "role": "tool",
+                "name": function_name,
+                "content": function_response,
+            }
+        )  # extend conversation with function response
+
+    # click_result = click_function(user_response)
+    # type_result = type_function(user_response)
+
+    # try:
+    # print(f"click_result: {click_result}")
+    # print(f"type_result: {type_result}")
+
+    # parsed_result = extract_json_from_string(click_result)
+    # if parsed_result:
+    #     click_at_percentage(parsed_result["x"], parsed_result["y"])
+    #     keyboard_type(type_result)
+    # else:
+    #     print("Failed to parse the result")
+    # except:
+    #     print("failed to handle result")
 
     # os.system("clear")  # Clears the terminal screen
 
