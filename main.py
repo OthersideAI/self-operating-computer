@@ -408,13 +408,6 @@ def main():
     }
     messages = [system_prompt, user_prompt]
 
-    screen = ImageGrab.grab()
-
-    # Save the image file
-    screen.save("screenshot.png")
-
-    add_labeled_cross_grid_to_image("screenshot.png", 400)
-
     looping = True
     loop_count = 0
 
@@ -442,6 +435,12 @@ def main():
                 print("[Use Tool] name: ", function_name)
                 print("[Use Tool] args: ", function_args)
                 if function_name == "mouse_click":
+                    screen = ImageGrab.grab()
+
+                    # Save the image file
+                    screen.save("screenshot.png")
+
+                    add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(
                         user_response, function_args["click_guess"]
                     )
