@@ -197,7 +197,7 @@ def click_at_percentage(
 
 
 def mouse_click(objective, click_guess):
-    with open("screenshot_with_grid.png", "rb") as img_file:
+    with open("screenshot.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     click_prompt = format_click_prompt(objective, click_guess)
@@ -358,17 +358,13 @@ def add_labeled_cross_grid_to_image(image_path, grid_interval):
     image.save("screenshot_with_grid.png")
 
 
-def keyboard_type(text, delay=0.00005):
+def keyboard_type(text):
     for char in text:
         pyautogui.write(char)
-        # Add a random delay to make it look more like natural typing
-        time.sleep(delay)
     return "successfully typed " + text
 
 
-def mac_search(text, delay=0.00005):
-    # First, simulate pressing Command + Spacebar to open Spotlight
-    print("pressing command space")
+def mac_search(text):
     # Press and release Command and Space separately
     pyautogui.keyDown("command")
     pyautogui.press("space")
@@ -376,7 +372,6 @@ def mac_search(text, delay=0.00005):
     # Now type the text
     for char in text:
         pyautogui.write(char)
-        time.sleep(delay)
 
     time.sleep(1)
     pyautogui.press("enter")
@@ -440,7 +435,7 @@ def main():
                     # Save the image file
                     screen.save("screenshot.png")
 
-                    add_labeled_cross_grid_to_image("screenshot.png", 400)
+                    # add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(
                         user_response, function_args["click_guess"]
                     )
