@@ -95,15 +95,15 @@ Example are below.
 __
 Objective: Find a image of a banana
 Guess: Click on the Window with an image of a banana in it. 
-Location: {{ "x": "0.5", "y": "0.6" }} # this means 50% of the way across the page and 60% of the way down the page
+Location: {{ "x": "0.5", "y": "0.6", "justification": "I think the banana is in the middle of the screen" }} 
 __
 Objective: Write an email to Best buy and ask for computer support
 Guess: Click on the email compose window in Outlook
-Location: {{ "x": "0.2", "y": "0.1" }} # this is the location of the outlook app
+Location: {{ "x": "0.2", "y": "0.1", "justification": "It looks like this is where the email compose window is" }} 
 __
 Objective: Open Spotify and play the beatles
 Guess: Click on the search field in the Spotify app
-Location: {{ "x": "0.2", "y": "0.9" }}
+Location: {{ "x": "0.2", "y": "0.9", "justification": "I think this is the search field." }}
 __
 
 IMPORTANT: Respond with nothing but the `Location: {{ "x": "percent", "y": "percent" }}` and do not comment.
@@ -150,46 +150,17 @@ Objective: {objective}
 # def agent_loop():
 
 
-def format_click_prompt(objective):
-    return IMAGE_PROMPT.format(objective=objective)
+def format_click_prompt(objective, click_guess):
+    return PROMPT_POSITION.format(objective=objective, guess=click_guess)
 
 
 def format_prompt_tool(objective):
     return USER_TOOL_PROMPT.format(objective=objective)
 
 
-# def click_function(objective):
-#     with open("screenshot_with_grid.png", "rb") as img_file:
-#         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-#     click_prompt = format_prompt_click(objective)
-
-#     response = client.chat.completions.create(
-#         model="gpt-4-vision-preview",
-#         messages=[
-#             {
-#                 "role": "user",
-#                 "content": [
-#                     {"type": "text", "text": click_prompt},
-#                     {
-#                         "type": "image_url",
-#                         "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-#                     },
-#                 ],
-#             }
-#         ],
-#         max_tokens=300,
-#     )
-
-#     result = response.choices[0]
-#     print("result1", result)
-#     content = result.message.content
-#     return content
-
-
 def get_next_action(messages):
     response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model="gpt-4",
         messages=messages,
         tools=tools,
         tool_choice="auto",  # auto is default, but we'll be explicit
@@ -250,11 +221,13 @@ def mouse_click(objective, click_guess):
     result = response.choices[0]
     print("[mouse_click] result", result)
     content = result.message.content
+    print("[mouse_click] content", content)
+    parsed_result = extract_json_from_string(content)
+    if parsed_result:
+        click_at_percentage(parsed_result["x"], parsed_result["y"])
+        return "We clicked something, it may have been" + click_guess
 
-    function_response = click_at_percentage(
-        function_args["x"], function_args["y"], duration=0.5
-    )
-    return "We tried to click" + click_guess
+    return "We failed to click" + click_guess
 
 
 def add_labeled_grid_to_image(image_path, grid_interval):
@@ -411,7 +384,7 @@ def mac_search(text, delay=0.00005):
 
 
 available_functions = {
-    "click_at_percentage": click_at_percentage,
+    "mouse_click": mouse_click,
     "keyboard_type": keyboard_type,
     "mac_search": mac_search,
 }  # only one function in this example, but you can have multiple
@@ -468,9 +441,9 @@ def main():
                 function_args = json.loads(tool_call.function.arguments)
                 print("[Use Tool] name: ", function_name)
                 print("[Use Tool] args: ", function_args)
-                if function_name == "click_at_percentage":
+                if function_name == "mouse_click":
                     function_response = mouse_click(
-                        objective, function_args["type_value"]
+                        user_response, function_args["click_guess"]
                     )
 
                 elif function_name == "keyboard_type":
