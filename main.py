@@ -156,10 +156,6 @@ def format_prompt_click(objective):
     return PROMPT_POSITION.format(objective=objective)
 
 
-def format_prompt_type(objective):
-    return PROMPT_TYPE.format(objective=objective)
-
-
 def format_prompt_tool(objective):
     return USER_TOOL_PROMPT.format(objective=objective)
 
@@ -173,38 +169,6 @@ def general_call(messages):
     )
 
     return response.choices[0].message
-
-
-def click_function(objective):
-    # Function to encode the image
-    # TODO: This will have a separate vision call to get the right x & y location?
-
-    with open("screenshot_with_grid.png", "rb") as img_file:
-        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-    click_prompt = format_prompt_click(objective)
-
-    response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": click_prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                    },
-                ],
-            }
-        ],
-        max_tokens=300,
-    )
-
-    result = response.choices[0]
-    print("result1", result)
-    content = result.message.content
-    return content
 
 
 def click_at_percentage(
@@ -381,7 +345,7 @@ def mac_search(text, delay=0.00005):
         pyautogui.write(char)
         time.sleep(delay)
 
-    time.sleep(0.1)
+    time.sleep(1)
     pyautogui.press("enter")
     return "successfully opened " + text + " on Mac"
 
@@ -450,8 +414,6 @@ def main():
                 elif function_name == "keyboard_type":
                     function_response = keyboard_type(function_args["type_value"])
                 else:
-                    print("mac_search")
-                    print("search value", function_args["type_value"])
                     function_response = mac_search(function_args["type_value"])
                 messages.append(
                     {
