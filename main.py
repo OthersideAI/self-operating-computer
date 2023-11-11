@@ -106,13 +106,14 @@ Guess: Click on the search field in the Spotify app
 Location: {{ "x": "0.2", "y": "0.9", "justification": "I think this is the search field." }}
 __
 
-IMPORTANT: Respond with nothing but the `Location: {{ "x": "percent", "y": "percent" }}` and do not comment.
+IMPORTANT: Respond with nothing but the `{{ "x": "percent", "y": "percent",  "justification": "justificaiton here" }}` and do not comment additionally.
 
 Here's where it gets a little complex. A previous function provided you a guess of what to click, but this function was blind so it may be wrong. 
 
 Based on the objective below and the guess use your best judgement on what you should click to reach this objective. 
 Objective: {objective}
 Guess: {guess}
+Location: 
 """
 
 
@@ -219,7 +220,6 @@ def mouse_click(objective, click_guess):
     )
 
     result = response.choices[0]
-    print("[mouse_click] result", result)
     content = result.message.content
     print("[mouse_click] content", content)
     parsed_result = extract_json_from_string(content)
@@ -412,7 +412,7 @@ def main():
     loop_count = 0
 
     while looping:
-        time.sleep(10)
+        time.sleep(2)
         response = get_next_action(messages)
 
         tool_calls = response.tool_calls
