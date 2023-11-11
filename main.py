@@ -6,14 +6,12 @@ import time
 import base64
 import json
 import math
-import time
-import requests
 
 
 from prompt_toolkit import prompt
-from prompt_toolkit.shortcuts import message_dialog, button_dialog
+from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
-from colorama import Fore, Style as ColoramaStyle
+from colorama import Style as ColoramaStyle
 from dotenv import load_dotenv
 from PIL import ImageGrab, Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
@@ -143,6 +141,8 @@ You have the tools (i.e. functions) below to accomplish the task.
 3. `mac_search` Search for a program on Mac
 
 IMPORTANT: It is important to know that before you use `keyboard_type` in a new program you just opened you often need to `click_at_percentage` at the location where you want to type. 
+
+When you completed the task respond with the exact following phrase content: DONE
 """
 
 USER_TOOL_PROMPT = """
@@ -381,7 +381,7 @@ def mac_search(text, delay=0.00005):
         pyautogui.write(char)
         time.sleep(delay)
 
-    time.sleep(0.05)
+    time.sleep(0.1)
     pyautogui.press("enter")
     return "successfully opened " + text + " on Mac"
 
@@ -403,7 +403,6 @@ def main():
     os.system("clear")  # Clears the terminal screen
 
     user_response = prompt(USER_QUESTION + "\n")
-    print("user_response", user_response)
 
     system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
     user_prompt = {
@@ -423,18 +422,27 @@ def main():
     loop_count = 0
 
     while looping:
-        print("looping messages", messages)
         response = general_call(messages)
-        print("general call result", response)
 
         tool_calls = response.tool_calls
+        messages.append(response)
+        # print("response", response)
+
+        if response.content:
+            if response.content == "DONE":
+                print("DONE")
+                looping = False
+                break
+            print("Self Operating Computer:", response.content)
 
         if tool_calls:
-            messages.append(response)
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
+
                 function_to_call = available_functions[function_name]
                 function_args = json.loads(tool_call.function.arguments)
+                print("[Use Tool] name: ", function_name)
+                print("[Use Tool] args: ", function_args)
                 if function_name == "click_at_percentage":
                     function_response = click_at_percentage(
                         function_args["x"], function_args["y"], duration=0.5
@@ -452,12 +460,7 @@ def main():
                         "name": function_name,
                         "content": function_response,
                     }
-                )  # extend conversation with function response
-        else:
-            print(
-                "Self Operating Computer:",
-                response,
-            )
+                )
 
         loop_count += 1
         if loop_count > 10:
