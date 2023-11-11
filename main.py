@@ -23,7 +23,7 @@ client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 
 
-load_dotenv()  # This method will load the variables from .env
+load_dotenv()
 
 
 # Define style
@@ -40,21 +40,16 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "click_at_percentage",
-            "description": "This function moves the mouse to the specified X & Y location and clicks. The X & Y are specified in the following format as an example: { 'x': '0.5', 'y': '0.6' }",
+            "name": "mouse_click",
+            "description": "This function can't actually see the screen, but it is going to guess what should be clicked next and pass that to another function that will manage the actual click. These paired functions do a mouse click to focus on windows and field or click button or menu items (and more)",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "x": {
+                    "click_guess": {
                         "type": "string",
-                        "description": "The X axis location of where to click in percent (%) of screen width.",
-                    },
-                    "y": {
-                        "type": "string",
-                        "description": "The Y axis location of where to click in percent (%) of screen height.",
+                        "description": "A guess of what the next click should be.",
                     },
                 },
-                "required": ["click_location"],
             },
         },
     },
@@ -71,7 +66,6 @@ tools = [
                         "description": "The text to type on the keyboard.",
                     },
                 },
-                "required": ["click_location"],
             },
         },
     },
@@ -88,7 +82,6 @@ tools = [
                         "description": "The text to do on Mac search.",
                     },
                 },
-                "required": ["click_location"],
             },
         },
     },
@@ -98,25 +91,30 @@ tools = [
 PROMPT_POSITION = """
 From looking at a screenshot, your goal is to guess the X & Y location on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
-Example are below. 
+Example are below.
 __
-Objective: Click on the Banana 
+Objective: Find a image of a banana
+Guess: Click on the Window with an image of a banana in it. 
 Location: {{ "x": "0.5", "y": "0.6" }} # this means 50% of the way across the page and 60% of the way down the page
 __
-Objective: Write an email in Outlook
+Objective: Write an email to Best buy and ask for computer support
+Guess: Click on the email compose window in Outlook
 Location: {{ "x": "0.2", "y": "0.1" }} # this is the location of the outlook app
 __
-Objective: Open Spotify
-Location: {{ "x": "0.2", "y": "0.9" }} 
+Objective: Open Spotify and play the beatles
+Guess: Click on the search field in the Spotify app
+Location: {{ "x": "0.2", "y": "0.9" }}
 __
 
-IMPORTANT: respond with nothing but the `Location: {{ "x": "percent", "y": "percent" }}` and do not comment.
+IMPORTANT: Respond with nothing but the `Location: {{ "x": "percent", "y": "percent" }}` and do not comment.
 
-Ok, here the real test. 
+Here's where it gets a little complex. A previous function provided you a guess of what to click, but this function was blind so it may be wrong. 
 
+Based on the objective below and the guess use your best judgement on what you should click to reach this objective. 
 Objective: {objective}
-
+Guess: {guess}
 """
+
 
 PROMPT_TYPE = """
 You are a professional writer. Based on the objective below, decide what you should write. 
@@ -136,7 +134,7 @@ You will receive an objective from the user and you will decide the exact click 
 
 You have the tools (i.e. functions) below to accomplish the task.
 
-1. `click_at_percentage` Move mouse and click
+1. `mouse_click` Move mouse and click
 2. `keyboard_type` Type on the keyboard
 3. `mac_search` Search for a program on Mac
 
@@ -152,17 +150,46 @@ Objective: {objective}
 # def agent_loop():
 
 
-def format_prompt_click(objective):
-    return PROMPT_POSITION.format(objective=objective)
+def format_click_prompt(objective):
+    return IMAGE_PROMPT.format(objective=objective)
 
 
 def format_prompt_tool(objective):
     return USER_TOOL_PROMPT.format(objective=objective)
 
 
-def general_call(messages):
+# def click_function(objective):
+#     with open("screenshot_with_grid.png", "rb") as img_file:
+#         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+#     click_prompt = format_prompt_click(objective)
+
+#     response = client.chat.completions.create(
+#         model="gpt-4-vision-preview",
+#         messages=[
+#             {
+#                 "role": "user",
+#                 "content": [
+#                     {"type": "text", "text": click_prompt},
+#                     {
+#                         "type": "image_url",
+#                         "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+#                     },
+#                 ],
+#             }
+#         ],
+#         max_tokens=300,
+#     )
+
+#     result = response.choices[0]
+#     print("result1", result)
+#     content = result.message.content
+#     return content
+
+
+def get_next_action(messages):
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4-vision-preview",
         messages=messages,
         tools=tools,
         tool_choice="auto",  # auto is default, but we'll be explicit
@@ -195,6 +222,39 @@ def click_at_percentage(
     # Finally, click
     pyautogui.click(x_pixel, y_pixel)
     return "successfully clicked"
+
+
+def mouse_click(objective, click_guess):
+    with open("screenshot_with_grid.png", "rb") as img_file:
+        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+    click_prompt = format_click_prompt(objective, click_guess)
+
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": click_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
+        ],
+        max_tokens=300,
+    )
+
+    result = response.choices[0]
+    print("[mouse_click] result", result)
+    content = result.message.content
+
+    function_response = click_at_percentage(
+        function_args["x"], function_args["y"], duration=0.5
+    )
+    return "We tried to click" + click_guess
 
 
 def add_labeled_grid_to_image(image_path, grid_interval):
@@ -386,7 +446,8 @@ def main():
     loop_count = 0
 
     while looping:
-        response = general_call(messages)
+        time.sleep(10)
+        response = get_next_action(messages)
 
         tool_calls = response.tool_calls
         messages.append(response)
@@ -408,9 +469,10 @@ def main():
                 print("[Use Tool] name: ", function_name)
                 print("[Use Tool] args: ", function_args)
                 if function_name == "click_at_percentage":
-                    function_response = click_at_percentage(
-                        function_args["x"], function_args["y"], duration=0.5
+                    function_response = mouse_click(
+                        objective, function_args["type_value"]
                     )
+
                 elif function_name == "keyboard_type":
                     function_response = keyboard_type(function_args["type_value"])
                 else:
