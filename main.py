@@ -19,11 +19,11 @@ import pyautogui
 
 from openai import OpenAI
 
-client = OpenAI()
-client.api_key = os.getenv("OPENAI_API_KEY")
-
 
 load_dotenv()
+
+client = OpenAI()
+client.api_key = os.getenv("OPENAI_API_KEY")
 
 
 # Define style
