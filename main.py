@@ -106,7 +106,9 @@ Click: {{ "x": "0.2", "y": "0.9", "explanation": "I see spotify is " }}
 __
 
 
-IMPORTANT: Respond with nothing but the `{{ "x": "percent", "y": "percent",  "explanation": "explanation here" }}` and do not comment additionally.
+A few important notes: 
+- Respond with nothing but the `{{ "x": "percent", "y": "percent",  "explanation": "explanation here" }}` and do not comment additionally.
+- When entering a search field or document click a little to the right of where the field enters to ensure you are in the field.
 
 Objective: {objective}
 Click:
@@ -135,7 +137,9 @@ You have the tools (i.e. functions) below to accomplish the task.
 2. `keyboard_type` Type on the keyboard
 3. `mac_search` Search for a program on Mac
 
-IMPORTANT: It is important to know that before you use `keyboard_type` in a new program you just opened you often need to `click_at_percentage` at the location where you want to type. 
+A few important notes: 
+- It is important to know that before you use `keyboard_type` in a new program you just opened you often need to `mouse_click` at the location where you want to type. 
+- Default to opening Google Chrome with `mac_search` to find things that are on the internet. 
 
 When you completed the task respond with the exact following phrase content: DONE
 """
