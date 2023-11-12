@@ -16,6 +16,9 @@ from dotenv import load_dotenv
 from PIL import ImageGrab, Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
 import pyautogui
+import subprocess
+import os
+
 
 from openai import OpenAI
 
@@ -41,13 +44,13 @@ tools = [
         "type": "function",
         "function": {
             "name": "mouse_click",
-            "description": "This function can't actually see the screen, but it is going to guess what should be clicked next and pass that to another function that will manage the actual click. These paired functions do a mouse click to focus on windows and field or click button or menu items (and more)",
+            "description": "This function clicks fields, buttons, and windows on the screen.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "click_guess": {
+                    "description": {
                         "type": "string",
-                        "description": "A guess of what the next click should be.",
+                        "description": "A description of the click location.",
                     },
                 },
             },
@@ -73,7 +76,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "mac_search",
-            "description": "This function search's Mac for programs",
+            "description": "This function searches on Mac for programs",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -88,7 +91,7 @@ tools = [
 ]
 
 
-PROMPT_POSITION = """
+CLICK_PROMPT = """
 From looking at a screenshot, your goal is to guess the X & Y location of a window or field on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
 Your job is to click on windows or fields that will progress you towards your objective. 
@@ -109,6 +112,7 @@ __
 A few important notes: 
 - Respond with nothing but the `{{ "x": "percent", "y": "percent",  "explanation": "explanation here" }}` and do not comment additionally.
 - When entering a search field or document click a little to the right of where the field enters to ensure you are in the field.
+- When clicking a button try to click in the lower middle of the button
 
 Objective: {objective}
 Click:
@@ -151,8 +155,8 @@ Objective: {objective}
 # def agent_loop():
 
 
-def format_click_prompt(objective, click_guess):
-    return PROMPT_POSITION.format(objective=objective, guess=click_guess)
+def format_click_prompt(objective):
+    return CLICK_PROMPT.format(objective=objective)
 
 
 def format_prompt_tool(objective):
@@ -196,11 +200,16 @@ def click_at_percentage(
     return "successfully clicked"
 
 
-def mouse_click(objective, click_guess):
+def mouse_click(objective):
     with open("screenshot.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    click_prompt = format_click_prompt(objective, click_guess)
+    click_prompt = format_click_prompt(objective)
+    print("[mouse_click] click_prompt", click_prompt)
+    # pdb break
+    import pdb
+
+    pdb.set_trace()
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -225,9 +234,9 @@ def mouse_click(objective, click_guess):
     parsed_result = extract_json_from_string(content)
     if parsed_result:
         click_at_percentage(parsed_result["x"], parsed_result["y"])
-        return "We clicked something, it may have been" + click_guess
+        return parsed_result.get("explanation", "successfully clicked")
 
-    return "We failed to click" + click_guess
+    return "We failed to click"
 
 
 def add_labeled_grid_to_image(image_path, grid_interval):
@@ -419,7 +428,7 @@ def main():
                 print("DONE")
                 looping = False
                 break
-            print("Self Operating Computer:", response.content)
+            print("[Self Operating Computer] ", response.content)
 
         if tool_calls:
             for tool_call in tool_calls:
@@ -429,20 +438,22 @@ def main():
                 print("[Use Tool] name: ", function_name)
                 print("[Use Tool] args: ", function_args)
                 if function_name == "mouse_click":
-                    screen = ImageGrab.grab()
+                    # Call the function to capture the screen with the cursor
+                    capture_screen_with_cursor("screenshot.png")
+                    # import pdb
 
-                    # Save the image file
-                    screen.save("screenshot.png")
+                    # pdb.set_trace()
 
                     # add_labeled_cross_grid_to_image("screenshot.png", 400)
-                    function_response = mouse_click(
-                        user_response, function_args["click_guess"]
-                    )
+                    function_response = mouse_click(user_response)
 
                 elif function_name == "keyboard_type":
                     function_response = keyboard_type(function_args["type_value"])
                 else:
                     function_response = mac_search(function_args["type_value"])
+                print(
+                    "[Self Operating Computer] function_response: ", function_response
+                )
                 messages.append(
                     {
                         "tool_call_id": tool_call.id,
@@ -455,6 +466,11 @@ def main():
         loop_count += 1
         if loop_count > 10:
             looping = False
+
+
+def capture_screen_with_cursor(file_path="screenshot_with_cursor.png"):
+    # Use the screencapture utility to capture the screen with the cursor
+    subprocess.run(["screencapture", "-C", file_path])
 
 
 def extract_json_from_string(s):
