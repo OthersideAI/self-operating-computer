@@ -89,31 +89,27 @@ tools = [
 
 
 PROMPT_POSITION = """
-From looking at a screenshot, your goal is to guess the X & Y location on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
+From looking at a screenshot, your goal is to guess the X & Y location of a window or field on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
+
+Your job is to click on windows or fields that will progress you towards your objective. 
 
 Example are below.
 __
 Objective: Find a image of a banana
-Guess: Click on the Window with an image of a banana in it. 
-Location: {{ "x": "0.5", "y": "0.6", "justification": "I think the banana is in the middle of the screen" }} 
+Click: {{ "x": "0.5", "y": "0.6", "explanation": "I can see a Google Search field, I'm going to click that so I can search." }} 
 __
 Objective: Write an email to Best buy and ask for computer support
-Guess: Click on the email compose window in Outlook
-Location: {{ "x": "0.2", "y": "0.1", "justification": "It looks like this is where the email compose window is" }} 
+Click: {{ "x": "0.2", "y": "0.1", "explanation": "It looks like this is where the email compose window is" }} 
 __
 Objective: Open Spotify and play the beatles
-Guess: Click on the search field in the Spotify app
-Location: {{ "x": "0.2", "y": "0.9", "justification": "I think this is the search field." }}
+Click: {{ "x": "0.2", "y": "0.9", "explanation": "I see spotify is " }}
 __
 
-IMPORTANT: Respond with nothing but the `{{ "x": "percent", "y": "percent",  "justification": "justificaiton here" }}` and do not comment additionally.
 
-Here's where it gets a little complex. A previous function provided you a guess of what to click, but this function was blind so it may be wrong. 
+IMPORTANT: Respond with nothing but the `{{ "x": "percent", "y": "percent",  "explanation": "explanation here" }}` and do not comment additionally.
 
-Based on the objective below and the guess use your best judgement on what you should click to reach this objective. 
 Objective: {objective}
-Guess: {guess}
-Location: 
+Click:
 """
 
 
