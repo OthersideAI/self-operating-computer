@@ -113,6 +113,7 @@ A few important notes:
 - Respond with nothing but the `{{ "x": "percent", "y": "percent",  "explanation": "explanation here" }}` and do not comment additionally.
 - When entering a search field or document click a little to the right of where the field enters to ensure you are in the field.
 - When clicking a button try to click in the lower middle of the button
+- If opening Google Chrome, first click the Profile Button to open the Browser. The profile button is generally near the center of the screen around {{ "x": "0.5", "y": "0.55" }}
 
 Objective: {objective}
 Click:
@@ -144,6 +145,7 @@ You have the tools (i.e. functions) below to accomplish the task.
 A few important notes: 
 - It is important to know that before you use `keyboard_type` in a new program you just opened you often need to `mouse_click` at the location where you want to type. 
 - Default to opening Google Chrome with `mac_search` to find things that are on the internet. 
+
 
 When you completed the task respond with the exact following phrase content: DONE
 """
@@ -207,9 +209,9 @@ def mouse_click(objective):
     click_prompt = format_click_prompt(objective)
     print("[mouse_click] click_prompt", click_prompt)
     # pdb break
-    import pdb
+    # import pdb
 
-    pdb.set_trace()
+    # pdb.set_trace()
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -442,7 +444,7 @@ def main():
                     capture_screen_with_cursor("screenshot.png")
                     # import pdb
 
-                    # pdb.set_trace()
+                    # pdb.set_traceapple photo()
 
                     # add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(user_response)
