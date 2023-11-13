@@ -91,7 +91,7 @@ tools = [
 ]
 
 
-CLICK_PROMPT = """
+MOUSE_PROMPT = """
 From looking at a screenshot, your goal is to guess the X & Y location of a window or field on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
 Your job is to click on windows or fields that will progress you towards your objective. 
@@ -118,6 +118,8 @@ A few important notes:
 Objective: {objective}
 Click:
 """
+
+MOUSE_REFLECTION_PROMPT = """"""
 
 
 PROMPT_TYPE = """
@@ -154,11 +156,9 @@ USER_TOOL_PROMPT = """
 Objective: {objective}
 """
 
-# def agent_loop():
 
-
-def format_click_prompt(objective):
-    return CLICK_PROMPT.format(objective=objective)
+def format_mouse_prompt(objective):
+    return MOUSE_PROMPT.format(objective=objective)
 
 
 def format_prompt_tool(objective):
@@ -206,7 +206,7 @@ def mouse_click(objective):
     with open("screenshot.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    click_prompt = format_click_prompt(objective)
+    click_prompt = format_mouse_prompt(objective)
     print("[mouse_click] click_prompt", click_prompt)
     # pdb break
     # import pdb
