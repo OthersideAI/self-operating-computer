@@ -94,7 +94,7 @@ tools = [
 MOUSE_PROMPT = """
 From looking at a screenshot, your goal is to guess the X & Y location of a window or field on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
-Your job is to click on windows or fields that will progress you towards your objective. 
+Your job is to click on windows or fields that will progress you towards your objective. The screenshot has a grid with percentages to help you guess the X & Y location. Make sure to use that grid to guide you but don't depend on the exact points because they're unlikely to overlap with exactly what you need to click.
 
 Example are below.
 __
@@ -112,8 +112,7 @@ __
 A few important notes: 
 - Respond with nothing but the `{{ "x": "percent", "y": "percent",  "explanation": "explanation here" }}` and do not comment additionally.
 - When entering a search field or document click a little to the right of where the field enters to ensure you are in the field.
-- When clicking a button try to click in the lower middle of the button
-- If opening Google Chrome, first click the Profile Button to open the Browser. The profile button is generally near the center of the screen around {{ "x": "0.5", "y": "0.55" }}
+- When opening Google if you see profile buttons, make sure to click to open a profile before searching.
 
 Objective: {objective}
 Click:
@@ -211,7 +210,6 @@ def mouse_click(objective):
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     click_prompt = format_mouse_prompt(objective)
-    print("[mouse_click] click_prompt", click_prompt)
     # pdb break
     # import pdb
 
@@ -386,7 +384,7 @@ def main():
                     # import pdb
 
                     # pdb.set_traceapple photo()
-                    add_grid_to_image("screenshot.png", 400)
+                    add_grid_to_image("screenshot.png", 500)
 
                     # add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(user_response)
