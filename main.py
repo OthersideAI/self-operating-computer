@@ -95,7 +95,7 @@ tools = [
 MOUSE_PROMPT = """
 From looking at a screenshot, your goal is to guess the X & Y location of a window or field on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
 
-Your job is to click on windows or fields that will progress you towards your objective. The screenshot has a grid with percentages to help you guess the X & Y location. Make sure to use that grid to guide you but don't depend on the exact points because they're unlikely to overlap with exactly what you need to click.
+Your job is to click on windows or fields that will progress you towards your objective. The screenshot has a grid with percentages to help you guess the X & Y location. 
 
 Example are below.
 __
@@ -111,9 +111,8 @@ __
 
 
 A few important notes: 
-- Respond with nothing but the `{{ "x": "percent", "y": "percent",  "explanation": "explanation here" }}` and do not comment additionally.
-- When entering a search field or document click a little to the right of where the field enters to ensure you are in the field.
-- When opening Google if you see profile buttons, make sure to click to open a profile before searching.
+- When opening Google if you see profile buttons, make sure to click to open a profile before searching. The profile button can be found around {{ "x": "50%", "y": "55%" }}.
+- Never click exactly at the grid intersection points. Only use them as a guide to make your own guess.
 
 Objective: {objective}
 Click:
@@ -179,7 +178,6 @@ def main():
     loop_count = 0
 
     while looping:
-        time.sleep(2)
         response = get_next_action(messages)
 
         tool_calls = response.tool_calls
@@ -406,7 +404,6 @@ def mac_search(text):
     for char in text:
         pyautogui.write(char)
 
-    time.sleep(1)
     pyautogui.press("enter")
     return "successfully opened " + text + " on Mac"
 
