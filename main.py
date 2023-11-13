@@ -146,7 +146,7 @@ You have the tools (i.e. functions) below to accomplish the task.
 A few important notes: 
 - It is important to know that before you use `keyboard_type` in a new program you just opened you often need to `mouse_click` at the location where you want to type. 
 - Default to opening Google Chrome with `mac_search` to find things that are on the internet. 
-
+- Do not make a plan before starting because it is unlikely the series of steps will look like your plan. Take it step by step and consider what the next best step is.
 
 When you completed the task respond with the exact following phrase content: DONE
 """
@@ -189,15 +189,15 @@ def main():
                 print("DONE")
                 looping = False
                 break
-            print("[Self Operating Computer] ", response.content)
 
         if tool_calls:
+            print("[Self Operating Computer][Use Tool] ", response.content)
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
 
                 function_args = json.loads(tool_call.function.arguments)
-                print("[Use Tool] name: ", function_name)
-                print("[Use Tool] args: ", function_args)
+                print("[Self Operating Computer][Use Tool] name: ", function_name)
+                print("[Self Operating Computer][Use Tool] args: ", function_args)
                 if function_name == "mouse_click":
                     # Call the function to capture the screen with the cursor
                     capture_screen_with_cursor("screenshot.png")
@@ -224,6 +224,8 @@ def main():
                         "content": function_response,
                     }
                 )
+        else:
+            print("[Self Operating Computer] ", response.content)
 
         loop_count += 1
         if loop_count > 10:
