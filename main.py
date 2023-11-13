@@ -28,6 +28,7 @@ load_dotenv()
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 
+WITH_GRID = True
 
 # Define style
 style = PromptStyle.from_dict(
@@ -281,7 +282,11 @@ def click_at_percentage(
 
 
 def mouse_click(objective):
-    with open("screenshot_with_grid.png", "rb") as img_file:
+    screenshot_filename = "screenshot.png"
+    if WITH_GRID:
+        screenshot_filename = "screenshot_with_grid.png"
+
+    with open(screenshot_filename, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     click_prompt = format_mouse_prompt(objective)
@@ -312,7 +317,7 @@ def mouse_click(objective):
     print("[mouse_click] content", content)
     parsed_result = extract_json_from_string(content)
     x = convert_percent_to_decimal(parsed_result["x"])
-    y = convert_percent_to_deciemal(parsed_result["y"])
+    y = convert_percent_to_decimal(parsed_result["y"])
 
     if parsed_result and isinstance(x, float) and isinstance(y, float):
         click_at_percentage(x, y)
