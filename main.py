@@ -99,13 +99,13 @@ Your job is to click on windows or fields that will progress you towards your ob
 Example are below.
 __
 Objective: Find a image of a banana
-Click: {{ "x": "0.5", "y": "0.6", "explanation": "I can see a Google Search field, I'm going to click that so I can search." }} 
+Click: {{ "x": "50%", "y": "60%", "explanation": "I can see a Google Search field, I'm going to click that so I can search." }} 
 __
 Objective: Write an email to Best buy and ask for computer support
-Click: {{ "x": "0.2", "y": "0.1", "explanation": "It looks like this is where the email compose window is" }} 
+Click: {{ "x": "20%", "y": "10%", "explanation": "It looks like this is where the email compose window is" }} 
 __
 Objective: Open Spotify and play the beatles
-Click: {{ "x": "0.2", "y": "0.9", "explanation": "Spotify is open I'll click the search field to look for the beatles." }}
+Click: {{ "x": "20%", "y": "90%", "explanation": "Spotify is open I'll click the search field to look for the beatles." }}
 __
 
 
@@ -154,6 +154,81 @@ When you completed the task respond with the exact following phrase content: DON
 USER_TOOL_PROMPT = """
 Objective: {objective}
 """
+
+
+def main():
+    message_dialog(
+        title="Self Operating Computer",
+        text="Ask a computer to do anything.",
+        style=style,
+    ).run()
+
+    os.system("clear")  # Clears the terminal screen
+
+    user_response = prompt(USER_QUESTION + "\n")
+
+    system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
+    user_prompt = {
+        "role": "user",
+        "content": USER_TOOL_PROMPT.format(objective=user_response),
+    }
+    messages = [system_prompt, user_prompt]
+
+    looping = True
+    loop_count = 0
+
+    while looping:
+        time.sleep(2)
+        response = get_next_action(messages)
+
+        tool_calls = response.tool_calls
+        messages.append(response)
+        # print("response", response)
+
+        if response.content:
+            if response.content == "DONE":
+                print("DONE")
+                looping = False
+                break
+            print("[Self Operating Computer] ", response.content)
+
+        if tool_calls:
+            for tool_call in tool_calls:
+                function_name = tool_call.function.name
+
+                function_args = json.loads(tool_call.function.arguments)
+                print("[Use Tool] name: ", function_name)
+                print("[Use Tool] args: ", function_args)
+                if function_name == "mouse_click":
+                    # Call the function to capture the screen with the cursor
+                    capture_screen_with_cursor("screenshot.png")
+                    # import pdb
+
+                    # pdb.set_traceapple photo()
+                    add_grid_to_image("screenshot.png", 500)
+
+                    # add_labeled_cross_grid_to_image("screenshot.png", 400)
+                    function_response = mouse_click(user_response)
+
+                elif function_name == "keyboard_type":
+                    function_response = keyboard_type(function_args["type_value"])
+                else:
+                    function_response = mac_search(function_args["type_value"])
+                print(
+                    "[Self Operating Computer] function_response: ", function_response
+                )
+                messages.append(
+                    {
+                        "tool_call_id": tool_call.id,
+                        "role": "tool",
+                        "name": function_name,
+                        "content": function_response,
+                    }
+                )
+
+        loop_count += 1
+        if loop_count > 10:
+            looping = False
 
 
 def format_mouse_prompt(objective):
@@ -236,8 +311,11 @@ def mouse_click(objective):
     content = result.message.content
     print("[mouse_click] content", content)
     parsed_result = extract_json_from_string(content)
-    if parsed_result:
-        click_at_percentage(parsed_result["x"], parsed_result["y"])
+    x = convert_percent_to_decimal(parsed_result["x"])
+    y = convert_percent_to_deciemal(parsed_result["y"])
+
+    if parsed_result and isinstance(x, float) and isinstance(y, float):
+        click_at_percentage(x, y)
         return parsed_result.get("explanation", "successfully clicked")
 
     return "We failed to click"
@@ -335,81 +413,6 @@ available_functions = {
 }  # only one function in this example, but you can have multiple
 
 
-def main():
-    message_dialog(
-        title="Self Operating Computer",
-        text="Ask a computer to do anything.",
-        style=style,
-    ).run()
-
-    os.system("clear")  # Clears the terminal screen
-
-    user_response = prompt(USER_QUESTION + "\n")
-
-    system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
-    user_prompt = {
-        "role": "user",
-        "content": USER_TOOL_PROMPT.format(objective=user_response),
-    }
-    messages = [system_prompt, user_prompt]
-
-    looping = True
-    loop_count = 0
-
-    while looping:
-        time.sleep(2)
-        response = get_next_action(messages)
-
-        tool_calls = response.tool_calls
-        messages.append(response)
-        # print("response", response)
-
-        if response.content:
-            if response.content == "DONE":
-                print("DONE")
-                looping = False
-                break
-            print("[Self Operating Computer] ", response.content)
-
-        if tool_calls:
-            for tool_call in tool_calls:
-                function_name = tool_call.function.name
-
-                function_args = json.loads(tool_call.function.arguments)
-                print("[Use Tool] name: ", function_name)
-                print("[Use Tool] args: ", function_args)
-                if function_name == "mouse_click":
-                    # Call the function to capture the screen with the cursor
-                    capture_screen_with_cursor("screenshot.png")
-                    # import pdb
-
-                    # pdb.set_traceapple photo()
-                    add_grid_to_image("screenshot.png", 500)
-
-                    # add_labeled_cross_grid_to_image("screenshot.png", 400)
-                    function_response = mouse_click(user_response)
-
-                elif function_name == "keyboard_type":
-                    function_response = keyboard_type(function_args["type_value"])
-                else:
-                    function_response = mac_search(function_args["type_value"])
-                print(
-                    "[Self Operating Computer] function_response: ", function_response
-                )
-                messages.append(
-                    {
-                        "tool_call_id": tool_call.id,
-                        "role": "tool",
-                        "name": function_name,
-                        "content": function_response,
-                    }
-                )
-
-        loop_count += 1
-        if loop_count > 10:
-            looping = False
-
-
 def capture_screen_with_cursor(file_path="screenshot_with_cursor.png"):
     # Use the screencapture utility to capture the screen with the cursor
     subprocess.run(["screencapture", "-C", file_path])
@@ -428,6 +431,18 @@ def extract_json_from_string(s):
         return json.loads(json_str)
     except Exception as e:
         print(f"Error parsing JSON: {e}")
+        return None
+
+
+def convert_percent_to_decimal(percent_str):
+    try:
+        # Remove the '%' sign and convert to float
+        decimal_value = float(percent_str.strip("%"))
+
+        # Convert to decimal (e.g., 20% -> 0.20)
+        return decimal_value / 100
+    except ValueError as e:
+        print(f"Error converting percent to decimal: {e}")
         return None
 
 
