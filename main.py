@@ -105,7 +105,7 @@ Objective: Write an email to Best buy and ask for computer support
 Click: {{ "x": "0.2", "y": "0.1", "explanation": "It looks like this is where the email compose window is" }} 
 __
 Objective: Open Spotify and play the beatles
-Click: {{ "x": "0.2", "y": "0.9", "explanation": "I see spotify is " }}
+Click: {{ "x": "0.2", "y": "0.9", "explanation": "Spotify is open I'll click the search field to look for the beatles." }}
 __
 
 
@@ -161,6 +161,10 @@ def format_mouse_prompt(objective):
     return MOUSE_PROMPT.format(objective=objective)
 
 
+def format_mouse_reflection_prompt(objective):
+    return MOUSE_REFLECTION_PROMPT.format(objective=objective)
+
+
 def format_prompt_tool(objective):
     return USER_TOOL_PROMPT.format(objective=objective)
 
@@ -203,7 +207,7 @@ def click_at_percentage(
 
 
 def mouse_click(objective):
-    with open("screenshot.png", "rb") as img_file:
+    with open("screenshot_with_grid.png", "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     click_prompt = format_mouse_prompt(objective)
@@ -241,7 +245,7 @@ def mouse_click(objective):
     return "We failed to click"
 
 
-def add_labeled_grid_to_image(image_path, grid_interval):
+def add_grid_to_image(image_path, grid_interval):
     # Load the image
     image = Image.open(image_path)
 
@@ -254,82 +258,18 @@ def add_labeled_grid_to_image(image_path, grid_interval):
     # Get the path to a TrueType font included with matplotlib
     font_paths = fm.findSystemFonts(fontpaths=None, fontext="ttf")
     # Filter for specific font name (e.g., 'Arial.ttf')
-
     font_path = next((path for path in font_paths if "Arial" in path), None)
     if not font_path:
         raise RuntimeError(
             "Specific TrueType font not found; install the font or check the font name."
         )
 
-    font_size = grid_interval / 4  # Adjust this size as needed
+    # Reduce the font size a bit
+    font_size = int(grid_interval / 10)  # Reduced font size
     font = ImageFont.truetype(font_path, size=font_size)
 
-    # Define the estimated background size based on the font size
-    background_width = (
-        font_size * 3
-    )  # Estimate that each character is approximately 3 times the font size wide
-    background_height = (
-        font_size  # The height of the background is the same as the font size
-    )
-
-    # Function to draw text with a white rectangle background
-    def draw_label_with_background(position, text, draw, font, bg_width, bg_height):
-        background_position = (
-            position[0],
-            position[1],
-            position[0] + bg_width,
-            position[1] + bg_height,
-        )
-        draw.rectangle(background_position, fill="white")
-        draw.text((position[0] + 3, position[1]), text, fill="black", font=font)
-
-    # Draw vertical lines at every `grid_interval` pixels
-    for x in range(0, width, grid_interval):
-        line = ((x, 0), (x, height))
-        draw.line(line, fill="blue")
-        # Add the label to the right of the line with a white background
-        draw_label_with_background(
-            (x + 2, 2), str(x), draw, font, background_width, background_height
-        )
-
-    # Draw horizontal lines at every `grid_interval` pixels
-    for y in range(0, height, grid_interval):
-        line = ((0, y), (width, y))
-        draw.line(line, fill="blue")
-        # Add the label below the line with a white background
-        draw_label_with_background(
-            (2, y + 2), str(y), draw, font, background_width, background_height
-        )
-
-    # Save the image with the grid
-    image.save("screenshot_with_grid.png")
-
-
-def add_labeled_cross_grid_to_image(image_path, grid_interval):
-    # Load the image
-    image = Image.open(image_path)
-
-    # Create a drawing object
-    draw = ImageDraw.Draw(image)
-
-    # Get the image size
-    width, height = image.size
-
-    # Get the path to a TrueType font included with matplotlib
-    font_paths = fm.findSystemFonts(fontpaths=None, fontext="ttf")
-    # Filter for specific font name (e.g., 'Arial.ttf')
-    font_path = next((path for path in font_paths if "Arial" in path), None)
-    if not font_path:
-        raise RuntimeError(
-            "Specific TrueType font not found; install the font or check the font name."
-        )
-
-    font_size = grid_interval // 7  # Adjust this size as needed
-    font = ImageFont.truetype(font_path, size=int(font_size))
-
     # Calculate the background size based on the font size
-    # Reduce the background to be just larger than the text
-    bg_width = int(font_size * 5)  # Adjust as necessary
+    bg_width = int(font_size * 4)  # Adjust as necessary
     bg_height = int(font_size * 1.2)  # Adjust as necessary
 
     # Function to draw text with a white rectangle background
@@ -344,16 +284,17 @@ def add_labeled_cross_grid_to_image(image_path, grid_interval):
         # Draw the text
         draw.text(text_position, text, fill="black", font=font, anchor="mm")
 
-    # Calculate the background size based on the font size
-
     # Draw vertical lines and labels at every `grid_interval` pixels
     for x in range(grid_interval, width, grid_interval):
         line = ((x, 0), (x, height))
         draw.line(line, fill="blue")
         for y in range(grid_interval, height, grid_interval):
+            # Calculate the percentage of the width and height
+            x_percent = round((x / width) * 100)
+            y_percent = round((y / height) * 100)
             draw_label_with_background(
                 (x - bg_width // 2, y - bg_height // 2),
-                f"{x},{y}",
+                f"{x_percent}%,{y_percent}%",
                 draw,
                 font,
                 bg_width,
@@ -445,6 +386,7 @@ def main():
                     # import pdb
 
                     # pdb.set_traceapple photo()
+                    add_grid_to_image("screenshot.png", 400)
 
                     # add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(user_response)
