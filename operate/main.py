@@ -191,15 +191,16 @@ def main():
         # print("response", response)
 
         if response.content:
-            print(
-                f"{ANSI_GREEN}[Self Operating Computer] {ANSI_RESET} {response.content}"
-            )
             if response.content == "DONE":
                 print(
                     f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET} (I think, this is an an early experiment project)"
                 )
                 looping = False
                 break
+            else:
+                print(
+                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_RESET} {response.content}"
+                )
 
         if tool_calls:
             for tool_call in tool_calls:
@@ -230,7 +231,7 @@ def main():
                 else:
                     function_response = mac_search(function_args["type_value"])
                 print(
-                    "[Self Operating Computer] function_response: ", function_response
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response {ANSI_RESET} {function_response}"
                 )
                 messages.append(
                     {
