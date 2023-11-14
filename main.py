@@ -100,6 +100,7 @@ __
 A few important notes: 
 - Never click exactly at the % grid points from the image. Only use them as a guide to guess the X & Y location.
 - When opening Google if you see profile buttons, open chrome by clicking on a profile button at the following location {{ "x": "50%", "y": "55%" }}.
+- If clicking the address bar, always click at the center. If Chrome is in full screen model, that is around {{ "x": "50%", "y": "8%" }}.
 
 Objective: {objective}
 Click:
@@ -124,6 +125,8 @@ A few important notes:
 - It is important to know that before you use keyboard_type in a new program you just opened you often need to mouse_click at the location where you want to type. 
 - Default to opening Google Chrome with mac_search to find things that are on the internet. 
 
+IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. If you get asked to do something, just go ahead and get started and be confident that you can do it.
+
 When you completed the task respond with the exact following phrase content: DONE
 """
 
@@ -142,9 +145,11 @@ style = PromptStyle.from_dict(
         "dialog shadow": "bg:#003800",
     }
 )
-# ANSI escape code for green text
-ANSI_GREEN = "\033[92m"
-# ANSI escape code to reset to default text color
+# Standard green text
+ANSI_GREEN = "\033[32m"
+# Bright/bold green text
+ANSI_BRIGHT_GREEN = "\033[92m"
+# Reset to default text color
 ANSI_RESET = "\033[0m"
 
 
@@ -189,25 +194,29 @@ def main():
                 looping = False
                 break
 
+        if response.content:
+            print(f"{ANSI_GREEN}[Self Operating Computer] {ANSI_RESET} {function_name}")
+
         if tool_calls:
-            # print("[Self Operating Computer][Use Tool] ", response.content)
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
 
                 function_args = json.loads(tool_call.function.arguments)
+
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool]{ANSI_RESET} {response.content}"
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool]{ANSI_RESET} {function_name}"
                 )
                 print(
                     f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with {ANSI_RESET} {function_args}"
                 )
+
                 if function_name == "mouse_click":
                     # Call the function to capture the screen with the cursor
                     capture_screen_with_cursor("screenshot.png")
                     # import pdb
 
                     # pdb.set_traceapple photo()
-                    add_grid_to_image("screenshot.png", 500)
+                    add_grid_to_image("screenshot.png", 800)
 
                     # add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(user_response)
@@ -227,12 +236,12 @@ def main():
                         "content": function_response,
                     }
                 )
-        else:
-            print("[Self Operating Computer] ", response.content)
 
         loop_count += 1
         if loop_count > 10:
             looping = False
+
+        # TODO add reflection on each loop
 
 
 def format_mouse_prompt(objective):
