@@ -100,7 +100,7 @@ __
 A few important notes: 
 - Never click exactly at the % grid points from the image. Only use them as a guide to guess the X & Y location.
 - When opening Google if you see profile buttons, open chrome by clicking on a profile button at the following location {{ "x": "50%", "y": "55%" }}.
-- If clicking the address bar, always click at the center. If Chrome is in full screen model, that is around {{ "x": "50%", "y": "8%" }}.
+- The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 
 Objective: {objective}
 Click:
@@ -151,6 +151,8 @@ ANSI_GREEN = "\033[32m"
 ANSI_BRIGHT_GREEN = "\033[92m"
 # Reset to default text color
 ANSI_RESET = "\033[0m"
+# ANSI escape code for blue text
+ANSI_BLUE = "\033[94m"  # This is for bright blue
 
 
 def main():
@@ -193,7 +195,9 @@ def main():
                 f"{ANSI_GREEN}[Self Operating Computer] {ANSI_RESET} {response.content}"
             )
             if response.content == "DONE":
-                print("DONE")
+                print(
+                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET} (I think, this is an an early experiment project)"
+                )
                 looping = False
                 break
 
