@@ -198,7 +198,7 @@ def main():
                 print(
                     f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET} (I think, this is an an early experiment project)"
                 )
-                looping = False
+                looping = Falsee
                 break
 
         if tool_calls:
