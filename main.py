@@ -11,6 +11,7 @@ import math
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
+from prompt_toolkit.formatted_text import HTML
 from colorama import Style as ColoramaStyle
 from dotenv import load_dotenv
 from PIL import ImageGrab, Image, ImageDraw, ImageFont
@@ -28,15 +29,6 @@ client.api_key = os.getenv("OPENAI_API_KEY")
 
 WITH_GRID = True
 
-# Define style
-style = PromptStyle.from_dict(
-    {
-        "dialog": "bg:#88ff88",
-        "button": "bg:#ffffff #000000",
-        "dialog.body": "bg:#44cc44 #ffffff",
-        "dialog shadow": "bg:#003800",
-    }
-)
 
 tools = [
     {
@@ -115,7 +107,7 @@ Click:
 
 MOUSE_REFLECTION_PROMPT = """"""
 
-USER_QUESTION = "What would you like the computer to do?"
+USER_QUESTION = "What would you like done?"
 
 SYSTEM_PROMPT = """
 You are a Self Operating Computer. You use the same visual and input interfaces (i.e. screenshot, click & type) as a human, except you are superhuman. 
@@ -141,6 +133,21 @@ Objective: {objective}
 """
 
 
+# Define style
+style = PromptStyle.from_dict(
+    {
+        "dialog": "bg:#88ff88",
+        "button": "bg:#ffffff #000000",
+        "dialog.body": "bg:#44cc44 #ffffff",
+        "dialog shadow": "bg:#003800",
+    }
+)
+# ANSI escape code for green text
+ANSI_GREEN = "\033[92m"
+# ANSI escape code to reset to default text color
+ANSI_RESET = "\033[0m"
+
+
 def main():
     message_dialog(
         title="Self Operating Computer",
@@ -150,7 +157,14 @@ def main():
 
     os.system("clear")  # Clears the terminal screen
 
-    user_response = prompt(USER_QUESTION + "\n")
+    user_response = prompt(
+        HTML(
+            "<ansigreen>[Self Operating Computer]</ansigreen> "
+            + USER_QUESTION
+            + "\n<ansiyellow>[User]</ansiyellow> "
+        ),
+        style=style,
+    )
 
     system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
     user_prompt = {
@@ -176,13 +190,17 @@ def main():
                 break
 
         if tool_calls:
-            print("[Self Operating Computer][Use Tool] ", response.content)
+            # print("[Self Operating Computer][Use Tool] ", response.content)
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
 
                 function_args = json.loads(tool_call.function.arguments)
-                print("[Self Operating Computer][Use Tool] name: ", function_name)
-                print("[Self Operating Computer][Use Tool] args: ", function_args)
+                print(
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool]{ANSI_RESET} {response.content}"
+                )
+                print(
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with {ANSI_RESET} {function_args}"
+                )
                 if function_name == "mouse_click":
                     # Call the function to capture the screen with the cursor
                     capture_screen_with_cursor("screenshot.png")
