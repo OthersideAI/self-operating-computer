@@ -26,3 +26,5 @@ python main.py
 ```
 
 - On Mac, make sure to give permissions to the Terminal app in both "Screen Recording" and "Accessibility" in the "Security & Privacy" page of "System Preferences"
+
+- This project is only compatible with MacOS as this time. 
