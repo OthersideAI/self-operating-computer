@@ -189,13 +189,13 @@ def main():
         # print("response", response)
 
         if response.content:
+            print(
+                f"{ANSI_GREEN}[Self Operating Computer] {ANSI_RESET} {response.content}"
+            )
             if response.content == "DONE":
                 print("DONE")
                 looping = False
                 break
-
-        if response.content:
-            print(f"{ANSI_GREEN}[Self Operating Computer] {ANSI_RESET} {function_name}")
 
         if tool_calls:
             for tool_call in tool_calls:
