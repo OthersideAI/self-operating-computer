@@ -19,9 +19,7 @@ import pyautogui
 import subprocess
 import os
 
-
 from openai import OpenAI
-
 
 load_dotenv()
 
@@ -116,16 +114,6 @@ Click:
 """
 
 MOUSE_REFLECTION_PROMPT = """"""
-
-
-PROMPT_TYPE = """
-You are a professional writer. Based on the objective below, decide what you should write. 
-
-IMPORTANT: Respond directly with what you are going to write and nothing else!
-
-Objective: {objective}
-Writing:
-"""
 
 USER_QUESTION = "What would you like the computer to do?"
 
