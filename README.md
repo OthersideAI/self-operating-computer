@@ -20,9 +20,13 @@ Install requirements.
 ```
 pip install -r requirements.txt
 ```
+Install Project and Command-Line Interface.
+```
+pip install .
+```
 Run it!
 ```
-python main.py
+operate
 ```
 
 - On Mac, make sure to give permissions to the Terminal app in both "Screen Recording" and "Accessibility" in the "Security & Privacy" page of "System Preferences"
