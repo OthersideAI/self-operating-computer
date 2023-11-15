@@ -1,9 +1,13 @@
-## Self-Operating Computer
-A framework for a multimodal model to output key and mouse commands to control a computer to accomplish objectives.
+## Self-Operating Computer Framework
 
-This is an experimental project which currently lets GPT-4v decide on XY mouse click locations. The error rate is still quite high but we expect this to change rapidly. HyperwriteAI [https://www.hyperwriteai.com/] is working on a multimodal model with more accurate click locations. 
+This framework enables multimodal models to operate a computer, replicating the inputs and outputs of a human operator. Models receive an objective and proceed by analyzing a screenshot at each step, subsequently generating the next mouse or keyboard action.
 
-We think multimodal models will achieve beyond human performance at operating computers in the next 5 years and we'd like to setup a framework project to track this progress. 
+Designed for compatibility with various multimodal models, the project currently integrates with GPT-4v as its default model. We plan to add support for additional models in the future.
+
+
+It's worth noting that the GPT-4v's error rate in estimating XY mouse click locations is currently quite high. By establishing this framework, our aim is to track the progress of multimodal models over time, with the ultimate goal of achieving human-level performance in computer operation.
+
+At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model that promises more accurate click location predictions.
 
 ### Instructions
 Create virtual environment. 
