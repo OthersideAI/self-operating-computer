@@ -1,4 +1,4 @@
-## Self-Operating Computer Framework
+# Self-Operating Computer Framework
 
 **This framework enables multimodal models to operate a computer, replicating the inputs and outputs of a human operator.** Models receive an objective and proceed by analyzing a screenshot at each step, subsequently generating the next mouse or keyboard action.
 
@@ -13,7 +13,7 @@
 ### Ongoing Development
 At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model with more accurate click location predictions.
 
-### Instructions
+## Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
 1. **Clone the repo** to a directory on your computer:
