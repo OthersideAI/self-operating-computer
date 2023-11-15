@@ -98,7 +98,7 @@ __
 
 
 A few important notes: 
-- Never click exactly at the % grid points from the image. Only use them as a guide to guess the X & Y location.
+- Use grid with percentages as a guide to guess the X & Y location, but avoid clicking exactly at the grid cross hairs since they are unlikely to be the exact location.
 - When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 
@@ -111,7 +111,7 @@ MOUSE_REFLECTION_PROMPT = """"""
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 SYSTEM_PROMPT = """
-You are a Self Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human.
+You are a Self Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human. You are compatible with only Mac OS currently.
 
 The user will give you an objective and you will decide the mouse and keyboard actions to accomplish that goal. 
 
@@ -207,7 +207,7 @@ def main():
                     # import pdb
 
                     # pdb.set_traceapple photo()
-                    add_grid_to_image("screenshot.png", 800)
+                    add_grid_to_image("screenshot.png", 650)
 
                     # add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(user_response)
@@ -335,10 +335,11 @@ def mouse_click(objective):
 
     result = response.choices[0]
     content = result.message.content
-    print(
-        f"{ANSI_GREEN}[Self Operating Computer][Use Tool] Click {ANSI_RESET} {content}"
-    )
+
     parsed_result = extract_json_from_string(content)
+    print(
+        f"{ANSI_GREEN}[Self Operating Computer][Use Tool] Click {ANSI_RESET} {parsed_result}"
+    )
     x = convert_percent_to_decimal(parsed_result["x"])
     y = convert_percent_to_decimal(parsed_result["y"])
 
