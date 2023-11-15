@@ -115,7 +115,7 @@ You are a Self Operating Computer. You use the same visual and input interfaces 
 
 The user will give you an objective and you will decide the exact click and keyboard type actions to accomplish that goal. 
 
-You have the tools (i.e. functions) below to accomplish the task. There is NOTHING you can not do. Use these tools below to accomplish your task. Use a tool at ever step and do not make a plan before starting because it is unlikely the series of steps will look like your plan. 
+You have the tools (i.e. functions) below to accomplish the task. There is NOTHING you can not do. Use these tools below to accomplish your task. 
 
 1. mouse_click - Move mouse and click
 2. keyboard_type - Type on the keyboard
@@ -182,6 +182,7 @@ def main():
 
     looping = True
     loop_count = 0
+    print("response", response)
 
     while looping:
         response = get_next_action(messages)
@@ -189,18 +190,6 @@ def main():
         tool_calls = response.tool_calls
         messages.append(response)
         # print("response", response)
-
-        if response.content:
-            if response.content == "DONE":
-                print(
-                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET} (I think, this is an an early experiment project)"
-                )
-                looping = False
-                break
-            else:
-                print(
-                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_RESET} {response.content}"
-                )
 
         if tool_calls:
             for tool_call in tool_calls:
@@ -241,6 +230,31 @@ def main():
                         "content": function_response,
                     }
                 )
+            else:
+                if response.content == "DONE":
+                    print(
+                        f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET} (I think, this is an an early experiment project)"
+                    )
+                    looping = False
+                    break
+
+                if response.content:
+                    new_user_response = prompt(
+                        HTML(
+                            "<ansigreen>[Self Operating Computer]</ansigreen> "
+                            + response.content
+                            + "\n<ansiyellow>[User]</ansiyellow> "
+                        ),
+                        style=style,
+                    )
+                    messages.append(
+                        {
+                            "role": "user",
+                            "content": USER_TOOL_PROMPT.format(
+                                objective=new_user_response
+                            ),
+                        }
+                    )
 
         loop_count += 1
         if loop_count > 10:

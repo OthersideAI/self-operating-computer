@@ -1,13 +1,17 @@
 ## Self-Operating Computer Framework
 
-This framework enables multimodal models to operate a computer, replicating the inputs and outputs of a human operator. Models receive an objective and proceed by analyzing a screenshot at each step, subsequently generating the next mouse or keyboard action.
+**This framework enables multimodal models to operate a computer, replicating the inputs and outputs of a human operator.** Models receive an objective and proceed by analyzing a screenshot at each step, subsequently generating the next mouse or keyboard action.
 
-Designed for compatibility with various multimodal models, the project currently integrates with GPT-4v as its default model. We plan to add support for additional models in the future.
+### Key Features
+- **Compatibility**: Designed for various multimodal models.
+- **Integration**: Currently integrated with **GPT-4v** as the default model.
+- **Future Plans**: Support for additional models.
 
+### Current Challenges
+> **Note:** The GPT-4v's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
 
-It's worth noting that the GPT-4v's error rate in estimating XY mouse click locations is currently quite high. By establishing this framework, our aim is to track the progress of multimodal models over time, with the ultimate goal of achieving human-level performance in computer operation.
-
-At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model that promises more accurate click location predictions.
+### Ongoing Development
+At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model with more accurate click location predictions.
 
 ### Instructions
 Create virtual environment. 
