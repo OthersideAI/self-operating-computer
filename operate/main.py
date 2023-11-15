@@ -111,11 +111,11 @@ MOUSE_REFLECTION_PROMPT = """"""
 USER_QUESTION = "What would you like done?"
 
 SYSTEM_PROMPT = """
-You are a Self Operating Computer. You use the same visual and input interfaces (i.e. screenshot, click & type) as a human, except you are superhuman. 
+You are a Self Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human.
 
-The user will give you an objective and you will decide the exact click and keyboard type actions to accomplish that goal. 
+The user will give you an objective and you will decide the mouse and keyboard actions to accomplish that goal. 
 
-You have the tools (i.e. functions) below to accomplish the task. There is NOTHING you can not do. Use these tools below to accomplish your task. 
+You have the tools below to accomplish the task. Use these tools below to accomplish your task. 
 
 1. mouse_click - Move mouse and click
 2. keyboard_type - Type on the keyboard
@@ -125,14 +125,11 @@ A few important notes:
 - It is important to know that before you use keyboard_type in a new program you just opened you often need to mouse_click at the location where you want to type. 
 - Default to opening Google Chrome with mac_search to find things that are on the internet. 
 
-IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. If you get asked to do something, just go ahead and get started and be confident that you can do it.
+If the user tries to chat, try to direct them toward providing an objective for you. Only use the tools for accomplishing the task. If you need to respond to the user you can just do so by providing a `content` response. 
+
+IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. If you get asked to do something, just go ahead and get started. Be confident that you can do it.
 
 When you completed the task respond with the exact following phrase content: DONE
-"""
-
-USER_TOOL_PROMPT = """
-
-Objective: {objective}
 """
 
 
@@ -174,15 +171,15 @@ def main():
     )
 
     system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
-    user_prompt = {
+    assistant_message = {"role": "assistant", "content": USER_QUESTION}
+    user_message = {
         "role": "user",
-        "content": USER_TOOL_PROMPT.format(objective=user_response),
+        "content": user_response,  # we need to change this to allow messages.
     }
-    messages = [system_prompt, user_prompt]
+    messages = [system_prompt, assistant_message, user_message]
 
     looping = True
     loop_count = 0
-    print("response", response)
 
     while looping:
         response = get_next_action(messages)
@@ -230,31 +227,28 @@ def main():
                         "content": function_response,
                     }
                 )
-            else:
-                if response.content == "DONE":
-                    print(
-                        f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET} (I think, this is an an early experiment project)"
-                    )
-                    looping = False
-                    break
+        else:
+            if response.content == "DONE":
+                print(
+                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET}"
+                )
+                looping = False
+                break
 
-                if response.content:
-                    new_user_response = prompt(
-                        HTML(
-                            "<ansigreen>[Self Operating Computer]</ansigreen> "
-                            + response.content
-                            + "\n<ansiyellow>[User]</ansiyellow> "
-                        ),
-                        style=style,
-                    )
-                    messages.append(
-                        {
-                            "role": "user",
-                            "content": USER_TOOL_PROMPT.format(
-                                objective=new_user_response
-                            ),
-                        }
-                    )
+            new_user_response = prompt(
+                HTML(
+                    "<ansigreen>[Self Operating Computer]</ansigreen> "
+                    + response.content
+                    + "\n<ansiyellow>[User]</ansiyellow> "
+                ),
+                style=style,
+            )
+            messages.append(
+                {
+                    "role": "user",
+                    "content": new_user_response,
+                }
+            )
 
         loop_count += 1
         if loop_count > 10:
@@ -269,10 +263,6 @@ def format_mouse_prompt(objective):
 
 def format_mouse_reflection_prompt(objective):
     return MOUSE_REFLECTION_PROMPT.format(objective=objective)
-
-
-def format_prompt_tool(objective):
-    return USER_TOOL_PROMPT.format(objective=objective)
 
 
 def get_next_action(messages):

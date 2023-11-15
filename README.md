@@ -43,8 +43,5 @@ operate
 ```
 7. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
-
-
-
 ### Other important notes
 - This project is only compatible with MacOS as this time. 
