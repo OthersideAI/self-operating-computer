@@ -99,7 +99,7 @@ __
 
 A few important notes: 
 - Never click exactly at the % grid points from the image. Only use them as a guide to guess the X & Y location.
-- When opening Google if you see profile buttons, open chrome by clicking on a profile button at the following location {{ "x": "50%", "y": "55%" }}.
+- When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 
 Objective: {objective}
@@ -108,7 +108,7 @@ Click:
 
 MOUSE_REFLECTION_PROMPT = """"""
 
-USER_QUESTION = "What would you like done?"
+USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 SYSTEM_PROMPT = """
 You are a Self Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human.
@@ -125,7 +125,7 @@ A few important notes:
 - It is important to know that before you use keyboard_type in a new program you just opened you often need to mouse_click at the location where you want to type. 
 - Default to opening Google Chrome with mac_search to find things that are on the internet. 
 
-If the user tries to chat, try to direct them toward providing an objective for you. Only use the tools for accomplishing the task. If you need to respond to the user you can just do so by providing a `content` response. 
+Make a plan from chatting with the user, once they agree with the plan go ahead and execute it. It is ok to be flexible and not stick to the exact plan. 
 
 IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. If you get asked to do something, just go ahead and get started. Be confident that you can do it.
 
@@ -277,7 +277,7 @@ def get_next_action(messages):
 
 
 def click_at_percentage(
-    x_percentage, y_percentage, duration=0.5, circle_radius=50, circle_duration=0.5
+    x_percentage, y_percentage, duration=0.2, circle_radius=50, circle_duration=0.5
 ):
     # Get the size of the primary monitor
     screen_width, screen_height = pyautogui.size()
@@ -335,7 +335,9 @@ def mouse_click(objective):
 
     result = response.choices[0]
     content = result.message.content
-    print("[mouse_click] content", content)
+    print(
+        f"{ANSI_GREEN}[Self Operating Computer][Use Tool] Click {ANSI_RESET} {content}"
+    )
     parsed_result = extract_json_from_string(content)
     x = convert_percent_to_decimal(parsed_result["x"])
     y = convert_percent_to_decimal(parsed_result["y"])
