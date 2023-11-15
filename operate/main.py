@@ -27,8 +27,6 @@ load_dotenv()
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 
-WITH_GRID = True
-
 
 tools = [
     {
@@ -106,7 +104,24 @@ Objective: {objective}
 Click:
 """
 
-MOUSE_REFLECTION_PROMPT = """"""
+REFLECTION_PROMPT = """
+You are a reflecting on an action you just took. You have the tools below to accomplish tasks. 
+
+1. mouse_click - Move mouse and click
+2. keyboard_type - Type on the keyboard
+3. mac_search - Search for a program on Mac
+
+You just took one of these actions, but you currently have a high error rate so we would like to you reflect on what you did and see if you can improve it. 
+
+If the last actin was a mouse_click, check if the mouse is in the right place for the next step. If it is not, reflect on this and where you think the mouse should go. You won't actually act on your reflection on this step. You'll use your summary here in your next action. 
+
+You tried to take the last action: {last_action}
+Here was your summary of what happened: {last_action_response}
+
+Reflect on how you did so that you can continue working on the objective: {objective}
+
+Now write your reflection below.
+"""
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
@@ -181,12 +196,17 @@ def main():
     looping = True
     loop_count = 0
 
+    new_user_response = None
     while looping:
         response = get_next_action(messages)
 
         tool_calls = response.tool_calls
         messages.append(response)
-        # print("response", response)
+
+        if new_user_response:
+            print("updating user response", user_response)
+            print("to ", new_user_response)
+            user_response = new_user_response
 
         if tool_calls:
             for tool_call in tool_calls:
@@ -202,14 +222,6 @@ def main():
                 )
 
                 if function_name == "mouse_click":
-                    # Call the function to capture the screen with the cursor
-                    capture_screen_with_cursor("screenshot.png")
-                    # import pdb
-
-                    # pdb.set_traceapple photo()
-                    add_grid_to_image("screenshot.png", 650)
-
-                    # add_labeled_cross_grid_to_image("screenshot.png", 400)
                     function_response = mouse_click(user_response)
 
                 elif function_name == "keyboard_type":
@@ -227,6 +239,14 @@ def main():
                         "content": function_response,
                     }
                 )
+                reflection = reflect(user_response, function_name, function_response)
+                messages.append(
+                    {
+                        "role": "assistant",
+                        "content": reflection,
+                    }
+                )
+
         else:
             if response.content == "DONE":
                 print(
@@ -254,15 +274,17 @@ def main():
         if loop_count > 10:
             looping = False
 
-        # TODO add reflection on each loop
-
 
 def format_mouse_prompt(objective):
     return MOUSE_PROMPT.format(objective=objective)
 
 
-def format_mouse_reflection_prompt(objective):
-    return MOUSE_REFLECTION_PROMPT.format(objective=objective)
+def format_reflection_prompt(objective, last_action, last_action_response):
+    return REFLECTION_PROMPT.format(
+        objective=objective,
+        last_action=last_action,
+        last_action_response=last_action_response,
+    )
 
 
 def get_next_action(messages):
@@ -303,9 +325,14 @@ def click_at_percentage(
 
 
 def mouse_click(objective):
-    screenshot_filename = "screenshot.png"
-    if WITH_GRID:
-        screenshot_filename = "screenshot_with_grid.png"
+    # Call the function to capture the screen with the cursor
+    capture_screen_with_cursor("screenshot.png")
+    # import pdb
+
+    # pdb.set_traceapple photo()
+    add_grid_to_image("screenshot.png", 650)
+
+    screenshot_filename = "grid_screenshot.png"
 
     with open(screenshot_filename, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -345,9 +372,52 @@ def mouse_click(objective):
 
     if parsed_result and isinstance(x, float) and isinstance(y, float):
         click_at_percentage(x, y)
-        return parsed_result.get("explanation", "successfully clicked")
+        return content
 
     return "We failed to click"
+
+
+def reflect(objective, last_action, last_action_response):
+    print("[reflect] last_action_response", last_action_response)
+    # Call the function to capture the screen with the cursor
+    capture_screen_with_cursor("reflection_screenshot.png")
+
+    screenshot_filename = "grid_reflection_screenshot.png"
+    add_grid_to_image("reflection_screenshot.png", 650)
+
+    with open(screenshot_filename, "rb") as img_file:
+        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+    reflect_prompt = format_reflection_prompt(
+        objective, last_action, last_action_response
+    )
+    print("[reflect] reflect_prompt", reflect_prompt)
+    # pdb break
+
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": reflect_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
+        ],
+        max_tokens=300,
+    )
+    print("[reflect] response", response)
+
+    result = response.choices[0]
+    content = result.message.content
+
+    print(f"{ANSI_GREEN}[Self Operating Computer][Reflection] {ANSI_RESET} {content}")
+
+    return content
 
 
 def add_grid_to_image(image_path, grid_interval):
@@ -412,7 +482,7 @@ def add_grid_to_image(image_path, grid_interval):
         draw.line(line, fill="blue")
 
     # Save the image with the grid
-    image.save("screenshot_with_grid.png")
+    image.save("grid_" + image_path)
 
 
 def keyboard_type(text):
