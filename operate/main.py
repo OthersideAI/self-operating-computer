@@ -325,23 +325,19 @@ def click_at_percentage(
 
 
 def mouse_click(objective):
+    screenshot_filename = "screenshot.png"
     # Call the function to capture the screen with the cursor
-    capture_screen_with_cursor("screenshot.png")
-    # import pdb
+    capture_screen_with_cursor(screenshot_filename)
 
-    # pdb.set_traceapple photo()
-    add_grid_to_image("screenshot.png", 650)
+    new_screenshot_filename = "screenshot_with_grid.png"
 
-    screenshot_filename = "grid_screenshot.png"
+    add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
 
-    with open(screenshot_filename, "rb") as img_file:
+    with open(new_screenshot_filename, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     click_prompt = format_mouse_prompt(objective)
     # pdb break
-    # import pdb
-
-    # pdb.set_trace()
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -379,13 +375,16 @@ def mouse_click(objective):
 
 def reflect(objective, last_action, last_action_response):
     print("[reflect] last_action_response", last_action_response)
+
+    screenshot_filename = "reflection_screenshot.png"
     # Call the function to capture the screen with the cursor
-    capture_screen_with_cursor("reflection_screenshot.png")
+    capture_screen_with_cursor(screenshot_filename)
 
-    screenshot_filename = "grid_reflection_screenshot.png"
-    add_grid_to_image("reflection_screenshot.png", 650)
+    new_screenshot_filename = "grid_reflection_screenshot.png"
 
-    with open(screenshot_filename, "rb") as img_file:
+    add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
+
+    with open(new_screenshot_filename, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     reflect_prompt = format_reflection_prompt(
@@ -420,9 +419,9 @@ def reflect(objective, last_action, last_action_response):
     return content
 
 
-def add_grid_to_image(image_path, grid_interval):
+def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     # Load the image
-    image = Image.open(image_path)
+    image = Image.open(original_image_path)
 
     # Create a drawing object
     draw = ImageDraw.Draw(image)
@@ -482,7 +481,7 @@ def add_grid_to_image(image_path, grid_interval):
         draw.line(line, fill="blue")
 
     # Save the image with the grid
-    image.save("grid_" + image_path)
+    image.save(new_image_path)
 
 
 def keyboard_type(text):
