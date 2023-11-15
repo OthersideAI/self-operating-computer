@@ -14,28 +14,36 @@
 At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model with more accurate click location predictions.
 
 ### Instructions
-Create virtual environment. 
+Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
+
+1. **Clone the repo** to a directory on your computer:
+```
+git clone https://github.com/OthersideAI/self-operating-computer.git
+```
+2. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
+
 ```
 python3 -m venv venv
 ```
-Activate it
+3. **Activate the virtual environment**:
 ```
 source venv/bin/activate
 ```
-Install requirements. 
+4. **Install the project requirements**:
 ```
 pip install -r requirements.txt
 ```
-Install Project and Command-Line Interface.
+5. **Install Project and Command-Line Interface**:
 ```
 pip install .
 ```
-Run it!
+6. **Run it**!
 ```
 operate
 ```
-Lastly
-- Make sure to give permissions to the Terminal app in for both "Screen Recording" and "Accessibility" in the "Security & Privacy" page of "System Preferences". 
+7. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+
+
 
 
 ### Other important notes
