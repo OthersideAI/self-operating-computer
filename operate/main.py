@@ -102,6 +102,11 @@ A few important notes:
 - When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 
+IMPORTANT: Always respond with the correct following format: 
+{{ "x": "percent", "y": "percent", "explanation": "~explanation detail~" }} 
+
+There was an earlier guess of what to do, use this information if it is helpful but don't worry if you need to discard it: {click_instruction}
+
 Objective: {objective}
 Click:
 """
@@ -224,7 +229,9 @@ def main():
                 )
 
                 if function_name == "mouse_click":
-                    function_response = mouse_click(user_response)
+                    function_response = mouse_click(
+                        user_response, function_args["description"]
+                    )
 
                 elif function_name == "keyboard_type":
                     function_response = keyboard_type(function_args["type_value"])
@@ -277,8 +284,14 @@ def main():
             looping = False
 
 
-def format_mouse_prompt(objective):
-    return MOUSE_PROMPT.format(objective=objective)
+def format_mouse_prompt(objective, click_instruction):
+    prompt = MOUSE_PROMPT.format(
+        objective=objective, click_instruction=click_instruction
+    )
+    if DEBUG:
+        print("[format_mouse_prompt] prompt", prompt)
+
+    return prompt
 
 
 def format_reflection_prompt(objective, last_action, last_action_response):
@@ -326,7 +339,7 @@ def click_at_percentage(
     return "successfully clicked"
 
 
-def mouse_click(objective):
+def mouse_click(objective, click_information):
     screenshot_filename = "screenshots/screenshot.png"
     # Call the function to capture the screen with the cursor
     capture_screen_with_cursor(screenshot_filename)
@@ -338,7 +351,7 @@ def mouse_click(objective):
     with open(new_screenshot_filename, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    click_prompt = format_mouse_prompt(objective)
+    click_prompt = format_mouse_prompt(objective, click_information)
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -359,19 +372,26 @@ def mouse_click(objective):
 
     result = response.choices[0]
     content = result.message.content
+    if DEBUG:
+        print("[mouse_click] content", content)
 
-    parsed_result = extract_json_from_string(content)
-    print(
-        f"{ANSI_GREEN}[Self Operating Computer][Use Tool] Click {ANSI_RESET} {parsed_result}"
-    )
-    x = convert_percent_to_decimal(parsed_result["x"])
-    y = convert_percent_to_decimal(parsed_result["y"])
+    try:
+        parsed_result = extract_json_from_string(content)
+        print(
+            f"{ANSI_GREEN}[Self Operating Computer][Use Tool] Click {ANSI_RESET} {parsed_result}"
+        )
+        x = convert_percent_to_decimal(parsed_result["x"])
+        y = convert_percent_to_decimal(parsed_result["y"])
 
-    if parsed_result and isinstance(x, float) and isinstance(y, float):
-        click_at_percentage(x, y)
-        return content
+        if parsed_result and isinstance(x, float) and isinstance(y, float):
+            click_at_percentage(x, y)
+            return content
 
-    return "We failed to click"
+        return "We failed to click"
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "We failed to click"
 
 
 def reflect(objective, last_action, last_action_response):
