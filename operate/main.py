@@ -158,6 +158,23 @@ IMPORTANT: You are capable of doing anything such as making money, building a ho
 When you completed the task respond with the exact following phrase content: DONE
 """
 
+SUMMARY_PROMPT = """
+Objective: {objective}
+Status: Complete
+
+You are took the previous actions and the objective. Provide a brief summary of everything you did. 
+"""
+
+VISION_SUMMARY_PROMPT = """
+Objective: {objective}
+Status: Complete
+
+Here's a textual summary of what you did: {textual_summary} 
+
+Don't mention that you were given a textual summary in your summary, just combine the information to make the best formal summary.
+
+\Please look at the image and combine it with the textual summary to provide a more full conclusion below
+"""
 
 # Define style
 style = PromptStyle.from_dict(
@@ -187,7 +204,7 @@ def main():
 
     os.system("clear")  # Clears the terminal screen
 
-    user_response = prompt(
+    objective = prompt(
         HTML(
             "<ansigreen>[Self Operating Computer]</ansigreen> "
             + USER_QUESTION
@@ -200,7 +217,7 @@ def main():
     assistant_message = {"role": "assistant", "content": USER_QUESTION}
     user_message = {
         "role": "user",
-        "content": user_response,  # we need to change this to allow messages.
+        "content": objective,  # we need to change this to allow messages.
     }
     messages = [system_prompt, assistant_message, user_message]
 
@@ -230,7 +247,7 @@ def main():
 
                 if function_name == "mouse_click":
                     function_response = mouse_click(
-                        user_response, function_args["description"]
+                        objective, function_args["description"]
                     )
 
                 elif function_name == "keyboard_type":
@@ -248,7 +265,7 @@ def main():
                         "content": function_response,
                     }
                 )
-                reflection = reflect(user_response, function_name, function_response)
+                reflection = reflect(objective, function_name, function_response)
                 messages.append(
                     {
                         "role": "assistant",
@@ -262,6 +279,11 @@ def main():
                     f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET}"
                 )
                 looping = False
+                summary = summarize(messages, objective)
+                print(
+                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Summary {ANSI_RESET} {summary}"
+                )
+
                 break
 
             new_user_response = prompt(
@@ -302,6 +324,16 @@ def format_reflection_prompt(objective, last_action, last_action_response):
     )
 
 
+def format_summary_prompt(objective):
+    return SUMMARY_PROMPT.format(objective=objective)
+
+
+def format_vision_summary_prompt(objective, textual_summary):
+    return VISION_SUMMARY_PROMPT.format(
+        objective=objective, textual_summary=textual_summary
+    )
+
+
 def get_next_action(messages):
     response = client.chat.completions.create(
         model="gpt-4",
@@ -311,6 +343,53 @@ def get_next_action(messages):
     )
 
     return response.choices[0].message
+
+
+def summarize(messages, objective):
+    summary_prompt = format_summary_prompt(objective)
+
+    messages.append({"role": "user", "content": summary_prompt})
+
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=messages,
+    )
+
+    result = response.choices[0]
+    textual_summary = result.message.content
+    if DEBUG:
+        print("[summarize] textual_summary", textual_summary)
+
+    screenshot_filename = "screenshots/summary_screenshot.png"
+    # Call the function to capture the screen with the cursor
+    capture_screen_with_cursor(screenshot_filename)
+
+    with open(screenshot_filename, "rb") as img_file:
+        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+    vision_summary_prompt = format_vision_summary_prompt(objective, textual_summary)
+
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": vision_summary_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
+        ],
+        max_tokens=300,
+    )
+
+    result = response.choices[0]
+    content = result.message.content
+
+    return content
 
 
 def click_at_percentage(
