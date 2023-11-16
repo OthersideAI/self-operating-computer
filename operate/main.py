@@ -24,7 +24,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-DEBUG = True
+DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -107,27 +107,25 @@ Click:
 """
 
 REFLECTION_PROMPT = """
-You received an overall objective from the user. You are a reflecting on each action as you take them. Below are the following actions you can take. 
+You received an objective from a user. You just took an action toward the objective and now you need to reflect on how you did to guide further actions.
+
+Below are the following actions you can take. 
 
 1. mouse_click - Move mouse and click
 2. keyboard_type - Type on the keyboard
 3. mac_search - Search for a program on Mac
 
+You have a screenshot available to view. Reflect by reviewing the screenshot and the action details below.
 
+If the last action was a mouse_click, check if the mouse action was in the right place. If it is not, consider where the mouse should go when trying again.
 
-You just finished an actions. You need to reflect on what you did to ensure you took the correct step. 
-
-You have a screenshot available to view. By reviewing the screenshot and the action details you should be able to reflect well. Try to keep your reflections short and valuable.
-
-If the last action was a mouse_click, check if the mouse action was in the right place. If it is not, reflect on this and where you think the mouse should go. 
-
-You won't actually act on your reflection on this step. You'll summarize your thoughts and either retry the at the next step in a better way or continue with the next action.
+You won't actually act on your reflection on this step. You'll summarize your thoughts and either retry the at the next step in a better way or continue with the next action if the last one was correct.
 
 The user's original objective was: {objective}
 You tried to take the last action: {last_action}
 Here was your summary of what happened: {last_action_response}
 
-Now write your reflection below.
+Either respond with, "Reflection: Last action was correct" or "Reflection: ~Your thoughts here~". Keep reflections very short and valuable. Now write your reflection!
 """
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -146,6 +144,7 @@ You have the tools below to accomplish the task. Use these tools below to accomp
 A few important notes: 
 - It is important to know that before you use keyboard_type in a new program you just opened you often need to mouse_click at the location where you want to type. 
 - Default to opening Google Chrome with mac_search to find things that are on the internet. 
+- When doing keyboard_type in a field that requires a submission, don't forget to submit with the enter key.
 
 Make a plan from chatting with the user, once they agree with the plan go ahead and execute it. It is ok to be flexible and not stick to the exact plan. 
 
@@ -203,19 +202,13 @@ def main():
     looping = True
     loop_count = 0
 
-    new_user_response = None
     while looping:
         if DEBUG:
-            print("[loop] messages before next action: \n\n\n", messages)
+            print("[loop] messages before next action:\n\n\n", messages[1:])
         response = get_next_action(messages)
 
         tool_calls = response.tool_calls
         messages.append(response)
-
-        if new_user_response:
-            print("updating user response", user_response)
-            print("to ", new_user_response)
-            user_response = new_user_response
 
         if tool_calls:
             for tool_call in tool_calls:
@@ -346,7 +339,6 @@ def mouse_click(objective):
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
     click_prompt = format_mouse_prompt(objective)
-    # pdb break
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -402,9 +394,9 @@ def reflect(objective, last_action, last_action_response):
         objective, last_action, last_action_response
     )
     print("[reflect] reflect_prompt", reflect_prompt)
-    import pdb
+    # import pdb
 
-    pdb.set_trace()
+    # pdb.set_trace()
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -422,7 +414,6 @@ def reflect(objective, last_action, last_action_response):
         ],
         max_tokens=300,
     )
-    print("[reflect] response", response)
 
     result = response.choices[0]
     content = result.message.content
