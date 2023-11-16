@@ -96,6 +96,7 @@ Objective: Open Spotify and play the beatles
 Click: {{ "x": "20%", "y": "92%", "explanation": "Spotify is open I'll click the search field to look for the beatles." }}
 __
 
+I'm sure you know this but, the left side of the screen will have a x % value lower than 50% and the right side will have x% value higher than 50%. 
 
 A few important notes: 
 - Use grid with percentages as a guide to guess the X & Y location, but avoid clicking exactly at the grid cross hairs since they are unlikely to be the exact location.
@@ -173,7 +174,7 @@ Here's a textual summary of what you did: {textual_summary}
 
 Don't mention that you were given a textual summary in your summary, just combine the information to make the best formal summary.
 
-\Please look at the image and combine it with the textual summary to provide a more full conclusion below
+Please look at the image and combine it with the textual summary to provide a more full conclusion below
 """
 
 # Define style
