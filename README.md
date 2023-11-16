@@ -46,5 +46,18 @@ operate
 ```
 7. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
+### Contributions are Welcomed! Some Ideas: 
+- **Prompt Improvements**: Noticed any areas for prompt improvements? Feel free to make suggestions or submit a pull request (PR). 
+- **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
+- **Innovative Ideas**: Have an idea to improve this project in ways we haven't considered? Whether it's transforming this into an evaluation system for multimodal models or something else, we're open to your ideas!
+
+For any input on improving this project, feel free to reach out to me on [Twitter](https://twitter.com/josh_bickett).
+
+### Follow HyperWriteAI for More Updates
+
+Stay updated with the latest developments:
+- Follow [HyperWriteAI](https://twitter.com/HyperWriteAI) on Twitter.
+- Follow [HyperWriteAI](https://www.linkedin.com/company/othersideai/) on LinkedIn.
+
 ### Other important notes
 - This project is only compatible with MacOS as this time. 
