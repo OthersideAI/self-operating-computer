@@ -195,6 +195,9 @@ ANSI_RESET = "\033[0m"
 # ANSI escape code for blue text
 ANSI_BLUE = "\033[94m"  # This is for bright blue
 
+# Standard yellow text
+ANSI_YELLOW = "\033[33m"
+
 
 def main():
     message_dialog(
@@ -205,12 +208,10 @@ def main():
 
     os.system("clear")  # Clears the terminal screen
 
+    print(f"{ANSI_GREEN}[Self Operating Computer] \n {ANSI_RESET} {USER_QUESTION}")
+    print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+
     objective = prompt(
-        HTML(
-            "<ansigreen>[Self Operating Computer]</ansigreen> "
-            + USER_QUESTION
-            + "\n<ansiyellow>[User]</ansiyellow> "
-        ),
         style=style,
     )
 
@@ -240,10 +241,10 @@ def main():
                 function_args = json.loads(tool_call.function.arguments)
 
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool]{ANSI_RESET} {function_name}"
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] \n {ANSI_RESET} {function_name}"
                 )
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with {ANSI_RESET} {function_args}"
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with \n {ANSI_RESET} {function_args}"
                 )
 
                 if function_name == "mouse_click":
@@ -256,7 +257,7 @@ def main():
                 else:
                     function_response = mac_search(function_args["type_value"])
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response {ANSI_RESET} {function_response}"
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response \n {ANSI_RESET} {function_response}"
                 )
                 messages.append(
                     {
@@ -287,14 +288,12 @@ def main():
 
                 break
 
-            new_user_response = prompt(
-                HTML(
-                    "<ansigreen>[Self Operating Computer]</ansigreen> "
-                    + response.content
-                    + "\n<ansiyellow>[User]</ansiyellow> "
-                ),
-                style=style,
+            print(
+                f"{ANSI_GREEN}[Self Operating Computer] \n {ANSI_RESET} {response.content}"
             )
+            print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+
+            new_user_response = prompt(style=style)
             messages.append(
                 {
                     "role": "user",
