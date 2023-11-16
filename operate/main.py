@@ -24,6 +24,8 @@ from openai import OpenAI
 
 load_dotenv()
 
+DEBUG = True
+
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -105,20 +107,25 @@ Click:
 """
 
 REFLECTION_PROMPT = """
-You are a reflecting on an action you just took. You have the tools below to accomplish tasks. 
+You received an overall objective from the user. You are a reflecting on each action as you take them. Below are the following actions you can take. 
 
 1. mouse_click - Move mouse and click
 2. keyboard_type - Type on the keyboard
 3. mac_search - Search for a program on Mac
 
-You just took one of these actions, but you currently have a high error rate so we would like to you reflect on what you did and see if you can improve it. 
 
-If the last actin was a mouse_click, check if the mouse is in the right place for the next step. If it is not, reflect on this and where you think the mouse should go. You won't actually act on your reflection on this step. You'll use your summary here in your next action. 
 
+You just finished an actions. You need to reflect on what you did to ensure you took the correct step. 
+
+You have a screenshot available to view. By reviewing the screenshot and the action details you should be able to reflect well. Try to keep your reflections short and valuable.
+
+If the last action was a mouse_click, check if the mouse action was in the right place. If it is not, reflect on this and where you think the mouse should go. 
+
+You won't actually act on your reflection on this step. You'll summarize your thoughts and either retry the at the next step in a better way or continue with the next action.
+
+The user's original objective was: {objective}
 You tried to take the last action: {last_action}
 Here was your summary of what happened: {last_action_response}
-
-Reflect on how you did so that you can continue working on the objective: {objective}
 
 Now write your reflection below.
 """
@@ -198,6 +205,8 @@ def main():
 
     new_user_response = None
     while looping:
+        if DEBUG:
+            print("[loop] messages before next action: \n\n\n", messages)
         response = get_next_action(messages)
 
         tool_calls = response.tool_calls
@@ -325,11 +334,11 @@ def click_at_percentage(
 
 
 def mouse_click(objective):
-    screenshot_filename = "screenshot.png"
+    screenshot_filename = "screenshots/screenshot.png"
     # Call the function to capture the screen with the cursor
     capture_screen_with_cursor(screenshot_filename)
 
-    new_screenshot_filename = "screenshot_with_grid.png"
+    new_screenshot_filename = "screenshots/screenshot_with_grid.png"
 
     add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
 
@@ -375,12 +384,14 @@ def mouse_click(objective):
 
 def reflect(objective, last_action, last_action_response):
     print("[reflect] last_action_response", last_action_response)
+    # sleep for half a second
+    time.sleep(0.5)
 
-    screenshot_filename = "reflection_screenshot.png"
+    screenshot_filename = "screenshots/reflection_screenshot.png"
     # Call the function to capture the screen with the cursor
     capture_screen_with_cursor(screenshot_filename)
 
-    new_screenshot_filename = "grid_reflection_screenshot.png"
+    new_screenshot_filename = "screenshots/grid_reflection_screenshot.png"
 
     add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
 
@@ -391,7 +402,9 @@ def reflect(objective, last_action, last_action_response):
         objective, last_action, last_action_response
     )
     print("[reflect] reflect_prompt", reflect_prompt)
-    # pdb break
+    import pdb
+
+    pdb.set_trace()
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -510,7 +523,7 @@ available_functions = {
 }  # only one function in this example, but you can have multiple
 
 
-def capture_screen_with_cursor(file_path="screenshot_with_cursor.png"):
+def capture_screen_with_cursor(file_path="screenshot/screenshot_with_cursor.png"):
     # Use the screencapture utility to capture the screen with the cursor
     subprocess.run(["screencapture", "-C", file_path])
 
