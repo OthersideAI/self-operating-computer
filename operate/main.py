@@ -376,7 +376,12 @@ def get_next_action(messages, objective):
     # sleep for a second
     time.sleep(1)
     try:
-        screenshot_filename = "screenshots/screenshot.png"
+        # Ensure the 'screenshots' directory exists
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
