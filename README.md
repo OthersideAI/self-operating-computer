@@ -40,9 +40,13 @@ pip install -r requirements.txt
 ```
 pip install .
 ```
-7. **To use the OpenAI platform, you need to replace 'YOUR_API_KEY' with your actual OpenAI API key. If you don't have one, you can obtain an OpenAI key **:
+6. **Then rename the example.env file to .env so that you can save your OpenAI key in it.**
 ```
-
+mv .env.example .env
+``` 
+7. **Add your Open AI key to your new .env file so the app can use it. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+```
+OPENAI_API_KEY='your-key-here'
 ```
 6. **Run it**!
 ```
