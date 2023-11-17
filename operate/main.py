@@ -1,5 +1,5 @@
 """
-Self Driving Computer
+Self-Operating Computer
 """
 import os
 import time
@@ -7,20 +7,15 @@ import base64
 import json
 import math
 import re
-
+import pyautogui
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
-from prompt_toolkit.formatted_text import HTML
-from colorama import Style as ColoramaStyle
 from dotenv import load_dotenv
-from PIL import ImageGrab, Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
-import pyautogui
 import subprocess
-import os
-
 from openai import OpenAI
 
 load_dotenv()
@@ -29,7 +24,6 @@ DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
-
 
 tools = [
     {
