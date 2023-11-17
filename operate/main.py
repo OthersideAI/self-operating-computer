@@ -111,26 +111,47 @@ Objective: {objective}
 Click:
 """
 
-REFLECTION_PROMPT = """
-You received an objective from a user. You just took an action toward the objective and now you need to reflect on how you did to guide further actions.
+VISION_PROMPT = """
+From looking at a screenshot, the objective and you previous steps, your goal is to take the best next action to reach the objective. 
 
-Below are the following actions you can take. 
+To complete emulate a human operator you only need three actions. These are the actions available to you below. 
 
-1. mouse_click - Move mouse and click
-2. keyboard_type - Type on the keyboard
-3. mac_search - Search for a program on Mac
+1. CLICK - Move mouse and click
+2. TYPE - Type on the keyboard
+3. SEARCH - Search for a program on Mac and open it
 
-You have a screenshot available to view. Reflect by reviewing the screenshot and the action details below.
+Here are your formats for how to respond. 
 
-If the last action was a mouse_click, check if the mouse action was in the right place. If it is not, consider where the mouse should go when trying again.
+1. CLICK
+Response: CLICK {{ "x": "percent", "y": "percent", "explanation": "~explanation detail~" }} 
 
-You won't actually act on your reflection on this step. You'll summarize your thoughts and either retry the at the next step in a better way or continue with the next action if the last one was correct.
+2. TYPE
+Response: TYPE "value you want to type"
 
-The user's original objective was: {objective}
-You tried to take the last action: {last_action}
-Here was your summary of what happened: {last_action_response}
+2. SEARCH
+Response: SEARCH "app you want to search for on Mac"
 
-Either respond with, "Reflection: Last action was correct" or "Reflection: ~Your thoughts here~". Keep reflections very short and valuable. Now write your reflection!
+Example are below.
+__
+Objective: Find a image of a banana
+CLICK {{ "x": "50%", "y": "60%", "explanation": "I can see a Google Search field, I'm going to click that so I can search." }} 
+__
+Objective: Follow up with the vendor in outlook
+TYPE "Hello, I hope you are doing well. I wanted to follow up"
+__
+Objective: Open Spotify and play the beatles
+CLICK {{ "x": "20%", "y": "92%", "explanation": "Spotify is open I'll click the search field to look for the beatles." }}
+__
+Objective: Open Spotify and play the beatles
+SEARCH "Spotify"
+__
+
+A few important notes: 
+- Use grid with percentages as a guide to guess the X & Y location, but avoid clicking exactly at the grid cross hairs since they are unlikely to be the exact location.
+- When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
+- The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
+
+Objective: {objective}
 """
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -142,14 +163,13 @@ The user will give you an objective and you will decide the mouse and keyboard a
 
 You have the tools below to accomplish the task. Use these tools below to accomplish your task. 
 
-1. mouse_click - Move mouse and click
-2. keyboard_type - Type on the keyboard
-3. mac_search - Search for a program on Mac
+1. CLICK - Move mouse and click
+2. TYPE - Type on the keyboard
+3. SEARCH - Search for a program on Mac
 
 A few important notes: 
-- It is important to know that before you use keyboard_type in a new program you just opened you often need to mouse_click at the location where you want to type. 
-- Default to opening Google Chrome with mac_search to find things that are on the internet. 
-- When doing keyboard_type in a field that requires a submission, don't forget to submit with the enter key.
+- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
+- When doing TYPE in a field that requires a submission, don't forget to submit with the enter key.
 
 Make a plan from chatting with the user, once they agree with the plan go ahead and execute it. It is ok to be flexible and not stick to the exact plan. 
 
@@ -228,82 +248,82 @@ def main():
     while looping:
         if DEBUG:
             print("[loop] messages before next action:\n\n\n", messages[1:])
-        response = get_next_action(messages)
+        response = get_next_action(messages, objective)
 
-        tool_calls = response.tool_calls
-        messages.append(response)
+        # tool_calls = response.tool_calls
+        # messages.append(response)
 
-        if tool_calls:
-            for tool_call in tool_calls:
-                function_name = tool_call.function.name
+        # if tool_calls:
+        #     for tool_call in tool_calls:
+        #         function_name = tool_call.function.name
 
-                function_args = json.loads(tool_call.function.arguments)
+        #         function_args = json.loads(tool_call.function.arguments)
 
-                print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool]\n{ANSI_RESET}{function_name}"
-                )
-                print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with\n{ANSI_RESET}{function_args}"
-                )
+        #         print(
+        #             f"{ANSI_GREEN}[Self Operating Computer][Use Tool]\n{ANSI_RESET}{function_name}"
+        #         )
+        #         print(
+        #             f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with\n{ANSI_RESET}{function_args}"
+        #         )
 
-                if function_name == "mouse_click":
-                    function_response = mouse_click(
-                        objective, function_args["description"]
-                    )
+        #         if function_name == "mouse_click":
+        #             function_response = mouse_click(
+        #                 objective, function_args["description"]
+        #             )
 
-                elif function_name == "keyboard_type":
-                    function_response = keyboard_type(function_args["type_value"])
-                else:
-                    function_response = mac_search(function_args["type_value"])
-                print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response\n{ANSI_RESET}{function_response}"
-                )
-                messages.append(
-                    {
-                        "tool_call_id": tool_call.id,
-                        "role": "tool",
-                        "name": function_name,
-                        "content": function_response,
-                    }
-                )
-                if WITH_REFLECTION:
-                    reflection = reflect(objective, function_name, function_response)
-                    messages.append(
-                        {
-                            "role": "assistant",
-                            "content": reflection,
-                        }
-                    )
+        #         elif function_name == "keyboard_type":
+        #             function_response = keyboard_type(function_args["type_value"])
+        #         else:
+        #             function_response = mac_search(function_args["type_value"])
+        #         print(
+        #             f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response\n{ANSI_RESET}{function_response}"
+        #         )
+        #         messages.append(
+        #             {
+        #                 "tool_call_id": tool_call.id,
+        #                 "role": "tool",
+        #                 "name": function_name,
+        #                 "content": function_response,
+        #             }
+        #         )
+        #         if WITH_REFLECTION:
+        #             reflection = reflect(objective, function_name, function_response)
+        #             messages.append(
+        #                 {
+        #                     "role": "assistant",
+        #                     "content": reflection,
+        #                 }
+        #             )
 
-        else:
-            if response.content == "DONE":
-                print(
-                    f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
-                )
-                looping = False
-                summary = summarize(messages, objective)
-                print(
-                    f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
-                )
+        # else:
+        #     if response.content == "DONE":
+        #         print(
+        #             f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
+        #         )
+        #         looping = False
+        #         summary = summarize(messages, objective)
+        #         print(
+        #             f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+        #         )
 
-                break
+        #         break
 
-            print(
-                f"{ANSI_GREEN}[Self Operating Computer]\n{ANSI_RESET}{response.content}"
-            )
-            print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+        #     print(
+        #         f"{ANSI_GREEN}[Self Operating Computer]\n{ANSI_RESET}{response.content}"
+        #     )
+        #     print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
 
-            new_user_response = prompt(style=style)
-            messages.append(
-                {
-                    "role": "user",
-                    "content": new_user_response,
-                }
-            )
+        #     new_user_response = prompt(style=style)
+        #     messages.append(
+        #         {
+        #             "role": "user",
+        #             "content": new_user_response,
+        #         }
+        #     )
 
-        loop_count += 1
-        if loop_count > 10:
-            looping = False
+        # loop_count += 1
+        # if loop_count > 10:
+        looping = False
 
 
 def format_mouse_prompt(objective):
@@ -312,14 +332,6 @@ def format_mouse_prompt(objective):
         print("[format_mouse_prompt] prompt", prompt)
 
     return prompt
-
-
-def format_reflection_prompt(objective, last_action, last_action_response):
-    return REFLECTION_PROMPT.format(
-        objective=objective,
-        last_action=last_action,
-        last_action_response=last_action_response,
-    )
 
 
 def format_summary_prompt(objective):
@@ -332,15 +344,79 @@ def format_vision_summary_prompt(objective, textual_summary):
     )
 
 
-def get_next_action(messages):
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=messages,
-        tools=tools,
-        tool_choice="auto",  # auto is default, but we'll be explicit
-    )
+def format_vision_prompt(objective):
+    prompt = VISION_PROMPT.format(objective=objective)
+    if DEBUG:
+        print("[format_vision_prompt] prompt", prompt)
 
-    return response.choices[0].message
+    return prompt
+
+
+# def get_next_action(messages):
+#     response = client.chat.completions.create(
+#         model="gpt-4",
+#         messages=messages,
+#         tools=tools,
+#         tool_choice="auto",  # auto is default, but we'll be explicit
+#     )
+
+#     return response.choices[0].message
+
+
+def get_next_action(messages, objective):
+    try:
+        screenshot_filename = "screenshots/screenshot.png"
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        new_screenshot_filename = "screenshots/screenshot_with_grid.png"
+
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
+
+        with open(new_screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        vision_prompt = format_vision_prompt(objective)
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": vision_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+        messages.append(vision_message)
+
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=messages,
+            max_tokens=300,
+        )
+
+        response = response.choices[0]
+        print("[get_next_action] response", response)
+        content = result.message.content
+        print("[get_next_action] content", content)
+
+        # parsed_result = extract_json_from_string(content)
+        # print(
+        #     f"{ANSI_GREEN}[Self Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
+        # )
+        # x = convert_percent_to_decimal(parsed_result["x"])
+        # y = convert_percent_to_decimal(parsed_result["y"])
+
+        # if parsed_result and isinstance(x, float) and isinstance(y, float):
+        #     click_at_percentage(x, y)
+        #     return content
+
+        # return "We failed to click"
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed take action after looking at the screenshot"
 
 
 def summarize(messages, objective):
