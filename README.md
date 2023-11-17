@@ -44,7 +44,7 @@ pip install .
 ```
 mv .env.example .env
 ``` 
-7. **Add your Open AI key to your new .env file so the app can use it. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
 ```
 OPENAI_API_KEY='your-key-here'
 ```
@@ -53,6 +53,10 @@ OPENAI_API_KEY='your-key-here'
 operate
 ```
 7. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+
+![Screen Recording Update](https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png)
+![Accessibility Update](https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png)
+
 
 ### Contributions are Welcomed! Some Ideas: 
 - **Prompt Improvements**: Noticed any areas for prompt improvements? Feel free to make suggestions or submit a pull request (PR). 
