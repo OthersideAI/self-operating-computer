@@ -84,7 +84,19 @@ Objective: {objective}
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
-SUMMARY_PROMPT = """"""
+SUMMARY_PROMPT = """
+You are a Self-Operating Computer. You completed the steps to reach an objective and now you have two tasks.
+
+1. Summarize what you did to reach the objective.
+2. If the objective asked for information, share the information you see on the screen with the user.
+
+For more context on step 2: 
+- If the objective was to find headline news on AI and you are looking at a new site then share the headlines you see on the site. 
+- If the objective was to summarize a document, then summarize the document you see on the screen.
+
+The original objective was: {objective}
+Provide your summary below. 
+"""
 
 # Define style
 style = PromptStyle.from_dict(
@@ -189,18 +201,19 @@ def main():
             looping = False
 
 
-def format_summary_prompt():
+def format_summary_prompt(objective):
     """
     Format the summary prompt
     """
-    return SUMMARY_PROMPT
+    prompt = SUMMARY_PROMPT.format(objective=objective)
+    return prompt
 
 
 def format_vision_prompt(objective):
+    """
+    Format the vision prompt
+    """
     prompt = VISION_PROMPT.format(objective=objective)
-    if DEBUG:
-        print("[format_vision_prompt] prompt", prompt)
-
     return prompt
 
 
@@ -286,20 +299,45 @@ def parse_oai_response(response):
 
 
 def summarize(messages):
-    summary_prompt = format_summary_prompt()
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
 
-    messages.append({"role": "user", "content": summary_prompt})
+        screenshot_filename = os.path.join(screenshots_dir, "summary_screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
 
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=messages,
-        max_tokens=300,
-    )
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    result = response.choices[0]
-    content = result.message.content
+        summary_prompt = format_summary_prompt(objective)
 
-    return content
+        summary_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": summary_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+        # create a copy of messages and save to pseudo_messages
+        messages.append(summary_message)
+
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=messages,
+            max_tokens=500,
+        )
+
+        content = response.choices[0].message.content
+        return content
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed to summarize the workflow"
 
 
 def mouse_click(click_detail):
