@@ -164,10 +164,10 @@ def main():
             )
             looping = False
             break
-            # summary = summarize(messages, objective)
-            # print(
-            #     f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
-            # )
+            summary = summarize(messages, objective)
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+            )
 
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE}[Act] {action_type} {ANSI_RESET}{action_detail}"
@@ -298,7 +298,7 @@ def parse_oai_response(response):
     return {"type": "UNKNOWN", "data": None}
 
 
-def summarize(messages):
+def summarize(messages, objective):
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
