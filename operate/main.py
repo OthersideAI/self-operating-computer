@@ -287,7 +287,7 @@ def parse_oai_response(response):
 
 
 def summarize(messages):
-    summary_prompt = format_summary_prompt(objective)
+    summary_prompt = format_summary_prompt()
 
     messages.append({"role": "user", "content": summary_prompt})
 
