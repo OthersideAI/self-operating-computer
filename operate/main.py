@@ -96,7 +96,7 @@ To complete emulate a human operator you only need three actions. These are the 
 Here are your formats for how to respond. 
 
 1. CLICK
-Response: CLICK {{ "x": "percent", "y": "percent", "explanation": "~explanation detail~" }} 
+Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description of what you're clicking~" }} 
 
 2. TYPE
 Response: TYPE "value you want to type"
@@ -113,13 +113,13 @@ Objective: Open Notes
 DONE
 __
 Objective: Find a image of a banana
-CLICK {{ "x": "50%", "y": "60%", "explanation": "I can see a Google Search field, I'm going to click that so I can search." }} 
+CLICK {{ "x": "50%", "y": "60%", "description": "Clicking the Google Search field" }} 
 __
 Objective: Follow up with the vendor in outlook
 TYPE "Hello, I hope you are doing well. I wanted to follow up"
 __
 Objective: Open Spotify and play the beatles
-CLICK {{ "x": "20%", "y": "92%", "explanation": "Spotify is open I'll click the search field to look for the beatles." }}
+CLICK {{ "x": "20%", "y": "92%", "description": "Clicking the play button under the beatles song" }}
 __
 Objective: Open Spotify and play the beatles
 SEARCH "Spotify"
@@ -526,7 +526,7 @@ def mouse_click(click_detail):
 
         if click_detail and isinstance(x, float) and isinstance(y, float):
             click_at_percentage(x, y)
-            return content
+            return "CLICK SUCCESSFUL:" + click_detail["description"]
         else:
             return "We failed to click"
 
