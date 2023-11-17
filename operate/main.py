@@ -134,7 +134,7 @@ A few important notes:
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Make sure that a field is active before using TYPE
-- When doing TYPE in a field that requires a submission, don't forget to submit with the enter key.
+- When doing TYPE in a field that requires a submission do not forget to press enter after typing (such as in Google Search)
 
 VERY IMPORTANT: Look closely at the image and question what you see. Always use the screen to evaluate where you are and make the best next action.
 
@@ -239,6 +239,7 @@ def main():
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE}[Act] {action_type} {ANSI_RESET}{action_detail}"
         )
 
+        function_response = ""
         if action_type == "SEARCH":
             function_response = mac_search(action_detail)
         elif action_type == "TYPE":
@@ -246,64 +247,20 @@ def main():
         elif action_type == "CLICK":
             function_response = mouse_click(action_detail)
         else:
-            function_response = "I don't know how to do that"
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET} Oh no, I broke :("
+                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}Oh no, I broke :("
             )
             looping = False
+            break
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE}[Act] Result {ANSI_RESET}{function_response}"
+        )
 
         message = {
             "role": "assistant",
             "content": function_response,
         }
         messages.append(message)
-
-        #         if function_name == "mouse_click":
-        #             function_response = mouse_click(
-        #                 objective, function_args["description"]
-        #             )
-
-        #         elif function_name == "keyboard_type":
-        #             function_response = keyboard_type(function_args["type_value"])
-        #         else:
-        #             function_response = mac_search(function_args["type_value"])
-        #         print(
-        #             f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] response\n{ANSI_RESET}{function_response}"
-        #         )
-        #         messages.append(
-        #             {
-        #                 "tool_call_id": tool_call.id,
-        #                 "role": "tool",
-        #                 "name": function_name,
-        #                 "content": function_response,
-        #             }
-        #         )
-
-        # else:
-        #     if response.content == "DONE":
-        #         print(
-        #             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
-        #         )
-        #         looping = False
-        #         summary = summarize(messages, objective)
-        #         print(
-        #             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
-        #         )
-
-        #         break
-
-        #     print(
-        #         f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{response.content}"
-        #     )
-        #     print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
-
-        #     new_user_response = prompt(style=style)
-        #     messages.append(
-        #         {
-        #             "role": "user",
-        #             "content": new_user_response,
-        #         }
-        #     )
 
         loop_count += 1
         if loop_count > 10:
