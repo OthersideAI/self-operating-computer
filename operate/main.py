@@ -84,7 +84,9 @@ tools = [
 
 
 VISION_PROMPT = """
-From looking at a screenshot, the objective and you previous steps, your goal is to take the best next action to reach the objective. 
+You are a Self-Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human.
+
+From looking at the screen, the objective and you previous steps, your goal is to take the best next action to reach the objective. 
 
 To complete emulate a human operator you only need three actions. These are the actions available to you below. 
 
@@ -130,36 +132,18 @@ A few important notes:
 - Use grid with percentages as a guide to guess the X & Y location, but avoid clicking exactly at the grid cross hairs since they are unlikely to be the exact location.
 - When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
+- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
+- Make sure that a field is active before using TYPE
 
-IMPORTANT: At each step evaluate if you completed the task and respond with exact following content if you finished: DONE
+VERY IMPORTANT: Look closely at the image and question what you see. Always use the screen to evaluate where you are and make the best next action.
 
 Objective: {objective}
 """
 
+# - When doing TYPE in a field that requires a submission, don't forget to submit with the enter key.
+
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
-SYSTEM_PROMPT = """
-You are a Self-Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human. You are compatible with only Mac OS currently.
-
-The user will give you an objective and you will decide the mouse and keyboard actions to accomplish that goal. 
-
-You have the tools below to accomplish the task. Use these tools below to accomplish your task. 
-
-1. CLICK - Move mouse and click
-2. TYPE - Type on the keyboard
-3. SEARCH - Search for a program on Mac
-4. DONE - When you completed the task respond with the exact following phrase content: DONE
-
-A few important notes: 
-- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
-- When doing TYPE in a field that requires a submission, don't forget to submit with the enter key.
-
-Make a plan from chatting with the user, once they agree with the plan go ahead and execute it. It is ok to be flexible and not stick to the exact plan. 
-
-IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. If you get asked to do something, just go ahead and get started. Be confident that you can do it.
-
-When you completed the task respond with the exact following phrase content: DONE
-"""
 
 SUMMARY_PROMPT = """
 Objective: {objective}
@@ -342,7 +326,7 @@ def parse_oai_response(response):
 
     elif response.startswith("TYPE"):
         # Extract the text to type
-        type_data = re.search(r'TYPE "(.+)"', response).group(1)
+        type_data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
         return {"type": "TYPE", "data": type_data}
 
     elif response.startswith("SEARCH"):
@@ -536,55 +520,6 @@ def mouse_click(click_detail):
     except Exception as e:
         print(f"Error parsing JSON: {e}")
         return "We failed to click"
-
-
-def reflect(objective, last_action, last_action_response):
-    print("[reflect] last_action_response", last_action_response)
-    # sleep for half a second
-    time.sleep(0.5)
-
-    screenshot_filename = "screenshots/reflection_screenshot.png"
-    # Call the function to capture the screen with the cursor
-    capture_screen_with_cursor(screenshot_filename)
-
-    new_screenshot_filename = "screenshots/grid_reflection_screenshot.png"
-
-    add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
-
-    with open(new_screenshot_filename, "rb") as img_file:
-        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-    reflect_prompt = format_reflection_prompt(
-        objective, last_action, last_action_response
-    )
-    print("[reflect] reflect_prompt", reflect_prompt)
-    # import pdb
-
-    # pdb.set_trace()
-
-    response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": reflect_prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                    },
-                ],
-            }
-        ],
-        max_tokens=300,
-    )
-
-    result = response.choices[0]
-    content = result.message.content
-
-    print(f"{ANSI_GREEN}[Self-Operating Computer][Reflection] {ANSI_RESET} {content}")
-
-    return content
 
 
 def add_grid_to_image(original_image_path, new_image_path, grid_interval):
