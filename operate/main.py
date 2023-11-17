@@ -716,7 +716,7 @@ available_functions = {
 }  # only one function in this example, but you can have multiple
 
 
-def capture_screen_with_cursor(file_path="screenshot/screenshot_with_cursor.png"):
+def capture_screen_with_cursor(file_path="screenshots/screenshot_with_cursor.png"):
     # Use the screencapture utility to capture the screen with the cursor
     subprocess.run(["screencapture", "-C", file_path])
 
