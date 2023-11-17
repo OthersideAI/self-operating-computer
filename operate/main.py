@@ -6,6 +6,7 @@ import time
 import base64
 import json
 import math
+import re
 
 
 from prompt_toolkit import prompt
@@ -83,34 +84,6 @@ tools = [
 ]
 
 
-MOUSE_PROMPT = """
-From looking at a screenshot, your goal is to guess the X & Y location of a window or field on the screen in order to fire a click event. The X & Y location are in percentage (%) of screen width and height.
-
-Your job is to click on windows or fields that will progress you towards your objective. The screenshot has a grid with percentages to help you guess the X & Y location. 
-
-Example are below.
-__
-Objective: Find a image of a banana
-Click: {{ "x": "50%", "y": "60%", "explanation": "I can see a Google Search field, I'm going to click that so I can search." }} 
-__
-Objective: Open Spotify and play the beatles
-Click: {{ "x": "20%", "y": "92%", "explanation": "Spotify is open I'll click the search field to look for the beatles." }}
-__
-
-I'm sure you know this but, the left side of the screen will have a x % value lower than 50% and the right side will have x% value higher than 50%. 
-
-A few important notes: 
-- Use grid with percentages as a guide to guess the X & Y location, but avoid clicking exactly at the grid cross hairs since they are unlikely to be the exact location.
-- When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
-- The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
-
-IMPORTANT: Always respond with the correct following format: 
-{{ "x": "percent", "y": "percent", "explanation": "~explanation detail~" }} 
-
-Objective: {objective}
-Click:
-"""
-
 VISION_PROMPT = """
 From looking at a screenshot, the objective and you previous steps, your goal is to take the best next action to reach the objective. 
 
@@ -146,10 +119,13 @@ Objective: Open Spotify and play the beatles
 SEARCH "Spotify"
 __
 
+
 A few important notes: 
 - Use grid with percentages as a guide to guess the X & Y location, but avoid clicking exactly at the grid cross hairs since they are unlikely to be the exact location.
 - When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
+
+Remember: When you completed the task respond with the exact following phrase content: DONE
 
 Objective: {objective}
 """
@@ -252,15 +228,31 @@ def main():
 
         action = parse_oai_response(response)
         action_type = action.get("type")
+        action_detail = action.get("data")
 
+        if action_type == "DONE":
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
+            )
+            looping = False
+            # summary = summarize(messages, objective)
+            # print(
+            #     f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+            # )
         if action_type == "SEARCH":
-            function_response = mac_search(action.data)
+            function_response = mac_search(action_detail)
         elif action_type == "TYPE":
-            function_response = keyboard_type(action.data)
+            function_response = keyboard_type(action_detail)
         elif action_type == "CLICK":
-            function_response = mouse_click(objective, action.data)
+            function_response = mouse_click(objective, action_detail)
         else:  # unknown action
             function_response = "I don't know how to do that"
+
+        message = {
+            "role": "assistant",
+            "content": function_response,
+        }
+        messages.append(message)
 
         # tool_calls = response.tool_calls
         # messages.append(response)
@@ -333,13 +325,15 @@ def main():
         #         }
         #     )
 
-        # loop_count += 1
-        # if loop_count > 10:
-        looping = False
+        loop_count += 1
+        if loop_count > 10:
+            looping = False
 
 
 def parse_oai_response(response):
-    if response.startswith("CLICK"):
+    if response == "DONE":
+        return {"type": "DONE", "data": None}
+    elif response.startswith("CLICK"):
         # Extract the JSON part
         click_data = re.search(r"CLICK \{\{ (.+) \}\}", response).group(1)
         # Convert to proper JSON format by replacing single quotes with double quotes
@@ -398,6 +392,8 @@ def format_vision_prompt(objective):
 
 
 def get_next_action(messages, objective):
+    # sleep for a second
+    time.sleep(1)
     try:
         screenshot_filename = "screenshots/screenshot.png"
         # Call the function to capture the screen with the cursor
@@ -430,9 +426,7 @@ def get_next_action(messages, objective):
             max_tokens=300,
         )
 
-        response = response.choices[0]
-        print("[get_next_action] response", response)
-        content = response.message.content
+        content = response.choices[0].message.content
         print("[get_next_action] content", content)
         return content
 
