@@ -91,6 +91,7 @@ To complete emulate a human operator you only need three actions. These are the 
 1. CLICK - Move mouse and click
 2. TYPE - Type on the keyboard
 3. SEARCH - Search for a program on Mac and open it
+4. DONE - When you completed the task respond with the exact following phrase content
 
 Here are your formats for how to respond. 
 
@@ -103,7 +104,13 @@ Response: TYPE "value you want to type"
 2. SEARCH
 Response: SEARCH "app you want to search for on Mac"
 
-Example are below.
+3. DONE
+Response: DONE
+
+Here are examples of how to respond which depend on which step you are on.
+__
+Objective: Open Notes
+DONE
 __
 Objective: Find a image of a banana
 CLICK {{ "x": "50%", "y": "60%", "explanation": "I can see a Google Search field, I'm going to click that so I can search." }} 
@@ -124,7 +131,7 @@ A few important notes:
 - When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 
-Remember: When you completed the task respond with the exact following phrase content: DONE
+IMPORTANT: At each step evaluate if you completed the task and respond with exact following content if you finished: DONE
 
 Objective: {objective}
 """
@@ -141,6 +148,7 @@ You have the tools below to accomplish the task. Use these tools below to accomp
 1. CLICK - Move mouse and click
 2. TYPE - Type on the keyboard
 3. SEARCH - Search for a program on Mac
+4. DONE - When you completed the task respond with the exact following phrase content: DONE
 
 A few important notes: 
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
@@ -326,9 +334,8 @@ def parse_oai_response(response):
     if response == "DONE":
         return {"type": "DONE", "data": None}
     elif response.startswith("CLICK"):
-        # Extract the JSON part
-        click_data = re.search(r"CLICK \{\{ (.+) \}\}", response).group(1)
-        # Convert to proper JSON format by replacing single quotes with double quotes
+        # Adjust the regex to match the correct format
+        click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
         click_data_json = json.loads(f"{{{click_data}}}")
         return {"type": "CLICK", "data": click_data_json}
 
@@ -404,11 +411,20 @@ def get_next_action(messages, objective):
                 },
             ],
         }
-        messages.append(vision_message)
+        # create a copy of messages and save to pseudo_messages
+        pseudo_messages = messages.copy()
+        pseudo_messages.append(vision_message)
+
+        messages.append(
+            {
+                "role": "user",
+                "content": "~User shared a screenshot with you which has since been archived~",
+            }
+        )
 
         response = client.chat.completions.create(
             model="gpt-4-vision-preview",
-            messages=messages,
+            messages=pseudo_messages,
             max_tokens=300,
         )
 
