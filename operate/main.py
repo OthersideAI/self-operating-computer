@@ -283,8 +283,7 @@ def parse_oai_response(response):
         search_data = re.search(r'SEARCH "(.+)"', response).group(1)
         return {"type": "SEARCH", "data": search_data}
 
-    else:
-        return {"type": "UNKNOWN", "data": None}
+    return {"type": "UNKNOWN", "data": None}
 
 
 def summarize(messages):
