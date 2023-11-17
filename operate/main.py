@@ -107,8 +107,6 @@ A few important notes:
 IMPORTANT: Always respond with the correct following format: 
 {{ "x": "percent", "y": "percent", "explanation": "~explanation detail~" }} 
 
-There was an earlier guess of what to do, use this information if it is helpful but don't worry if you need to discard it: {click_instruction}
-
 Objective: {objective}
 Click:
 """
@@ -285,7 +283,7 @@ def main():
                 looping = False
                 summary = summarize(messages, objective)
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Summary \n{ANSI_RESET} {summary}"
+                    f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
                 )
 
                 break
@@ -308,10 +306,8 @@ def main():
             looping = False
 
 
-def format_mouse_prompt(objective, click_instruction):
-    prompt = MOUSE_PROMPT.format(
-        objective=objective, click_instruction=click_instruction
-    )
+def format_mouse_prompt(objective):
+    prompt = MOUSE_PROMPT.format(objective=objective)
     if DEBUG:
         print("[format_mouse_prompt] prompt", prompt)
 
@@ -432,7 +428,7 @@ def mouse_click(objective, click_information):
     with open(new_screenshot_filename, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    click_prompt = format_mouse_prompt(objective, click_information)
+    click_prompt = format_mouse_prompt(objective)
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
