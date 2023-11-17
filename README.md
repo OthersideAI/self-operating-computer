@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ```
 pip install .
 ```
-6. **Then rename the example.env file to .env so that you can save your OpenAI key in it.**
+6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
 ```
 mv .env.example .env
 ``` 
