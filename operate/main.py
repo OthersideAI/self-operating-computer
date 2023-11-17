@@ -76,7 +76,6 @@ A few important notes:
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Make sure that a field is active before using TYPE
-- When doing TYPE in a field that requires a submission do not forget to press enter after typing (such as in Google Search)
 
 VERY IMPORTANT: Look closely at the image and question what you see. Always use the screen to evaluate where you are and make the best next action.
 
@@ -416,6 +415,8 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
 def keyboard_type(text):
     for char in text:
         pyautogui.write(char)
+
+    pyautogui.press("enter")
     return "Successfully typed: " + text
 
 
