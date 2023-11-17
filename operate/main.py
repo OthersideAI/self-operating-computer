@@ -208,7 +208,7 @@ def main():
 
     os.system("clear")  # Clears the terminal screen
 
-    print(f"{ANSI_GREEN}[Self Operating Computer] \n {ANSI_RESET} {USER_QUESTION}")
+    print(f"{ANSI_GREEN}[Self Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
     print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
 
     objective = prompt(
@@ -241,10 +241,10 @@ def main():
                 function_args = json.loads(tool_call.function.arguments)
 
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] \n {ANSI_RESET} {function_name}"
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool]\n{ANSI_RESET}{function_name}"
                 )
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with \n {ANSI_RESET} {function_args}"
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with\n{ANSI_RESET}{function_args}"
                 )
 
                 if function_name == "mouse_click":
@@ -257,7 +257,7 @@ def main():
                 else:
                     function_response = mac_search(function_args["type_value"])
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response \n {ANSI_RESET} {function_response}"
+                    f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response\n{ANSI_RESET}{function_response}"
                 )
                 messages.append(
                     {
@@ -267,29 +267,29 @@ def main():
                         "content": function_response,
                     }
                 )
-                reflection = reflect(objective, function_name, function_response)
-                messages.append(
-                    {
-                        "role": "assistant",
-                        "content": reflection,
-                    }
-                )
+                # reflection = reflect(objective, function_name, function_response)
+                # messages.append(
+                #     {
+                #         "role": "assistant",
+                #         "content": reflection,
+                #     }
+                # )
 
         else:
             if response.content == "DONE":
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Objective complete {ANSI_RESET}"
+                    f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
                 )
                 looping = False
                 summary = summarize(messages, objective)
                 print(
-                    f"{ANSI_GREEN}[Self Operating Computer] {ANSI_BLUE} Summary {ANSI_RESET} {summary}"
+                    f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Summary \n{ANSI_RESET} {summary}"
                 )
 
                 break
 
             print(
-                f"{ANSI_GREEN}[Self Operating Computer] \n {ANSI_RESET} {response.content}"
+                f"{ANSI_GREEN}[Self Operating Computer]\n{ANSI_RESET}{response.content}"
             )
             print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
 
