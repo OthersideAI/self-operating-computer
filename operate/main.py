@@ -25,7 +25,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-DEBUG = True
+DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -230,9 +230,9 @@ def main():
     loop_count = 0
 
     while looping:
-        if DEBUG:
-            print("[loop] messages before next action:\n\n\n", messages[1:])
-            # print("[loop] messages before next action:\n\n", messages)
+        # if DEBUG:
+        print("[loop] messages before next action:\n\n\n", messages[1:])
+        # print("[loop] messages before next action:\n\n", messages)
         response = get_next_action(messages, objective)
 
         action = parse_oai_response(response)
@@ -253,7 +253,7 @@ def main():
         elif action_type == "TYPE":
             function_response = keyboard_type(action_detail)
         elif action_type == "CLICK":
-            function_response = mouse_click(objective, action_detail)
+            function_response = mouse_click(action_detail)
         else:  # unknown action
             function_response = "I don't know how to do that"
 
@@ -516,19 +516,21 @@ def click_at_percentage(
     return "successfully clicked"
 
 
-def mouse_click(objective, click_information):
+def mouse_click(click_detail):
     try:
-        parsed_result = extract_json_from_string(content)
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
+            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{click_detail}"
         )
-        x = convert_percent_to_decimal(parsed_result["x"])
-        y = convert_percent_to_decimal(parsed_result["y"])
+        x = convert_percent_to_decimal(click_detail["x"])
+        y = convert_percent_to_decimal(click_detail["y"])
 
-        if parsed_result and isinstance(x, float) and isinstance(y, float):
+        if click_detail and isinstance(x, float) and isinstance(y, float):
             click_at_percentage(x, y)
             return content
+        else:
+            return "We failed to click"
 
+    except Exception as e:
         return "We failed to click"
 
     except Exception as e:
