@@ -232,36 +232,32 @@ def main():
             # print(
             #     f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
             # )
+
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool]\n{ANSI_RESET}{action_type}"
+        )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] with\n{ANSI_RESET}{action_detail}"
+        )
+
         if action_type == "SEARCH":
             function_response = mac_search(action_detail)
         elif action_type == "TYPE":
             function_response = keyboard_type(action_detail)
         elif action_type == "CLICK":
             function_response = mouse_click(action_detail)
-        else:  # unknown action
+        else:  
             function_response = "I don't know how to do that"
+                print(
+                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET} Oh no, I broke :("
+            )
+            looping = False
 
         message = {
             "role": "assistant",
             "content": function_response,
         }
         messages.append(message)
-
-        # tool_calls = response.tool_calls
-        # messages.append(response)
-
-        # if tool_calls:
-        #     for tool_call in tool_calls:
-        #         function_name = tool_call.function.name
-
-        #         function_args = json.loads(tool_call.function.arguments)
-
-        #         print(
-        #             f"{ANSI_GREEN}[Self-Operating Computer][Use Tool]\n{ANSI_RESET}{function_name}"
-        #         )
-        #         print(
-        #             f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] with\n{ANSI_RESET}{function_args}"
-        #         )
 
         #         if function_name == "mouse_click":
         #             function_response = mouse_click(
@@ -313,29 +309,6 @@ def main():
         loop_count += 1
         if loop_count > 10:
             looping = False
-
-
-def parse_oai_response(response):
-    if response == "DONE":
-        return {"type": "DONE", "data": None}
-    elif response.startswith("CLICK"):
-        # Adjust the regex to match the correct format
-        click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
-        click_data_json = json.loads(f"{{{click_data}}}")
-        return {"type": "CLICK", "data": click_data_json}
-
-    elif response.startswith("TYPE"):
-        # Extract the text to type
-        type_data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
-        return {"type": "TYPE", "data": type_data}
-
-    elif response.startswith("SEARCH"):
-        # Extract the search query
-        search_data = re.search(r'SEARCH "(.+)"', response).group(1)
-        return {"type": "SEARCH", "data": search_data}
-
-    else:
-        return {"type": "UNKNOWN", "data": None}
 
 
 def format_summary_prompt(objective):
@@ -406,25 +379,34 @@ def get_next_action(messages, objective):
         )
 
         content = response.choices[0].message.content
-        print("[get_next_action] content", content)
         return content
-
-        # parsed_result = extract_json_from_string(content)
-        # print(
-        #     f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
-        # )
-        # x = convert_percent_to_decimal(parsed_result["x"])
-        # y = convert_percent_to_decimal(parsed_result["y"])
-
-        # if parsed_result and isinstance(x, float) and isinstance(y, float):
-        #     click_at_percentage(x, y)
-        #     return content
-
-        # return "We failed to click"
 
     except Exception as e:
         print(f"Error parsing JSON: {e}")
         return "Failed take action after looking at the screenshot"
+
+
+def parse_oai_response(response):
+    if response == "DONE":
+        return {"type": "DONE", "data": None}
+    elif response.startswith("CLICK"):
+        # Adjust the regex to match the correct format
+        click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
+        click_data_json = json.loads(f"{{{click_data}}}")
+        return {"type": "CLICK", "data": click_data_json}
+
+    elif response.startswith("TYPE"):
+        # Extract the text to type
+        type_data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
+        return {"type": "TYPE", "data": type_data}
+
+    elif response.startswith("SEARCH"):
+        # Extract the search query
+        search_data = re.search(r'SEARCH "(.+)"', response).group(1)
+        return {"type": "SEARCH", "data": search_data}
+
+    else:
+        return {"type": "UNKNOWN", "data": None}
 
 
 def summarize(messages, objective):
@@ -474,6 +456,28 @@ def summarize(messages, objective):
     return content
 
 
+def mouse_click(click_detail):
+    try:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{click_detail}"
+        )
+        x = convert_percent_to_decimal(click_detail["x"])
+        y = convert_percent_to_decimal(click_detail["y"])
+
+        if click_detail and isinstance(x, float) and isinstance(y, float):
+            click_at_percentage(x, y)
+            return "CLICK SUCCESSFUL:" + click_detail["description"]
+        else:
+            return "We failed to click"
+
+    except Exception as e:
+        return "We failed to click"
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "We failed to click"
+
+
 def click_at_percentage(
     x_percentage, y_percentage, duration=0.2, circle_radius=50, circle_duration=0.5
 ):
@@ -498,28 +502,6 @@ def click_at_percentage(
     # Finally, click
     pyautogui.click(x_pixel, y_pixel)
     return "successfully clicked"
-
-
-def mouse_click(click_detail):
-    try:
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{click_detail}"
-        )
-        x = convert_percent_to_decimal(click_detail["x"])
-        y = convert_percent_to_decimal(click_detail["y"])
-
-        if click_detail and isinstance(x, float) and isinstance(y, float):
-            click_at_percentage(x, y)
-            return "CLICK SUCCESSFUL:" + click_detail["description"]
-        else:
-            return "We failed to click"
-
-    except Exception as e:
-        return "We failed to click"
-
-    except Exception as e:
-        print(f"Error parsing JSON: {e}")
-        return "We failed to click"
 
 
 def add_grid_to_image(original_image_path, new_image_path, grid_interval):
@@ -590,7 +572,7 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
 def keyboard_type(text):
     for char in text:
         pyautogui.write(char)
-    return "successfully typed " + text
+    return "Successfully typed: " + text
 
 
 def mac_search(text):
@@ -604,13 +586,6 @@ def mac_search(text):
 
     pyautogui.press("enter")
     return "successfully opened " + text + " on Mac"
-
-
-available_functions = {
-    "mouse_click": mouse_click,
-    "keyboard_type": keyboard_type,
-    "mac_search": mac_search,
-}  # only one function in this example, but you can have multiple
 
 
 def capture_screen_with_cursor(file_path="screenshots/screenshot_with_cursor.png"):
