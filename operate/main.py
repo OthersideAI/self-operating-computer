@@ -25,6 +25,7 @@ from openai import OpenAI
 load_dotenv()
 
 DEBUG = False
+WITH_REFLECTION = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -267,13 +268,14 @@ def main():
                         "content": function_response,
                     }
                 )
-                # reflection = reflect(objective, function_name, function_response)
-                # messages.append(
-                #     {
-                #         "role": "assistant",
-                #         "content": reflection,
-                #     }
-                # )
+                if WITH_REFLECTION:
+                    reflection = reflect(objective, function_name, function_response)
+                    messages.append(
+                        {
+                            "role": "assistant",
+                            "content": reflection,
+                        }
+                    )
 
         else:
             if response.content == "DONE":
