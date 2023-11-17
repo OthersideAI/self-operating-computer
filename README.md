@@ -1,9 +1,11 @@
-# Self-Operating Computer Framework
+<h1 align="center">Self-Operating Computer Framework</h1>
 
-**This framework enables multimodal models to operate a computer, replicating the inputs and outputs of a human operator.** Models receive an objective and proceed by analyzing a screenshot at each step, subsequently generating the next mouse or keyboard action.
+<p align="center">
+  <strong>This framework enables multimodal models to operate a computer, replicating the inputs and outputs of a human operator. Models receive an objective and proceed by analyzing a screenshot at each step, subsequently generating the next mouse or keyboard action.</strong>
+</p>
 
 <div align="center">
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="500"  style="margin: 10px;"/>
+  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="650"  style="margin: 10px;"/>
 </div>
 
 ### Key Features
