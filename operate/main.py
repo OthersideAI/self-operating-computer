@@ -157,7 +157,7 @@ Objective: {objective}
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 SYSTEM_PROMPT = """
-You are a Self Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human. You are compatible with only Mac OS currently.
+You are a Self-Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human. You are compatible with only Mac OS currently.
 
 The user will give you an objective and you will decide the mouse and keyboard actions to accomplish that goal. 
 
@@ -220,14 +220,14 @@ ANSI_YELLOW = "\033[33m"
 
 def main():
     message_dialog(
-        title="Self Operating Computer",
+        title="Self-Operating Computer",
         text="Ask a computer to do anything.",
         style=style,
     ).run()
 
     os.system("clear")  # Clears the terminal screen
 
-    print(f"{ANSI_GREEN}[Self Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
+    print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
     print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
 
     objective = prompt(
@@ -250,6 +250,18 @@ def main():
             print("[loop] messages before next action:\n\n\n", messages[1:])
         response = get_next_action(messages, objective)
 
+        action = parse_oai_response(response)
+        action_type = action.get("type")
+
+        if action_type == "SEARCH":
+            function_response = mac_search(action.data)
+        elif action_type == "TYPE":
+            function_response = keyboard_type(action.data)
+        elif action_type == "CLICK":
+            function_response = mouse_click(objective, action.data)
+        else:  # unknown action
+            function_response = "I don't know how to do that"
+
         # tool_calls = response.tool_calls
         # messages.append(response)
 
@@ -260,10 +272,10 @@ def main():
         #         function_args = json.loads(tool_call.function.arguments)
 
         #         print(
-        #             f"{ANSI_GREEN}[Self Operating Computer][Use Tool]\n{ANSI_RESET}{function_name}"
+        #             f"{ANSI_GREEN}[Self-Operating Computer][Use Tool]\n{ANSI_RESET}{function_name}"
         #         )
         #         print(
-        #             f"{ANSI_GREEN}[Self Operating Computer][Use Tool] with\n{ANSI_RESET}{function_args}"
+        #             f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] with\n{ANSI_RESET}{function_args}"
         #         )
 
         #         if function_name == "mouse_click":
@@ -276,7 +288,7 @@ def main():
         #         else:
         #             function_response = mac_search(function_args["type_value"])
         #         print(
-        #             f"{ANSI_GREEN}[Self Operating Computer][Use Tool] response\n{ANSI_RESET}{function_response}"
+        #             f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] response\n{ANSI_RESET}{function_response}"
         #         )
         #         messages.append(
         #             {
@@ -298,18 +310,18 @@ def main():
         # else:
         #     if response.content == "DONE":
         #         print(
-        #             f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
+        #             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
         #         )
         #         looping = False
         #         summary = summarize(messages, objective)
         #         print(
-        #             f"{ANSI_GREEN}[Self Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+        #             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
         #         )
 
         #         break
 
         #     print(
-        #         f"{ANSI_GREEN}[Self Operating Computer]\n{ANSI_RESET}{response.content}"
+        #         f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{response.content}"
         #     )
         #     print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
 
@@ -324,6 +336,28 @@ def main():
         # loop_count += 1
         # if loop_count > 10:
         looping = False
+
+
+def parse_oai_response(response):
+    if response.startswith("CLICK"):
+        # Extract the JSON part
+        click_data = re.search(r"CLICK \{\{ (.+) \}\}", response).group(1)
+        # Convert to proper JSON format by replacing single quotes with double quotes
+        click_data_json = json.loads(f"{{{click_data}}}")
+        return {"type": "CLICK", "data": click_data_json}
+
+    elif response.startswith("TYPE"):
+        # Extract the text to type
+        type_data = re.search(r'TYPE "(.+)"', response).group(1)
+        return {"type": "TYPE", "data": type_data}
+
+    elif response.startswith("SEARCH"):
+        # Extract the search query
+        search_data = re.search(r'SEARCH "(.+)"', response).group(1)
+        return {"type": "SEARCH", "data": search_data}
+
+    else:
+        return {"type": "UNKNOWN", "data": None}
 
 
 def format_mouse_prompt(objective):
@@ -398,12 +432,13 @@ def get_next_action(messages, objective):
 
         response = response.choices[0]
         print("[get_next_action] response", response)
-        content = result.message.content
+        content = response.message.content
         print("[get_next_action] content", content)
+        return content
 
         # parsed_result = extract_json_from_string(content)
         # print(
-        #     f"{ANSI_GREEN}[Self Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
+        #     f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
         # )
         # x = convert_percent_to_decimal(parsed_result["x"])
         # y = convert_percent_to_decimal(parsed_result["y"])
@@ -531,7 +566,7 @@ def mouse_click(objective, click_information):
     try:
         parsed_result = extract_json_from_string(content)
         print(
-            f"{ANSI_GREEN}[Self Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
+            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
         )
         x = convert_percent_to_decimal(parsed_result["x"])
         y = convert_percent_to_decimal(parsed_result["y"])
@@ -591,7 +626,7 @@ def reflect(objective, last_action, last_action_response):
     result = response.choices[0]
     content = result.message.content
 
-    print(f"{ANSI_GREEN}[Self Operating Computer][Reflection] {ANSI_RESET} {content}")
+    print(f"{ANSI_GREEN}[Self-Operating Computer][Reflection] {ANSI_RESET} {content}")
 
     return content
 
