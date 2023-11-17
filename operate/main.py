@@ -134,13 +134,14 @@ A few important notes:
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Make sure that a field is active before using TYPE
+- When doing TYPE in a field that requires a submission, don't forget to submit with the enter key.
 
 VERY IMPORTANT: Look closely at the image and question what you see. Always use the screen to evaluate where you are and make the best next action.
 
 Objective: {objective}
 """
 
-# - When doing TYPE in a field that requires a submission, don't forget to submit with the enter key.
+#
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
@@ -235,7 +236,7 @@ def main():
             # )
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] {ANSI_BLUE}{action_type}{ANSI_RESET}{action_detail}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE}[Act] {action_type} {ANSI_RESET}{action_detail}"
         )
 
         if action_type == "SEARCH":
@@ -456,9 +457,6 @@ def summarize(messages, objective):
 
 def mouse_click(click_detail):
     try:
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] click\n{ANSI_RESET}{click_detail}"
-        )
         x = convert_percent_to_decimal(click_detail["x"])
         y = convert_percent_to_decimal(click_detail["y"])
 
