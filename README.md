@@ -69,8 +69,8 @@ For any input on improving this project, feel free to reach out to me on [Twitte
 ### Follow HyperWriteAI for More Updates
 
 Stay updated with the latest developments:
-- Follow [HyperWriteAI](https://twitter.com/HyperWriteAI) on Twitter.
-- Follow [HyperWriteAI](https://www.linkedin.com/company/othersideai/) on LinkedIn.
+- Follow HyperWriteAI on [Twitter](https://twitter.com/HyperWriteAI).
+- Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
 ### Other important notes
 - This project is only compatible with MacOS as this time. 
