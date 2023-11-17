@@ -455,7 +455,7 @@ def mouse_click(objective, click_information):
     try:
         parsed_result = extract_json_from_string(content)
         print(
-            f"{ANSI_GREEN}[Self Operating Computer][Use Tool] Click {ANSI_RESET} {parsed_result}"
+            f"{ANSI_GREEN}[Self Operating Computer][Use Tool] click\n{ANSI_RESET}{parsed_result}"
         )
         x = convert_percent_to_decimal(parsed_result["x"])
         y = convert_percent_to_decimal(parsed_result["y"])
