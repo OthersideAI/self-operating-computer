@@ -25,8 +25,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-DEBUG = False
-WITH_REFLECTION = False
+DEBUG = True
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -223,7 +222,8 @@ def main():
 
     while looping:
         if DEBUG:
-            print("[loop] messages before next action:\n\n\n", messages[1:])
+            # print("[loop] messages before next action:\n\n\n", messages[1:])
+            print("[loop] messages before next action:\n\n", messages)
         response = get_next_action(messages, objective)
 
         action = parse_oai_response(response)
@@ -290,14 +290,6 @@ def main():
         #                 "content": function_response,
         #             }
         #         )
-        #         if WITH_REFLECTION:
-        #             reflection = reflect(objective, function_name, function_response)
-        #             messages.append(
-        #                 {
-        #                     "role": "assistant",
-        #                     "content": reflection,
-        #                 }
-        #             )
 
         # else:
         #     if response.content == "DONE":
@@ -378,17 +370,6 @@ def format_vision_prompt(objective):
         print("[format_vision_prompt] prompt", prompt)
 
     return prompt
-
-
-# def get_next_action(messages):
-#     response = client.chat.completions.create(
-#         model="gpt-4",
-#         messages=messages,
-#         tools=tools,
-#         tool_choice="auto",  # auto is default, but we'll be explicit
-#     )
-
-#     return response.choices[0].message
 
 
 def get_next_action(messages, objective):
