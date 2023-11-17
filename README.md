@@ -40,6 +40,10 @@ pip install -r requirements.txt
 ```
 pip install .
 ```
+7. **To use the OpenAI platform, you need to replace 'YOUR_API_KEY' with your actual OpenAI API key. If you don't have one, you can obtain an OpenAI key **:
+```
+
+```
 6. **Run it**!
 ```
 operate
