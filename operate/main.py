@@ -214,8 +214,8 @@ def main():
     loop_count = 0
 
     while looping:
-        # if DEBUG:
-        print("[loop] messages before next action:\n\n\n", messages[1:])
+        if DEBUG:
+            print("[loop] messages before next action:\n\n\n", messages[1:])
         # print("[loop] messages before next action:\n\n", messages)
         response = get_next_action(messages, objective)
 
@@ -228,16 +228,14 @@ def main():
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
             )
             looping = False
+            break
             # summary = summarize(messages, objective)
             # print(
             #     f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
             # )
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool]\n{ANSI_RESET}{action_type}"
-        )
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] with\n{ANSI_RESET}{action_detail}"
+            f"{ANSI_GREEN}[Self-Operating Computer][Use Tool] {ANSI_BLUE}{action_type}{ANSI_RESET}{action_detail}"
         )
 
         if action_type == "SEARCH":
@@ -246,9 +244,9 @@ def main():
             function_response = keyboard_type(action_detail)
         elif action_type == "CLICK":
             function_response = mouse_click(action_detail)
-        else:  
+        else:
             function_response = "I don't know how to do that"
-                print(
+            print(
                 f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET} Oh no, I broke :("
             )
             looping = False
