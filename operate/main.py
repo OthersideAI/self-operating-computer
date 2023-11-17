@@ -217,21 +217,22 @@ def main():
         style=style,
     )
 
-    system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
+    # system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
     assistant_message = {"role": "assistant", "content": USER_QUESTION}
     user_message = {
         "role": "user",
         "content": objective,  # we need to change this to allow messages.
     }
-    messages = [system_prompt, assistant_message, user_message]
+    # messages = [system_prompt, assistant_message, user_message]
+    messages = [assistant_message, user_message]
 
     looping = True
     loop_count = 0
 
     while looping:
         if DEBUG:
-            # print("[loop] messages before next action:\n\n\n", messages[1:])
-            print("[loop] messages before next action:\n\n", messages)
+            print("[loop] messages before next action:\n\n\n", messages[1:])
+            # print("[loop] messages before next action:\n\n", messages)
         response = get_next_action(messages, objective)
 
         action = parse_oai_response(response)
@@ -351,14 +352,6 @@ def parse_oai_response(response):
 
     else:
         return {"type": "UNKNOWN", "data": None}
-
-
-def format_mouse_prompt(objective):
-    prompt = MOUSE_PROMPT.format(objective=objective)
-    if DEBUG:
-        print("[format_mouse_prompt] prompt", prompt)
-
-    return prompt
 
 
 def format_summary_prompt(objective):
@@ -524,41 +517,6 @@ def click_at_percentage(
 
 
 def mouse_click(objective, click_information):
-    screenshot_filename = "screenshots/screenshot.png"
-    # Call the function to capture the screen with the cursor
-    capture_screen_with_cursor(screenshot_filename)
-
-    new_screenshot_filename = "screenshots/screenshot_with_grid.png"
-
-    add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
-
-    with open(new_screenshot_filename, "rb") as img_file:
-        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-    click_prompt = format_mouse_prompt(objective)
-
-    response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": click_prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                    },
-                ],
-            }
-        ],
-        max_tokens=300,
-    )
-
-    result = response.choices[0]
-    content = result.message.content
-    if DEBUG:
-        print("[mouse_click] content", content)
-
     try:
         parsed_result = extract_json_from_string(content)
         print(
