@@ -25,58 +25,6 @@ DEBUG = False
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 
-tools = [
-    {
-        "type": "function",
-        "function": {
-            "name": "mouse_click",
-            "description": "This function clicks fields, buttons, and windows on the screen.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "description": {
-                        "type": "string",
-                        "description": "A description of the click location.",
-                    },
-                },
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "keyboard_type",
-            "description": "This function types the specified text on the keyboard.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "type_value": {
-                        "type": "string",
-                        "description": "The text to type on the keyboard.",
-                    },
-                },
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "mac_search",
-            "description": "This function searches on Mac for programs",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "type_value": {
-                        "type": "string",
-                        "description": "The text to do on Mac search.",
-                    },
-                },
-            },
-        },
-    },
-]
-
-
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human.
 
@@ -135,28 +83,9 @@ VERY IMPORTANT: Look closely at the image and question what you see. Always use 
 Objective: {objective}
 """
 
-#
-
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
-
-SUMMARY_PROMPT = """
-Objective: {objective}
-Status: Complete
-
-You are took the previous actions and the objective. Provide a brief summary of everything you did. 
-"""
-
-VISION_SUMMARY_PROMPT = """
-Objective: {objective}
-Status: Complete
-
-Here's a textual summary of what you did: {textual_summary} 
-
-Don't mention that you were given a textual summary in your summary, just combine the information to make the best formal summary.
-
-Please look at the image and combine it with the textual summary to provide a more full conclusion below
-"""
+SUMMARY_PROMPT = """"""
 
 # Define style
 style = PromptStyle.from_dict(
@@ -181,6 +110,9 @@ ANSI_YELLOW = "\033[33m"
 
 
 def main():
+    """
+    Main function for the Self-Operating Computer
+    """
     message_dialog(
         title="Self-Operating Computer",
         text="Ask a computer to do anything.",
@@ -196,13 +128,11 @@ def main():
         style=style,
     )
 
-    # system_prompt = {"role": "system", "content": SYSTEM_PROMPT}
     assistant_message = {"role": "assistant", "content": USER_QUESTION}
     user_message = {
         "role": "user",
-        "content": objective,  # we need to change this to allow messages.
+        "content": objective,
     }
-    # messages = [system_prompt, assistant_message, user_message]
     messages = [assistant_message, user_message]
 
     looping = True
@@ -211,7 +141,6 @@ def main():
     while looping:
         if DEBUG:
             print("[loop] messages before next action:\n\n\n", messages[1:])
-        # print("[loop] messages before next action:\n\n", messages)
         response = get_next_action(messages, objective)
 
         action = parse_oai_response(response)
@@ -261,14 +190,11 @@ def main():
             looping = False
 
 
-def format_summary_prompt(objective):
-    return SUMMARY_PROMPT.format(objective=objective)
-
-
-def format_vision_summary_prompt(objective, textual_summary):
-    return VISION_SUMMARY_PROMPT.format(
-        objective=objective, textual_summary=textual_summary
-    )
+def format_summary_prompt():
+    """
+    Format the summary prompt
+    """
+    return SUMMARY_PROMPT
 
 
 def format_vision_prompt(objective):
@@ -280,10 +206,12 @@ def format_vision_prompt(objective):
 
 
 def get_next_action(messages, objective):
+    """
+    Get the next action for Self-Operating Computer
+    """
     # sleep for a second
     time.sleep(1)
     try:
-        # Ensure the 'screenshots' directory exists
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
@@ -359,7 +287,7 @@ def parse_oai_response(response):
         return {"type": "UNKNOWN", "data": None}
 
 
-def summarize(messages, objective):
+def summarize(messages):
     summary_prompt = format_summary_prompt(objective)
 
     messages.append({"role": "user", "content": summary_prompt})
@@ -367,36 +295,6 @@ def summarize(messages, objective):
     response = client.chat.completions.create(
         model="gpt-4",
         messages=messages,
-    )
-
-    result = response.choices[0]
-    textual_summary = result.message.content
-    if DEBUG:
-        print("[summarize] textual_summary", textual_summary)
-
-    screenshot_filename = "screenshots/summary_screenshot.png"
-    # Call the function to capture the screen with the cursor
-    capture_screen_with_cursor(screenshot_filename)
-
-    with open(screenshot_filename, "rb") as img_file:
-        img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-    vision_summary_prompt = format_vision_summary_prompt(objective, textual_summary)
-
-    response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": vision_summary_prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                    },
-                ],
-            }
-        ],
         max_tokens=300,
     )
 
@@ -416,9 +314,6 @@ def mouse_click(click_detail):
             return "CLICK SUCCESSFUL:" + click_detail["description"]
         else:
             return "We failed to click"
-
-    except Exception as e:
-        return "We failed to click"
 
     except Exception as e:
         print(f"Error parsing JSON: {e}")
@@ -448,10 +343,13 @@ def click_at_percentage(
 
     # Finally, click
     pyautogui.click(x_pixel, y_pixel)
-    return "successfully clicked"
+    return "Successfully clicked"
 
 
 def add_grid_to_image(original_image_path, new_image_path, grid_interval):
+    """
+    Add a grid to an image
+    """
     # Load the image
     image = Image.open(original_image_path)
 
