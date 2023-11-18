@@ -85,17 +85,18 @@ Objective: {objective}
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 SUMMARY_PROMPT = """
-You are a Self-Operating Computer. You completed the steps to reach an objective and now you have two tasks.
+You are a Self-Operating Computer. You completed the steps to reach an objective and now you need to share the results.
+
+You will respond to the user with the following:
 
 1. Summarize what you did to reach the objective.
-2. If the objective asked for information, share the information you see on the screen with the user.
-
-For more context on step 2: 
-- If the objective was to find headline news on AI and you are looking at a new site then share the headlines you see on the site. 
-- If the objective was to summarize a document, then summarize the document you see on the screen.
+2. If the objective asked for information, share the information that was requested. You may need to review the contents of the screen to complete this step.
 
 The original objective was: {objective}
-Provide your summary below. 
+
+IMPORTANT: Remember you have everything you need to share the results of your workflow. Look at the screen and what you've done this far and provide a comprehensive summary. 
+
+Now share the results!
 """
 
 # Define style
@@ -118,6 +119,9 @@ ANSI_BLUE = "\033[94m"  # This is for bright blue
 
 # Standard yellow text
 ANSI_YELLOW = "\033[33m"
+
+# Bright magenta text
+ANSI_BRIGHT_MAGENTA = "\033[95m"
 
 
 def main():
@@ -163,14 +167,15 @@ def main():
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
             )
             looping = False
-            break
             summary = summarize(messages, objective)
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
             )
 
+            break
+
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE}[Act] {action_type} {ANSI_RESET}{action_detail}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} {ANSI_RESET}{action_detail}"
         )
 
         function_response = ""
@@ -187,7 +192,7 @@ def main():
             looping = False
             break
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE}[Act] Result {ANSI_RESET}{function_response}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {ANSI_RESET}{function_response}"
         )
 
         message = {
@@ -311,7 +316,12 @@ def summarize(messages, objective):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
+        print("screenshot_filename", screenshot_filename)
+        print("img_base64", img_base64)
+
         summary_prompt = format_summary_prompt(objective)
+
+        print("summary_prompt", summary_prompt)
 
         summary_message = {
             "role": "user",
@@ -347,7 +357,7 @@ def mouse_click(click_detail):
 
         if click_detail and isinstance(x, float) and isinstance(y, float):
             click_at_percentage(x, y)
-            return "CLICK SUCCESSFUL:" + click_detail["description"]
+            return click_detail["description"]
         else:
             return "We failed to click"
 
@@ -455,7 +465,7 @@ def keyboard_type(text):
         pyautogui.write(char)
 
     pyautogui.press("enter")
-    return "Successfully typed: " + text
+    return "Typed: " + text
 
 
 def mac_search(text):
