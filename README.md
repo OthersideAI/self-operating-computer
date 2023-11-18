@@ -72,8 +72,8 @@ operate
 
 ### Contributions are Welcomed! Some Ideas: 
 - **Prompt Improvements**: Noticed any areas for prompt improvements? Feel free to make suggestions or submit a pull request (PR). 
+- **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
-- **Innovative Ideas**: Have an idea to improve this project in ways we haven't considered? Whether it's transforming this into an evaluation system for multimodal models or something else, we're open to your ideas!
 
 For any input on improving this project, feel free to reach out to me on [Twitter](https://twitter.com/josh_bickett).
 
