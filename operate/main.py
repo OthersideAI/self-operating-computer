@@ -8,6 +8,7 @@ import json
 import math
 import re
 import pyautogui
+import argparse
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
@@ -17,6 +18,7 @@ from PIL import Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
 import subprocess
 from openai import OpenAI
+
 
 load_dotenv()
 
@@ -71,7 +73,7 @@ __
 
 
 A few important notes: 
-- Use grid with percentages as a guide to guess the X & Y location, but avoid clicking exactly at the grid cross hairs since they are unlikely to be the exact location.
+- Use grid with percentages as a guide to guess the X & Y location, but do not click exactly at the grid cross hairs since they are unlikely to be the exact location.
 - When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
@@ -127,7 +129,7 @@ ANSI_YELLOW = "\033[33m"
 ANSI_BRIGHT_MAGENTA = "\033[95m"
 
 
-def main():
+def main(model="gpt-4-vision-preview"):
     """
     Main function for the Self-Operating Computer
     """
@@ -513,4 +515,16 @@ def convert_percent_to_decimal(percent_str):
 
 
 if __name__ == "__main__":
+    # parser = argparse.ArgumentParser(
+    #     description="Run the self-operating-computer with a specified model."
+    # )
+    # parser.add_argument(
+    #     "-m",
+    #     "--model",
+    #     help="Specify the model to use",
+    #     required=False,
+    #     default="default-model",
+    # )
+
+    # args = parser.parse_args()
     main()
