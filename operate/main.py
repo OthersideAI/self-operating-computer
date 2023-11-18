@@ -114,7 +114,7 @@ class ModelNotRecognizedException(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f"{self.model} -> {self.message}"
+        return f"{self.message} : {self.model} "
 
 
 # Define style
@@ -182,13 +182,13 @@ def main(model):
 
         except ModelNotRecognizedException as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} error: {e} {ANSI_RESET}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} Error -> {e} {ANSI_RESET}"
             )
             looping = False
             break
         except Exception as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} error: {e} {ANSI_RESET}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} Error -> {e} {ANSI_RESET}"
             )
             looping = False
             break
@@ -554,7 +554,7 @@ def convert_percent_to_decimal(percent_str):
         return None
 
 
-if __name__ == "__main__":
+def main_entry():
     parser = argparse.ArgumentParser(
         description="Run the self-operating-computer with a specified model."
     )
@@ -568,3 +568,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     main(args.model)
+
+
+if __name__ == "__main__":
+    main_entry()
