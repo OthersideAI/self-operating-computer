@@ -319,12 +319,7 @@ def summarize(messages, objective):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        print("screenshot_filename", screenshot_filename)
-        print("img_base64", img_base64)
-
         summary_prompt = format_summary_prompt(objective)
-
-        print("summary_prompt", summary_prompt)
 
         summary_message = {
             "role": "user",
