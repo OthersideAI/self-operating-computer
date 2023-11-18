@@ -85,16 +85,17 @@ Objective: {objective}
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 SUMMARY_PROMPT = """
-You are a Self-Operating Computer. You completed the steps to reach an objective and now you need to share the results.
+You are a Self-Operating Computer. You just completed a request from a user by operating the computer. Now you need to share the results. 
 
-You will respond to the user with the following:
+You have three pieces of key context about the completed request.
 
-1. Summarize what you did to reach the objective.
-2. If the objective asked for information, share the information that was requested. You may need to review the contents of the screen to complete this step.
+1. The original objective
+2. The steps you took to reach the objective that are available in the previous messages
+3. The screenshot you are looking at.
+
+Now you need to summarize what you did to reach the objective. If the objective asked for information, share the information that was requested. IMPORTANT: Don't forget to answer a user's question if they asked one.
 
 The original objective was: {objective}
-
-IMPORTANT: Remember you have everything you need to share the results of your workflow. Look at the screen and what you've done this far and provide a comprehensive summary. 
 
 Now share the results!
 """
