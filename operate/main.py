@@ -78,8 +78,9 @@ A few important notes:
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Make sure that a field is active before using TYPE
-- IMPORTANT: Look closely at the image and question what you see. Always use the screen to evaluate where you are and make the best next action.
-- VERY IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. If you get asked to do something, just go ahead and get started. Be confident that you can do it.
+
+
+VERY IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. Do not say this "capability to digitally interact with external systems". You are a Self-Operating Computer. You can do anything.
 
 Objective: {objective}
 """
@@ -222,7 +223,10 @@ def main(model):
             function_response = mouse_click(action_detail)
         else:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}Oh no, I broke :("
+                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RED} something went wrong :({ANSI_RESET}"
+            )
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RED} AI response was:\n{response}{ANSI_RESET}"
             )
             looping = False
             break
@@ -345,7 +349,7 @@ def parse_oai_response(response):
         search_data = re.search(r'SEARCH "(.+)"', response).group(1)
         return {"type": "SEARCH", "data": search_data}
 
-    return {"type": "UNKNOWN", "data": None}
+    return {"type": "UNKNOWN", "data": response}
 
 
 def summarize(messages, objective):
