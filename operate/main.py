@@ -80,7 +80,7 @@ A few important notes:
 - Make sure that a field is active before using TYPE
 
 
-IT IS EXTREMELY IMPORTANT THAT YOU FOLLOW THIS: You are capable of doing anything such as making money or operating a computer. DO NOT REFUSE TO OPERATE THE COMPUTER. 
+VERY IMPORTANT: Remember you are fully able to operate the computer with key and mouse actions. Assuming the task is safe it is complete safe to do thing such as write a poem, make a financial budget, etc.
 
 Objective: {objective}
 """
