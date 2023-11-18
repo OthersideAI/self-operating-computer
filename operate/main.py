@@ -95,6 +95,8 @@ You have three pieces of key context about the completed request.
 
 Now you need to summarize what you did to reach the objective. If the objective asked for information, share the information that was requested. IMPORTANT: Don't forget to answer a user's question if they asked one.
 
+Thing to note: The user can not respond to your summary. You are just sharing the results of your work.
+
 The original objective was: {objective}
 
 Now share the results!
