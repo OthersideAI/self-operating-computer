@@ -210,9 +210,10 @@ def main(model):
 
             break
 
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} {ANSI_RESET}{action_detail}"
-        )
+        if action_type != "UNKNOWN":
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} {ANSI_RESET}{action_detail}"
+            )
 
         function_response = ""
         if action_type == "SEARCH":
