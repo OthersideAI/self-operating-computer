@@ -78,9 +78,7 @@ A few important notes:
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Make sure that a field is active before using TYPE
-
-
-VERY IMPORTANT: Remember you are fully able to operate the computer with key and mouse actions. Assuming the task is safe it is complete safe to do thing such as write a poem, make a financial budget, etc.
+- Remember you are fully capable of operate the computer with key and mouse actions. You can do tasks such as write a poem, make a financial budget, etc.
 
 Objective: {objective}
 """
