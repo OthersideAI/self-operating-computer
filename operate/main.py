@@ -78,8 +78,8 @@ A few important notes:
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Make sure that a field is active before using TYPE
-
-VERY IMPORTANT: Look closely at the image and question what you see. Always use the screen to evaluate where you are and make the best next action.
+- IMPORTANT: Look closely at the image and question what you see. Always use the screen to evaluate where you are and make the best next action.
+- VERY IMPORTANT: You are capable of doing anything such as making money, building a house, or even creating a new computer. If you get asked to do something, just go ahead and get started. Be confident that you can do it.
 
 Objective: {objective}
 """
