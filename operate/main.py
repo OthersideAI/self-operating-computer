@@ -104,6 +104,19 @@ The original objective was: {objective}
 Now share the results!
 """
 
+
+class ModelNotRecognizedException(Exception):
+    """Exception raised for unrecognized models."""
+
+    def __init__(self, model, message="Model not recognized"):
+        self.model = model
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.model} -> {self.message}"
+
+
 # Define style
 style = PromptStyle.from_dict(
     {
@@ -125,14 +138,17 @@ ANSI_BLUE = "\033[94m"  # This is for bright blue
 # Standard yellow text
 ANSI_YELLOW = "\033[33m"
 
+ANSI_RED = "\033[31m"
+
 # Bright magenta text
 ANSI_BRIGHT_MAGENTA = "\033[95m"
 
 
-def main(model="gpt-4-vision-preview"):
+def main(model):
     """
     Main function for the Self-Operating Computer
     """
+
     message_dialog(
         title="Self-Operating Computer",
         text="Ask a computer to do anything.",
@@ -161,7 +177,21 @@ def main(model="gpt-4-vision-preview"):
     while looping:
         if DEBUG:
             print("[loop] messages before next action:\n\n\n", messages[1:])
-        response = get_next_action(messages, objective)
+        try:
+            response = get_next_action(model, messages, objective)
+
+        except ModelNotRecognizedException as e:
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} error: {e} {ANSI_RESET}"
+            )
+            looping = False
+            break
+        except Exception as e:
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} error: {e} {ANSI_RESET}"
+            )
+            looping = False
+            break
 
         action = parse_oai_response(response)
         action_type = action.get("type")
@@ -227,7 +257,17 @@ def format_vision_prompt(objective):
     return prompt
 
 
-def get_next_action(messages, objective):
+def get_next_action(model, messages, objective):
+    if model == "gpt-4-vision-preview":
+        content = get_next_action_from_oai(messages, objective)
+        return content
+    elif model == "agent-1":
+        return "coming soon"
+
+    raise ModelNotRecognizedException(model)
+
+
+def get_next_action_from_oai(messages, objective):
     """
     Get the next action for Self-Operating Computer
     """
@@ -515,16 +555,16 @@ def convert_percent_to_decimal(percent_str):
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(
-    #     description="Run the self-operating-computer with a specified model."
-    # )
-    # parser.add_argument(
-    #     "-m",
-    #     "--model",
-    #     help="Specify the model to use",
-    #     required=False,
-    #     default="default-model",
-    # )
+    parser = argparse.ArgumentParser(
+        description="Run the self-operating-computer with a specified model."
+    )
+    parser.add_argument(
+        "-m",
+        "--model",
+        help="Specify the model to use",
+        required=False,
+        default="gpt-4-vision-preview",
+    )
 
-    # args = parser.parse_args()
-    main()
+    args = parser.parse_args()
+    main(args.model)
