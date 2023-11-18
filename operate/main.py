@@ -183,13 +183,13 @@ def main(model):
 
         except ModelNotRecognizedException as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} Error -> {e} {ANSI_RESET}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
             )
             looping = False
             break
         except Exception as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED} Error -> {e} {ANSI_RESET}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
             )
             looping = False
             break
@@ -223,10 +223,10 @@ def main(model):
             function_response = mouse_click(action_detail)
         else:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RED} something went wrong :({ANSI_RESET}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}"
             )
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RED} AI response was:\n{response}{ANSI_RESET}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{response}"
             )
             looping = False
             break
