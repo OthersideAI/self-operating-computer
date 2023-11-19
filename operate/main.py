@@ -28,11 +28,11 @@ client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 
 VISION_PROMPT = """
-You are a Self-Operating Computer. You use the same operating system (i.e. screen user interface, click & type, etc.) as a human.
+You are a Self-Operating Computer. You use the same operating system as a human.
 
-From looking at the screen, the objective and you previous steps, your goal is to take the best next action to reach the objective. 
+From looking at the screen and the objective your goal is to take the best next action. 
 
-To complete emulate a human operator you only need three actions. These are the actions available to you below. 
+To operate the computer you have the four options below. 
 
 1. CLICK - Move mouse and click
 2. TYPE - Type on the keyboard
@@ -58,27 +58,26 @@ __
 Objective: Open Notes
 DONE
 __
-Objective: Find a image of a banana
-CLICK {{ "x": "50%", "y": "60%", "description": "Clicking the Google Search field" }} 
-__
 Objective: Follow up with the vendor in outlook
 TYPE "Hello, I hope you are doing well. I wanted to follow up"
 __
 Objective: Open Spotify and play the beatles
-CLICK {{ "x": "20%", "y": "92%", "description": "Clicking the play button under the beatles song" }}
-__
-Objective: Open Spotify and play the beatles
 SEARCH "Spotify"
+__
+Objective: Find a image of a banana
+CLICK {{ "x": "50%", "y": "60%", "description": "Clicking the Google Search field" }} 
 __
 
 
 A few important notes: 
 - Use grid with percentages as a guide to guess the X & Y location, but do not click exactly at the grid cross hairs since they are unlikely to be the exact location.
+- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
 - The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
-- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Make sure that a field is active before using TYPE
 - Remember you are fully capable of operate the computer with key and mouse actions. You can do tasks such as write a poem, make a financial budget, etc.
+
+
 
 Objective: {objective}
 """
@@ -257,6 +256,7 @@ def format_vision_prompt(objective):
     Format the vision prompt
     """
     prompt = VISION_PROMPT.format(objective=objective)
+    print("prompt, ", prompt)
     return prompt
 
 
