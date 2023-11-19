@@ -72,15 +72,16 @@ __
 A few important notes: 
 - Use grid with percentages as a guide to guess the X & Y location, but do not click exactly at the grid cross hairs since they are unlikely to be the exact location.
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
-- When opening Google Chrome if you see profile buttons, click the profile button at the following location {{ "x": "50%", "y": "55%" }} to fully open Chrome.
-- The address bar for Chrome while in full screen is around {{ "x": "50%", "y": "8%" }}.
-- Make sure that a field is active before using TYPE
-- Remember you are fully capable of operate the computer with key and mouse actions. You can do tasks such as write a poem, make a financial budget, etc.
+- Remember you are capable of operate the computer with key and mouse actions. You can do tasks such as write a poem, make a financial budget, etc.
 
-
+Guidance on where to click for Google Chrome on Mac:
+- When clicking a Google Profile to open Google Chrome: {{ "x": "50%", "y": "55%" }} 
+- The address bar for Chrome while in full screen is: {{ "x": "50%", "y": "8%" }}
 
 Objective: {objective}
 """
+
+# - Make sure that a field is active before using TYPE
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
@@ -256,7 +257,6 @@ def format_vision_prompt(objective):
     Format the vision prompt
     """
     prompt = VISION_PROMPT.format(objective=objective)
-    print("prompt, ", prompt)
     return prompt
 
 
