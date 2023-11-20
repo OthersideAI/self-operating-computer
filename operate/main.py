@@ -74,9 +74,8 @@ Click guidance:
 A few important notes: 
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - To use Google Docs and Google Sheets go there in the browser and not SEARCH.
-- Click Guidance: When clicking a Google Profile to open Google Chrome: {{ "x": "50%", "y": "55%" }} 
-- Click Guidance: The address bar for Chrome while in full screen is: {{ "x": "50%", "y": "8%" }}
-- Do not repeat actions consecutively. If something doesn't work try something new.
+- After you click the address bar in Chrome it will be blue and you can start typing. The address bar is generally at: {{ "x": "50%", "y": "8%" }}
+- Do not repeat actions consecutively such as clicking the same thing twice in a row!
 
 
 Objective: {objective}
