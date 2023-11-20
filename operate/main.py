@@ -39,7 +39,7 @@ To operate the computer you have the four options below.
 3. SEARCH - Search for a program on Mac and open it
 4. DONE - When you completed the task respond with the exact following phrase content
 
-Here are your formats for how to respond. 
+Here are the response formats below. 
 
 1. CLICK
 Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description of what you're clicking~" }} 
@@ -53,10 +53,7 @@ Response: SEARCH "app you want to search for on Mac"
 3. DONE
 Response: DONE
 
-Here are examples of how to respond which depend on which step you are on.
-__
-Objective: Open Notes
-DONE
+Here are examples of how to respond.
 __
 Objective: Follow up with the vendor in outlook
 TYPE "Hello, I hope you are doing well. I wanted to follow up"
@@ -65,18 +62,17 @@ Objective: Open Spotify and play the beatles
 SEARCH "Spotify"
 __
 Objective: Find a image of a banana
-CLICK {{ "x": "50%", "y": "60%", "description": "Clicking the Google Search field" }} 
+CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field" }} 
 __
 
-
-A few important notes: 
-- Use grid with percentages as a guide to guess the X & Y location, but do not click exactly at the grid cross hairs since they are unlikely to be the exact location.
-- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
-- Remember you are capable of operate the computer with key and mouse actions. You can do tasks such as write a poem, make a financial budget, etc.
-
-Guidance on where to click for Google Chrome on Mac:
+Click guidance:
 - When clicking a Google Profile to open Google Chrome: {{ "x": "50%", "y": "55%" }} 
 - The address bar for Chrome while in full screen is: {{ "x": "50%", "y": "8%" }}
+
+A few important notes: 
+- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
+- To use Google Docs and Google Sheets you need to go there in the browser and not SEARCH.
+- DO NOT REPEATE ACTIONS! If something doesn't work try something else.
 
 Objective: {objective}
 """
@@ -287,7 +283,7 @@ def get_next_action_from_oai(messages, objective):
 
         new_screenshot_filename = "screenshots/screenshot_with_grid.png"
 
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 650)
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 400)
 
         with open(new_screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -311,7 +307,7 @@ def get_next_action_from_oai(messages, objective):
         messages.append(
             {
                 "role": "user",
-                "content": "~User shared a screenshot with you which has since been archived~",
+                "content": "`screenshot.png`",
             }
         )
 
@@ -508,7 +504,7 @@ def keyboard_type(text):
         pyautogui.write(char)
 
     pyautogui.press("enter")
-    return "Typed: " + text
+    return "Type: " + text
 
 
 def mac_search(text):
@@ -521,7 +517,7 @@ def mac_search(text):
         pyautogui.write(char)
 
     pyautogui.press("enter")
-    return "successfully opened " + text + " on Mac"
+    return "Open program: " + text
 
 
 def capture_screen_with_cursor(file_path="screenshots/screenshot_with_cursor.png"):
