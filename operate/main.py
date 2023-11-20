@@ -42,7 +42,7 @@ To operate the computer you have the four options below.
 Here are the response formats below. 
 
 1. CLICK
-Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description of what you're clicking~" }} 
+Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
 
 2. TYPE
 Response: TYPE "value you want to type"
@@ -62,7 +62,10 @@ Objective: Open Spotify and play the beatles
 SEARCH "Spotify"
 __
 Objective: Find a image of a banana
-CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field" }} 
+CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }} 
+__
+Objective: Write a business plan in TextEdit
+CLICK {{ "x": "30%", "y": "20%", "description": "Click: TextEdit window", "reason": "This will make the TextEdit window active so I can type." }}  
 __
 
 Click guidance:
@@ -73,7 +76,7 @@ A few important notes:
 - To use Google Docs and Google Sheets go there in the browser and not SEARCH.
 - Click Guidance: When clicking a Google Profile to open Google Chrome: {{ "x": "50%", "y": "55%" }} 
 - Click Guidance: The address bar for Chrome while in full screen is: {{ "x": "50%", "y": "8%" }}
-- You only need to "Click: Chrome Address Bar" before typing.
+- Do not repeat actions consecutively. If something doesn't work try something new.
 
 
 Objective: {objective}
@@ -229,7 +232,7 @@ def main(model):
             looping = False
             break
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act]  {action_type} COMPLETE {ANSI_RESET}{function_response}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {ANSI_RESET}{function_response}"
         )
 
         message = {
