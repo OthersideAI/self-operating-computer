@@ -66,18 +66,21 @@ CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field" }}
 __
 
 Click guidance:
-- When clicking a Google Profile to open Google Chrome: {{ "x": "50%", "y": "55%" }} 
-- The address bar for Chrome while in full screen is: {{ "x": "50%", "y": "8%" }}
+
 
 A few important notes: 
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
-- To use Google Docs and Google Sheets you need to go there in the browser and not SEARCH.
-- DO NOT REPEATE ACTIONS! If something doesn't work try something else.
+- To use Google Docs and Google Sheets go there in the browser and not SEARCH.
+- Click Guidance: When clicking a Google Profile to open Google Chrome: {{ "x": "50%", "y": "55%" }} 
+- Click Guidance: The address bar for Chrome while in full screen is: {{ "x": "50%", "y": "8%" }}
+- You only need to "Click: Chrome Address Bar" before typing.
+
 
 Objective: {objective}
 """
 
 # - Make sure that a field is active before using TYPE
+# IMPORTANT: DO NOT REPEATE ACTIONS CONSECUTIVELY! If something doesn't work try something new
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
@@ -162,7 +165,7 @@ def main(model):
     assistant_message = {"role": "assistant", "content": USER_QUESTION}
     user_message = {
         "role": "user",
-        "content": objective,
+        "content": f"Objective: {objective}",
     }
     messages = [assistant_message, user_message]
 
@@ -226,7 +229,7 @@ def main(model):
             looping = False
             break
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {ANSI_RESET}{function_response}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act]  {action_type} COMPLETE {ANSI_RESET}{function_response}"
         )
 
         message = {
