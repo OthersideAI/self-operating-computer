@@ -24,6 +24,9 @@ At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal
 
 ### Additional Thoughts
 We recognize that some operating system functions may be more efficiently executed with hotkeys such as entering the Browser Address bar using `command + L` rather than by simulating a mouse click at the correct XY location. We plan to make these improvements over time. However, it's important to note that many actions require the accurate selection of visual elements on the screen, necessitating precise XY mouse click locations. A primary focus of this project is to refine the accuracy of determining these click locations. We believe this is essential for achieving a fully self-operating computer in the current technological landscape.
+## Demo
+
+[![Video Demo](https://img.youtube.com/vi/Upk_ouMOdmI/0.jpg)](https://www.youtube.com/watch?v=Upk_ouMOdmI)
 
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
