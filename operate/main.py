@@ -64,19 +64,13 @@ __
 Objective: Find a image of a banana
 CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }} 
 __
-Objective: Write a business plan in TextEdit
-CLICK {{ "x": "30%", "y": "20%", "description": "Click: TextEdit window", "reason": "This will make the TextEdit window active so I can type." }}  
-__
-
-Click guidance:
-
 
 A few important notes: 
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - To use Google Docs and Google Sheets go there in the browser and not SEARCH.
-- After you click the address bar in Chrome it will be blue and you can start typing. The address bar is generally at: {{ "x": "50%", "y": "8%" }}
-- Do not repeat actions consecutively such as clicking the same thing twice in a row!
-
+- The Google address bar is generally at: {{ "x": "50%", "y": "8%" }}
+- After you click into a field, go ahead and start typing as the next action.
+- If first time the click doesn't work, try modifying the location slightly
 
 Objective: {objective}
 """
@@ -288,7 +282,7 @@ def get_next_action_from_oai(messages, objective):
 
         new_screenshot_filename = "screenshots/screenshot_with_grid.png"
 
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 400)
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 380)
 
         with open(new_screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -506,7 +500,10 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
 
 def keyboard_type(text):
     for char in text:
-        pyautogui.write(char)
+        if char == "\n":
+            pyautogui.press("enter")
+        else:
+            pyautogui.write(char)
 
     pyautogui.press("enter")
     return "Type: " + text
