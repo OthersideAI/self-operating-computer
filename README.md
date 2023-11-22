@@ -35,36 +35,42 @@ Below are instructions to set up the Self-Operating Computer Framework locally o
 ```
 git clone https://github.com/OthersideAI/self-operating-computer.git
 ```
-2. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
+2. **CD into directory**:
+
+```
+cd self-operating-computer
+```
+
+3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
 
 ```
 python3 -m venv venv
 ```
-3. **Activate the virtual environment**:
+4. **Activate the virtual environment**:
 ```
 source venv/bin/activate
 ```
-4. **Install the project requirements**:
+5. **Install the project requirements**:
 ```
 pip install -r requirements.txt
 ```
-5. **Install Project and Command-Line Interface**:
+6. **Install Project and Command-Line Interface**:
 ```
 pip install .
 ```
-6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
+7. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
 ```
 mv .env.example .env
 ``` 
-7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+8. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
 ```
 OPENAI_API_KEY='your-key-here'
 ```
-6. **Run it**!
+9. **Run it**!
 ```
 operate
 ```
-7. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+10. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
