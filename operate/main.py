@@ -7,6 +7,7 @@ import base64
 import json
 import math
 import re
+import subprocess
 import pyautogui
 import argparse
 
@@ -16,7 +17,6 @@ from prompt_toolkit.styles import Style as PromptStyle
 from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.font_manager as fm
-import subprocess
 from openai import OpenAI
 
 
@@ -56,21 +56,28 @@ Response: DONE
 Here are examples of how to respond.
 __
 Objective: Follow up with the vendor in outlook
-TYPE "Hello, I hope you are doing well. I wanted to follow up"
+TYPE Hello, I hope you are doing well. I wanted to follow up
 __
 Objective: Open Spotify and play the beatles
-SEARCH "Spotify"
+SEARCH Spotify
 __
 Objective: Find a image of a banana
 CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }} 
 __
+Objective: Go buy a book about the history of the internet
+TYPE https://www.amazon.com/
+__
 
 A few important notes: 
+
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
-- To use Google Docs and Google Sheets go there in the browser and not SEARCH.
+- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - The Google address bar is generally at: {{ "x": "50%", "y": "8%" }}
-- After you click into a field, go ahead and start typing as the next action.
-- If first time the click doesn't work, try modifying the location slightly
+- After you click to enter a field you can go ahead and start typing!
+
+{previous_action}
+
+IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row. 
 
 Objective: {objective}
 """
@@ -247,17 +254,21 @@ def format_summary_prompt(objective):
     return prompt
 
 
-def format_vision_prompt(objective):
+def format_vision_prompt(objective, previous_action):
     """
     Format the vision prompt
     """
-    prompt = VISION_PROMPT.format(objective=objective)
+    if previous_action:
+        previous_action = f"Here was the previous action you took: {previous_action}"
+    else:
+        previous_action = ""
+    prompt = VISION_PROMPT.format(objective=objective, previous_action=previous_action)
     return prompt
 
 
 def get_next_action(model, messages, objective):
     if model == "gpt-4-vision-preview":
-        content = get_next_action_from_oai(messages, objective)
+        content = get_next_action_from_openai(messages, objective)
         return content
     elif model == "agent-1":
         return "coming soon"
@@ -265,7 +276,21 @@ def get_next_action(model, messages, objective):
     raise ModelNotRecognizedException(model)
 
 
-def get_next_action_from_oai(messages, objective):
+def get_last_assistant_message(messages):
+    """
+    Retrieve the last message from the assistant in the messages array.
+    If the last assistant message is the first message in the array, return None.
+    """
+    for index in reversed(range(len(messages))):
+        if messages[index]["role"] == "assistant":
+            if index == 0:  # Check if the assistant message is the first in the array
+                return None
+            else:
+                return messages[index]
+    return None  # Return None if no assistant message is found
+
+
+def get_next_action_from_openai(messages, objective):
     """
     Get the next action for Self-Operating Computer
     """
@@ -287,7 +312,10 @@ def get_next_action_from_oai(messages, objective):
         with open(new_screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        vision_prompt = format_vision_prompt(objective)
+        previous_action = get_last_assistant_message(messages)
+
+        vision_prompt = format_vision_prompt(objective, previous_action)
+        # print("[get_next_action_from_oai] final vision_prompt", vision_prompt)
 
         vision_message = {
             "role": "user",
@@ -303,18 +331,22 @@ def get_next_action_from_oai(messages, objective):
         pseudo_messages = messages.copy()
         pseudo_messages.append(vision_message)
 
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=pseudo_messages,
+            presence_penalty=0.5,
+            frequency_penalty=0.5,
+            temperature=1.5,
+            max_tokens=300,
+        )
+
         messages.append(
             {
                 "role": "user",
                 "content": "`screenshot.png`",
             }
         )
-
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=pseudo_messages,
-            max_tokens=300,
-        )
+        # print("[get_next_action_from_oai] messages", messages)
 
         content = response.choices[0].message.content
         return content
