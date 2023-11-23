@@ -82,8 +82,6 @@ IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a
 Objective: {objective}
 """
 
-# - Make sure that a field is active before using TYPE
-# IMPORTANT: DO NOT REPEATE ACTIONS CONSECUTIVELY! If something doesn't work try something new
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
@@ -307,7 +305,9 @@ def get_next_action_from_openai(messages, objective):
 
         new_screenshot_filename = "screenshots/screenshot_with_grid.png"
 
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 380)
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 420)
+        # sleep for a second
+        time.sleep(1)
 
         with open(new_screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -334,9 +334,9 @@ def get_next_action_from_openai(messages, objective):
         response = client.chat.completions.create(
             model="gpt-4-vision-preview",
             messages=pseudo_messages,
-            presence_penalty=0.5,
+            presence_penalty=1,
             frequency_penalty=0.5,
-            temperature=1.5,
+            temperature=1,
             max_tokens=300,
         )
 
@@ -531,13 +531,13 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
 
 
 def keyboard_type(text):
+    # sleep for 2 seconds
+    time.sleep(2)
     for char in text:
-        if char == "\n":
+        if char == "{":
             pyautogui.press("enter")
         else:
             pyautogui.write(char)
-
-    pyautogui.press("enter")
     return "Type: " + text
 
 
