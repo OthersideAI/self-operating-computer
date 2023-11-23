@@ -35,7 +35,7 @@ Below are instructions to set up the Self-Operating Computer Framework locally o
 ```
 git clone https://github.com/OthersideAI/self-operating-computer.git
 ```
-2. **CD into directory**:
+2. **Cd into directory**:
 
 ```
 cd self-operating-computer
@@ -90,5 +90,5 @@ Stay updated with the latest developments:
 - Follow HyperWriteAI on [Twitter](https://twitter.com/HyperWriteAI).
 - Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
-### Other important notes
-- This project is only compatible with MacOS as this time. 
+### Compatibility
+- This project is only compatible with MacOS at this time. 
