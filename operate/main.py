@@ -531,13 +531,9 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
 
 
 def keyboard_type(text):
-    # sleep for 2 seconds
-    time.sleep(2)
+    text = text.replace("\\n", "\n")
     for char in text:
-        if char == "{":
-            pyautogui.press("enter")
-        else:
-            pyautogui.write(char)
+        pyautogui.write(char)
     return "Type: " + text
 
 
