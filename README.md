@@ -60,7 +60,7 @@ pip install .
 ```
 7. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
 ```
-mv .env.example .env
+mv .example.env .env
 ``` 
 8. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
 ```
