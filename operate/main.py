@@ -72,7 +72,7 @@ A few important notes:
 
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
-- The Google address bar is generally at: {{ "x": "50%", "y": "8%" }}
+- The Google address bar is generally at: {{ "x": "50%", "y": "9%" }}
 - After you click to enter a field you can go ahead and start typing!
 
 {previous_action}
@@ -489,7 +489,7 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     font = ImageFont.truetype(font_path, size=font_size)
 
     # Calculate the background size based on the font size
-    bg_width = int(font_size * 4)  # Adjust as necessary
+    bg_width = int(font_size * 4.2)  # Adjust as necessary
     bg_height = int(font_size * 1.2)  # Adjust as necessary
 
     # Function to draw text with a white rectangle background
