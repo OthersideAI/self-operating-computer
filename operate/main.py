@@ -534,6 +534,7 @@ def keyboard_type(text):
     text = text.replace("\\n", "\n")
     for char in text:
         pyautogui.write(char)
+    pyautogui.press("enter")
     return "Type: " + text
 
 
