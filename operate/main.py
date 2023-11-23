@@ -72,7 +72,8 @@ A few important notes:
 
 - Default to opening Google Chrome with SEARCH to find things that are on the internet. 
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
-- The Google address bar is generally at: {{ "x": "50%", "y": "9%" }}
+- When opening Chrome, if you see a profile icon click that to open chrome fully, it is located at: {{ "x": "50%", "y": "55%" }} 
+- The Chrome address bar is generally at: {{ "x": "50%", "y": "9%" }}
 - After you click to enter a field you can go ahead and start typing!
 
 {previous_action}
@@ -261,6 +262,8 @@ def format_vision_prompt(objective, previous_action):
     else:
         previous_action = ""
     prompt = VISION_PROMPT.format(objective=objective, previous_action=previous_action)
+
+    print("[format_vision_prompt] prompt", prompt)
     return prompt
 
 
@@ -305,7 +308,7 @@ def get_next_action_from_openai(messages, objective):
 
         new_screenshot_filename = "screenshots/screenshot_with_grid.png"
 
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 420)
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
         # sleep for a second
         time.sleep(1)
 
@@ -315,7 +318,6 @@ def get_next_action_from_openai(messages, objective):
         previous_action = get_last_assistant_message(messages)
 
         vision_prompt = format_vision_prompt(objective, previous_action)
-        # print("[get_next_action_from_oai] final vision_prompt", vision_prompt)
 
         vision_message = {
             "role": "user",
@@ -335,8 +337,8 @@ def get_next_action_from_openai(messages, objective):
             model="gpt-4-vision-preview",
             messages=pseudo_messages,
             presence_penalty=1,
-            frequency_penalty=0.5,
-            temperature=1,
+            frequency_penalty=1,
+            temperature=0.7,
             max_tokens=300,
         )
 
@@ -346,8 +348,6 @@ def get_next_action_from_openai(messages, objective):
                 "content": "`screenshot.png`",
             }
         )
-        # print("[get_next_action_from_oai] messages", messages)
-
         content = response.choices[0].message.content
         return content
 
