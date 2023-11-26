@@ -262,8 +262,6 @@ def format_vision_prompt(objective, previous_action):
     else:
         previous_action = ""
     prompt = VISION_PROMPT.format(objective=objective, previous_action=previous_action)
-
-    print("[format_vision_prompt] prompt", prompt)
     return prompt
 
 
