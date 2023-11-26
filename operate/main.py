@@ -179,6 +179,9 @@ def main(model):
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
             response = get_next_action(model, messages, objective)
+            action = parse_oai_response(response)
+            action_type = action.get("type")
+            action_detail = action.get("data")
 
         except ModelNotRecognizedException as e:
             print(
@@ -192,10 +195,6 @@ def main(model):
             )
             looping = False
             break
-
-        action = parse_oai_response(response)
-        action_type = action.get("type")
-        action_detail = action.get("data")
 
         if action_type == "DONE":
             print(
