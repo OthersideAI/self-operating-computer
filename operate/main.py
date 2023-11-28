@@ -11,12 +11,13 @@ import subprocess
 import pyautogui
 import argparse
 import platform
+import Xlib.display
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
 
@@ -561,12 +562,23 @@ def search(text):
 
 
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
-    # Use the screencapture utility to capture the screen with the cursor
-    if platform.system() == "Windows":
+    user_platform = platform.system()
+    
+    if user_platform == "Windows":
         screenshot = pyautogui.screenshot()
         screenshot.save(file_path)
-    else:
+    elif user_platform == "Linux":
+        # Use xlib to prevent scrot dependency for Linux
+        screen = Xlib.display.Display().screen()
+        size = screen.width_in_pixels, screen.height_in_pixels
+        screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
+        screenshot.save(file_path)
+    elif user_platform == "Darwin": # (Mac OS)
+        # Use the screencapture utility to capture the screen with the cursor
         subprocess.run(["screencapture", "-C", file_path])
+    else:
+        print(f"The platform you're using ({user_platform}) is not currently supported")
+
 
 def extract_json_from_string(s):
     # print("extracting json from string", s)
