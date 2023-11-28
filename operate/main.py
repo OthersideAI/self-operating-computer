@@ -22,86 +22,56 @@ from openai import OpenAI
 
 load_dotenv()
 
-DEBUG = False
+DEBUG = True
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 
 VISION_PROMPT = """
-You are a Self-Operating Computer. You use the same operating system as a human.
+You are a hypothetical, OS-agnostic Self-Operating Computer, designed to simulate interaction with any graphical user interface. Your role is to analyze visual input, provided as a screenshot with a grid overlay, and suggest a series of simulated actions to accomplish the user's task. While you do not directly execute these actions, your suggestions aim to demonstrate precision and efficiency, favoring keyboard shortcuts over mouse interactions wherever possible.
 
-From looking at the screen and the objective your goal is to take the best next action. 
+Consider the current screen and the user's objective. Your task is to determine the most efficient simulated actions, utilizing application-specific shortcuts that are universally applicable across various operating systems.
 
-To operate the computer you have the four options below. 
+Your ONLY SIMULATED ACTIONS are:
 
-1. CLICK - Move mouse and click
-2. TYPE - Type on the keyboard
-3. SEARCH - Search for a program on Mac and open it
-4. DONE - When you completed the task respond with the exact following phrase content
+1. PRESS - Suggest keyboard shortcuts for navigation and interaction. 
+   Response Format: PRESS "{{key combination}}", explaining the action's purpose.
+2. TYPE - Propose text or command inputs.
+   Response Format: TYPE "{{text}}", specifying the input context.
+3. CLICK - Recommend as a last resort when a keyboard shortcut is unavailable.
+   Response Format: CLICK {{ "x": "percent", "y": "percent", "description": "~element description~" }}.
+4. DONE - Indicate the completion of the task simulation.
+   Response Format: DONE.
 
-Here are the response formats below. 
+Example Response:
+If the task involves searching in Google Chrome, your simulated actions might include:
+- PRESS 'Ctrl+T' or 'Cmd+T' to open a new tab in Chrome.
+- PRESS 'Ctrl+L' or 'Cmd+L' to focus the address bar.
+- TYPE "{{search term}}".
+- PRESS 'Enter' to execute the search.
 
-1. CLICK
-Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
+In your response, ensure each action is purposeful, efficient, and relevant to the user's objective. Use the grid overlay for precision in CLICK actions and prioritize keyboard shortcuts for speed and accuracy. Avoid suggesting repetitive or unnecessary steps, and remember this is a simulated scenario, not direct interaction with a real computer system.
 
-2. TYPE
-Response: TYPE "value you want to type"
-
-2. SEARCH
-Response: SEARCH "app you want to search for on Mac"
-
-3. DONE
-Response: DONE
-
-Here are examples of how to respond.
-__
-Objective: Follow up with the vendor in outlook
-TYPE Hello, I hope you are doing well. I wanted to follow up
-__
-Objective: Open Spotify and play the beatles
-SEARCH Spotify
-__
-Objective: Find a image of a banana
-CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }} 
-__
-Objective: Go buy a book about the history of the internet
-TYPE https://www.amazon.com/
-__
-
-A few important notes: 
-
-- Default to opening Google Chrome with SEARCH to find things that are on the internet. 
-- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
-- When opening Chrome, if you see a profile icon click that to open chrome fully, it is located at: {{ "x": "50%", "y": "55%" }} 
-- The Chrome address bar is generally at: {{ "x": "50%", "y": "9%" }}
-- After you click to enter a field you can go ahead and start typing!
-
-{previous_action}
-
-IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row. 
+Previous Action: {previous_action}
 
 Objective: {objective}
 """
 
-
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 SUMMARY_PROMPT = """
-You are a Self-Operating Computer. You just completed a request from a user by operating the computer. Now you need to share the results. 
+As a Self-Operating Computer, you have just completed a series of actions to fulfill a user's request. Now, provide a concise summary of your operations.
 
-You have three pieces of key context about the completed request.
+Include in your summary:
 
-1. The original objective
-2. The steps you took to reach the objective that are available in the previous messages
-3. The screenshot you are looking at.
-
-Now you need to summarize what you did to reach the objective. If the objective asked for information, share the information that was requested. IMPORTANT: Don't forget to answer a user's question if they asked one.
-
-Thing to note: The user can not respond to your summary. You are just sharing the results of your work.
+1. The original objective, highlighting its key aspects.
+2. A brief overview of the main actions you took, focusing on those that significantly contributed to achieving the objective.
+3. Any noteworthy challenges or decisions made during the process.
+4. The final outcome or result of your actions, clearly indicating whether the objective was met.
 
 The original objective was: {objective}
 
-Now share the results!
+Summarize your operations and the resulting outcome.
 """
 
 
@@ -214,8 +184,8 @@ def main(model):
             )
 
         function_response = ""
-        if action_type == "SEARCH":
-            function_response = mac_search(action_detail)
+        if action_type == "PRESS":
+            function_response = press_keys(action_detail.replace("Cmd", "command"))
         elif action_type == "TYPE":
             function_response = keyboard_type(action_detail)
         elif action_type == "CLICK":
@@ -356,8 +326,13 @@ def get_next_action_from_openai(messages, objective):
 def parse_oai_response(response):
     if response == "DONE":
         return {"type": "DONE", "data": None}
+
+    elif response.startswith("PRESS"):
+        # Extract the search query
+        press_data = re.search(r'PRESS "(.+)"', response).group(1)
+        return {"type": "PRESS", "data": press_data}
+
     elif response.startswith("CLICK"):
-        # Adjust the regex to match the correct format
         click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
         click_data_json = json.loads(f"{{{click_data}}}")
         return {"type": "CLICK", "data": click_data_json}
@@ -366,11 +341,6 @@ def parse_oai_response(response):
         # Extract the text to type
         type_data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
         return {"type": "TYPE", "data": type_data}
-
-    elif response.startswith("SEARCH"):
-        # Extract the search query
-        search_data = re.search(r'SEARCH "(.+)"', response).group(1)
-        return {"type": "SEARCH", "data": search_data}
 
     return {"type": "UNKNOWN", "data": response}
 
@@ -534,18 +504,22 @@ def keyboard_type(text):
     pyautogui.press("enter")
     return "Type: " + text
 
+def is_key_press_preferred(response):
+    """
+    Determine if a key press action is preferred based on the response content.
+    """
+    return "PREFERRED_ACTION: PRESS" in response
 
-def mac_search(text):
-    # Press and release Command and Space separately
-    pyautogui.keyDown("command")
-    pyautogui.press("space")
-    pyautogui.keyUp("command")
-    # Now type the text
-    for char in text:
-        pyautogui.write(char)
-
-    pyautogui.press("enter")
-    return "Open program: " + text
+def press_keys(key_sequence):
+    """
+    Simulates pressing a sequence of keys.
+    """
+    keys = key_sequence.lower().split("+")
+    for key in keys:
+        pyautogui.keyDown(key)
+    for key in reversed(keys):
+        pyautogui.keyUp(key)
+    return f"Pressed keys: {key_sequence}"
 
 
 def capture_screen_with_cursor(file_path="screenshots/screenshot_with_cursor.png"):
