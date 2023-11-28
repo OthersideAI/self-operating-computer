@@ -10,6 +10,7 @@ import re
 import subprocess
 import pyautogui
 import argparse
+import platform
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
@@ -125,7 +126,13 @@ def main(model):
         style=style,
     ).run()
 
-    os.system("clear")  # Clears the terminal screen
+    print("SYSTEM", platform.system())
+
+    if platform.system() == "Windows":
+        os.system("cls")
+    else:
+        os.system("clear")
+
 
     print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
     print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
@@ -273,7 +280,7 @@ def get_next_action_from_openai(messages, objective):
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
-        new_screenshot_filename = "screenshots/screenshot_with_grid.png"
+        new_screenshot_filename = os.path.join("screenshots", "screenshot_with_grid.png")
 
         add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
         # sleep for a second
@@ -447,9 +454,10 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     # Filter for specific font name (e.g., 'Arial.ttf')
     font_path = next((path for path in font_paths if "Arial" in path), None)
     if not font_path:
-        raise RuntimeError(
-            "Specific TrueType font not found; install the font or check the font name."
-        )
+        if len(font_paths) > 0:
+            font_path = font_paths[0]
+        else:
+            raise RuntimeError("No TrueType fonts found on the system.")
 
     # Reduce the font size a bit
     font_size = int(grid_interval / 10)  # Reduced font size
@@ -522,10 +530,13 @@ def press_keys(key_sequence):
     return f"Pressed keys: {key_sequence}"
 
 
-def capture_screen_with_cursor(file_path="screenshots/screenshot_with_cursor.png"):
+def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
     # Use the screencapture utility to capture the screen with the cursor
-    subprocess.run(["screencapture", "-C", file_path])
-
+    if platform.system() == "Windows":
+        screenshot = pyautogui.screenshot()
+        screenshot.save(file_path)
+    else:
+        subprocess.run(["screencapture", "-C", file_path])
 
 def extract_json_from_string(s):
     # print("extracting json from string", s)
