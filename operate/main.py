@@ -22,7 +22,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-DEBUG = True
+DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
