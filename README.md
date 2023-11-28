@@ -17,7 +17,7 @@
 - **Future Plans**: Support for additional models.
 
 ### Current Challenges
-> **Note:** The GPT-4v's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
+> **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
 
 ### Ongoing Development
 At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model with more accurate click location predictions.
@@ -79,6 +79,7 @@ operate
 
 ### Contributions are Welcomed! Some Ideas: 
 - **Prompt Improvements**: Noticed any areas for prompt improvements? Feel free to make suggestions or submit a pull request (PR). 
+- **Enabling New Mouse Capabilities** (drag, hover, etc.)
 - **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
 
