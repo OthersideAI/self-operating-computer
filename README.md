@@ -83,7 +83,7 @@ operate
 - **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
 
-For any input on improving this project, feel free to reach out to me on [Twitter](https://twitter.com/josh_bickett).
+For any input on improving this project, feel free to reach out to me on [Twitter](https://twitter.com/josh_bickett). If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
 
 ### Follow HyperWriteAI for More Updates
 
