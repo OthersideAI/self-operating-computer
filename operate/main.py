@@ -27,6 +27,7 @@ DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
+client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
 
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system as a human.
