@@ -34,6 +34,7 @@ pyperclip==1.8.2
 PyRect==0.2.0
 pyscreenshot==3.1
 PyScreeze==0.1.29
+python3-xlib==0.15
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 pytweening==1.0.7

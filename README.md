@@ -92,4 +92,4 @@ Stay updated with the latest developments:
 - Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
 ### Compatibility
-- This project is only compatible with MacOS at this time. 
+- This project is compatible with Mac OS, Windows, and Linux (with X server installed).
