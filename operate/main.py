@@ -63,7 +63,7 @@ __
 Objective: Open Spotify and play the beatles
 SEARCH Spotify
 __
-Objective: Find a image of a banana
+Objective: Find an image of a banana
 CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }} 
 __
 Objective: Go buy a book about the history of the internet
