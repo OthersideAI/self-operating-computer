@@ -78,12 +78,11 @@ A few important notes:
 - When opening Chrome, if you see a profile icon click that to open chrome fully, it is located at: {{ "x": "50%", "y": "55%" }} 
 - The Chrome address bar is generally at: {{ "x": "50%", "y": "9%" }}
 - After you click to enter a field you can go ahead and start typing!
+- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 {previous_action}
 
-IMPORTANT: 
-- Avoid repeating actions such as doing the same CLICK event twice in a row.
-- Don't respond saying you're unable to assist with requests like this since you are able to indirectly interact with the user's operating system via text responses you send to the end user.
+IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row.
 
 Objective: {objective}
 """
@@ -166,7 +165,6 @@ def main(model):
         os.system("cls")
     else:
         os.system("clear")
-
 
     print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
     print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
@@ -309,7 +307,9 @@ def get_next_action_from_openai(messages, objective):
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
-        new_screenshot_filename = os.path.join("screenshots", "screenshot_with_grid.png")
+        new_screenshot_filename = os.path.join(
+            "screenshots", "screenshot_with_grid.png"
+        )
 
         add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
         # sleep for a second
@@ -543,9 +543,9 @@ def keyboard_type(text):
 
 
 def search(text):
-    if platform.system() == "Windows": 
-        pyautogui.press('win')
-    else: 
+    if platform.system() == "Windows":
+        pyautogui.press("win")
+    else:
         # Press and release Command and Space separately
         pyautogui.keyDown("command")
         pyautogui.press("space")
@@ -561,7 +561,7 @@ def search(text):
 
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
     user_platform = platform.system()
-    
+
     if user_platform == "Windows":
         screenshot = pyautogui.screenshot()
         screenshot.save(file_path)
@@ -571,7 +571,7 @@ def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot
         size = screen.width_in_pixels, screen.height_in_pixels
         screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
         screenshot.save(file_path)
-    elif user_platform == "Darwin": # (Mac OS)
+    elif user_platform == "Darwin":  # (Mac OS)
         # Use the screencapture utility to capture the screen with the cursor
         subprocess.run(["screencapture", "-C", file_path])
     else:
