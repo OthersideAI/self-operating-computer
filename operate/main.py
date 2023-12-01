@@ -663,11 +663,14 @@ def main_entry():
         required=False,
     )
 
-    try:
-        args = parser.parse_args()
-        main(args.model, accurate_mode=args.accurate)
-    except KeyboardInterrupt:
-        print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
+try:
+    args = parser.parse_args()
+    if args.accurate:
+        main(args.model, accurate_mode=True)
+    else:
+        main(args.model)
+except KeyboardInterrupt:
+    print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
 
 
 if __name__ == "__main__":
