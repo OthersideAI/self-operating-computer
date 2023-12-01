@@ -620,8 +620,11 @@ def main_entry():
         default="gpt-4-vision-preview",
     )
 
-    args = parser.parse_args()
-    main(args.model)
+    try:
+        args = parser.parse_args()
+        main(args.model)
+    except KeyboardInterrupt:
+        print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
 
 
 if __name__ == "__main__":
