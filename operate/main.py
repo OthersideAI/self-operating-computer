@@ -147,22 +147,13 @@ ANSI_RED = "\033[31m"
 # Bright magenta text
 ANSI_BRIGHT_MAGENTA = "\033[95m"
 
-users = {
-    "user1": "password1",
-    "user2": "password2",
-    # Add more users if needed
-}
 
 def main(model):
     """
     Main function for the Self-Operating Computer
     """
-
-    authenticated, username = authenticate()
-
-    if not authenticated:
-        print("Authentication failed. Exiting.")
-        return
+    if action_type == "CLICK":
+        function_response = mouse_click(action_detail, accurate_mode=accurate_mode)
 
     message_dialog(
         title="Self-Operating Computer",
@@ -178,7 +169,7 @@ def main(model):
         os.system("clear")
 
     print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
-    print(f"{ANSI_YELLOW}[User {username}]{ANSI_RESET}")
+    print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
 
     objective = prompt(
         style=style,
@@ -258,19 +249,6 @@ def main(model):
         if loop_count > 10:
             break
 
-def authenticate():
-    """
-    Function to authenticate users before allowing access to the system
-    """
-    while True:
-        username = input("Enter your username: ")
-        password = input("Enter your password: ")
-
-        if username in users and users[username] == password:
-            print("Authentication successful!")
-            return True, username
-        else:
-            print("Invalid username or password. Please try again.")
 
 def format_summary_prompt(objective):
     """
