@@ -20,7 +20,9 @@ from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
-
+import schedule
+import threading
+import time
 
 load_dotenv()
 
@@ -147,22 +149,11 @@ ANSI_RED = "\033[31m"
 # Bright magenta text
 ANSI_BRIGHT_MAGENTA = "\033[95m"
 
-users = {
-    "user1": "password1",
-    "user2": "password2",
-    # Add more users if needed
-}
 
 def main(model):
     """
     Main function for the Self-Operating Computer
     """
-
-    authenticated, username = authenticate()
-
-    if not authenticated:
-        print("Authentication failed. Exiting.")
-        return
 
     message_dialog(
         title="Self-Operating Computer",
@@ -178,7 +169,7 @@ def main(model):
         os.system("clear")
 
     print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
-    print(f"{ANSI_YELLOW}[User {username}]{ANSI_RESET}")
+    print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
 
     objective = prompt(
         style=style,
@@ -192,6 +183,11 @@ def main(model):
     messages = [assistant_message, user_message]
 
     loop_count = 0
+
+    # Start the schedule manager in a separate thread
+    schedule_thread = threading.Thread(target=schedule_manager)
+    schedule_thread.daemon = True
+    schedule_thread.start()
 
     while True:
         if DEBUG:
@@ -258,20 +254,38 @@ def main(model):
         if loop_count > 10:
             break
 
-def authenticate():
+def scheduled_task():
     """
-    Function to authenticate users before allowing access to the system
+    Function to perform scheduled tasks.
+    """
+    try:
+        # Interaction with the AI model or specific actions based on the schedule
+        response = get_next_action("gpt-4-vision-preview", messages, "Scheduled Task")
+        action = parse_oai_response(response)
+        action_type = action.get("type")
+        action_detail = action.get("data")
+
+        if action_type == "SEARCH":
+            search_result = search(action_detail)
+            print(f"Performed scheduled search: {search_result}")
+        elif action_type == "TYPE":
+            typed_text = keyboard_type(action_detail)
+            print(f"Typed scheduled text: {typed_text}")
+        elif action_type == "CLICK":
+            clicked_element = mouse_click(action_detail)
+            print(f"Clicked scheduled element: {clicked_element}")
+        else:
+            print("No scheduled action defined.")
+    except Exception as e:
+        print(f"Error in scheduled task execution: {e}")
+
+def schedule_manager():
+    """
+    Function to manage the schedule.
     """
     while True:
-        username = input("Enter your username: ")
-        password = input("Enter your password: ")
-
-        if username in users and users[username] == password:
-            print("Authentication successful!")
-            return True, username
-        else:
-            print("Invalid username or password. Please try again.")
-
+        schedule.run_pending()
+        time.sleep(1)
 def format_summary_prompt(objective):
     """
     Format the summary prompt
@@ -644,8 +658,11 @@ def main_entry():
         default="gpt-4-vision-preview",
     )
 
-    args = parser.parse_args()
-    main(args.model)
+    try:
+        args = parser.parse_args()
+        main(args.model)
+    except KeyboardInterrupt:
+        print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
 
 
 if __name__ == "__main__":
