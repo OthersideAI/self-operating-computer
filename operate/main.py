@@ -545,6 +545,8 @@ def keyboard_type(text):
 def search(text):
     if platform.system() == "Windows":
         pyautogui.press("win")
+    elif platform.system() == "Linux":
+        pyautogui.press("win")
     else:
         # Press and release Command and Space separately
         pyautogui.keyDown("command")
