@@ -98,4 +98,3 @@ Stay updated with the latest developments:
 
 ### Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
-https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com
