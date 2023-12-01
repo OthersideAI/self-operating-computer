@@ -446,21 +446,56 @@ def summarize(messages, objective):
         print(f"Error parsing JSON: {e}")
         return "Failed to summarize the workflow"
 
-
-def mouse_click(click_detail):
+def reflective_mouse_click(click_detail):
     try:
         x = convert_percent_to_decimal(click_detail["x"])
         y = convert_percent_to_decimal(click_detail["y"])
 
         if click_detail and isinstance(x, float) and isinstance(y, float):
-            click_at_percentage(x, y)
+            # Get the screen size
+            screen_width, screen_height = pyautogui.size()
+
+            # Calculate the pixel position based on percentages
+            x_pixel = int(screen_width * x)
+            y_pixel = int(screen_height * y)
+
+            # Move to the position smoothly
+            pyautogui.moveTo(x_pixel, y_pixel, duration=0.2)
+
+            # Evaluate accuracy: Consider taking a screenshot and analyzing the target area
+
+            # Simulate the click if accurate, otherwise, adjust for precision
+            # Example: If accuracy is below a certain threshold, adjust the position closer
+            # and then click if precise
+
+            # For demonstration, assuming a direct click if the position is accurate
+            pyautogui.click(x_pixel, y_pixel)
+
             return click_detail["description"]
         else:
-            return "We failed to click"
+            return "Failed to click due to incorrect coordinates"
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
-        return "We failed to click"
+        print(f"Error in reflective mouse click: {e}")
+        return "Failed to perform reflective click"
+
+def mouse_click(click_detail, accurate_mode=False):
+    if accurate_mode:
+        return reflective_mouse_click(click_detail)
+    else:
+        try:
+            x = convert_percent_to_decimal(click_detail["x"])
+            y = convert_percent_to_decimal(click_detail["y"])
+
+            if click_detail and isinstance(x, float) and isinstance(y, float):
+                click_at_percentage(x, y)
+                return click_detail["description"]
+            else:
+                return "We failed to click"
+
+        except Exception as e:
+            print(f"Error parsing JSON: {e}")
+            return "We failed to click"
 
 
 def click_at_percentage(
@@ -643,9 +678,18 @@ def main_entry():
         required=False,
         default="gpt-4-vision-preview",
     )
+    parser.add_argument(
+        "-accurate",
+        help="Activate Reflective Mouse Click Mode",
+        action="store_true",
+        required=False,
+    )
 
-    args = parser.parse_args()
-    main(args.model)
+    try:
+        args = parser.parse_args()
+        main(args.model, accurate_mode=args.accurate)
+    except KeyboardInterrupt:
+        print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
 
 
 if __name__ == "__main__":
