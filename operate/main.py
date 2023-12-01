@@ -11,12 +11,13 @@ import subprocess
 import pyautogui
 import argparse
 import platform
+import Xlib.display
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
 
@@ -27,6 +28,7 @@ DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
+client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
 
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system as a human.
@@ -62,7 +64,7 @@ __
 Objective: Open Spotify and play the beatles
 SEARCH Spotify
 __
-Objective: Find a image of a banana
+Objective: Find an image of a banana
 CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }} 
 __
 Objective: Go buy a book about the history of the internet
@@ -178,10 +180,9 @@ def main(model):
     }
     messages = [assistant_message, user_message]
 
-    looping = True
     loop_count = 0
 
-    while looping:
+    while True:
         if DEBUG:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
@@ -194,25 +195,21 @@ def main(model):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
             )
-            looping = False
             break
         except Exception as e:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
             )
-            looping = False
             break
 
         if action_type == "DONE":
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
             )
-            looping = False
             summary = summarize(messages, objective)
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
             )
-
             break
 
         if action_type != "UNKNOWN":
@@ -234,8 +231,8 @@ def main(model):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{response}"
             )
-            looping = False
             break
+
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {ANSI_RESET}{function_response}"
         )
@@ -248,7 +245,7 @@ def main(model):
 
         loop_count += 1
         if loop_count > 10:
-            looping = False
+            break
 
 
 def format_summary_prompt(objective):
@@ -561,12 +558,23 @@ def search(text):
 
 
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
-    # Use the screencapture utility to capture the screen with the cursor
-    if platform.system() == "Windows":
+    user_platform = platform.system()
+    
+    if user_platform == "Windows":
         screenshot = pyautogui.screenshot()
         screenshot.save(file_path)
-    else:
+    elif user_platform == "Linux":
+        # Use xlib to prevent scrot dependency for Linux
+        screen = Xlib.display.Display().screen()
+        size = screen.width_in_pixels, screen.height_in_pixels
+        screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
+        screenshot.save(file_path)
+    elif user_platform == "Darwin": # (Mac OS)
+        # Use the screencapture utility to capture the screen with the cursor
         subprocess.run(["screencapture", "-C", file_path])
+    else:
+        print(f"The platform you're using ({user_platform}) is not currently supported")
+
 
 def extract_json_from_string(s):
     # print("extracting json from string", s)

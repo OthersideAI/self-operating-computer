@@ -20,7 +20,12 @@
 > **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
 
 ### Ongoing Development
-At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model with more accurate click location predictions.
+At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
+
+### Agent-1-Vision Model API Access
+We will soon be offering API access to our Agent-1-Vision model.
+
+If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
 
 ### Additional Thoughts
 We recognize that some operating system functions may be more efficiently executed with hotkeys such as entering the Browser Address bar using `command + L` rather than by simulating a mouse click at the correct XY location. We plan to make these improvements over time. However, it's important to note that many actions require the accurate selection of visual elements on the screen, necessitating precise XY mouse click locations. A primary focus of this project is to refine the accuracy of determining these click locations. We believe this is essential for achieving a fully self-operating computer in the current technological landscape.
@@ -83,7 +88,7 @@ operate
 - **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
 
-For any input on improving this project, feel free to reach out to me on [Twitter](https://twitter.com/josh_bickett).
+For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter.
 
 ### Follow HyperWriteAI for More Updates
 
@@ -92,4 +97,4 @@ Stay updated with the latest developments:
 - Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
 ### Compatibility
-- This project is only compatible with MacOS at this time. 
+- This project is compatible with Mac OS, Windows, and Linux (with X server installed).
