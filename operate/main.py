@@ -20,7 +20,6 @@ from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
-from googletrans import Translator
 
 
 load_dotenv()
@@ -182,29 +181,8 @@ def main(model):
     messages = [assistant_message, user_message]
 
     loop_count = 0
-    # Initialize the translator for language detection and translation
-    translator = Translator()
-    
+
     while True:
-        user_input = input("Enter your request: ")
-
-        # Detect user's language
-        user_lang = translator.detect(user_input).lang
-
-        if user_lang != 'en':
-            # Translate user input to English for processing
-            user_input = translator.translate(user_input, dest='en').text
-        
-        # Get the AI-generated response
-        AI_response = "Your AI-generated response"  # Replace this with your AI model's response
-
-        # Translate AI-generated response back to the user's language if needed
-        if user_lang != 'en':
-            AI_response = translator.translate(AI_response, dest=user_lang).text
-
-        # Print or communicate the AI_response to the user
-        print(f"AI Response: {AI_response}")
-        
         if DEBUG:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
@@ -269,15 +247,6 @@ def main(model):
         if loop_count > 10:
             break
 
-def detect_language(text):
-    translator = Translator()
-    detected = translator.detect(text)
-    return detected.lang
-
-def translate_text(text, target_lang='en'):
-    translator = Translator()
-    translated = translator.translate(text, dest=target_lang)
-    return translated.text
 
 def format_summary_prompt(objective):
     """
