@@ -84,6 +84,7 @@ operate
 
 ### Contributions are Welcomed! Some Ideas: 
 - **Improve performance by finding optimal screenshot grid**: A primary element of the framework is that it overlays a percentage grid on the screenshot which GPT-4v uses to estimate click locations. If someone is able to find the optimal grid and some evaluation metrics to confirm it is an improvement on the current method then we will merge that PR. 
+- **Eliminate Repetition in GPT-4v Actions**: Despite experimenting with various prompting techniques, and adjusting `presence_penalty` and `frequency_penalty`, we still encounter repetitive actions in GPT-4v. We're looking for a solution that can completely remove this repetition. Contributions that successfully achieve this and include evaluation metrics to verify the absence of repetition will be highly valued for merging.
 - **Improve the `SUMMARY_PROMPT`**
 - **Create an evaluation system**
 - **Improve Linux and Windows compatibility**: There are still some issues with Linux and Windows compatibility. PRs to fix the issues are encouraged. 
