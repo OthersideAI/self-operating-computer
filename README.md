@@ -20,7 +20,12 @@
 > **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
 
 ### Ongoing Development
-At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model with more accurate click location predictions.
+At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
+
+### Agent-1-Vision Model API Access
+We will soon be offering API access to our Agent-1-Vision model.
+
+If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
 
 ### Additional Thoughts
 We recognize that some operating system functions may be more efficiently executed with hotkeys such as entering the Browser Address bar using `command + L` rather than by simulating a mouse click at the correct XY location. We plan to make these improvements over time. However, it's important to note that many actions require the accurate selection of visual elements on the screen, necessitating precise XY mouse click locations. A primary focus of this project is to refine the accuracy of determining these click locations. We believe this is essential for achieving a fully self-operating computer in the current technological landscape.
@@ -78,12 +83,16 @@ operate
 </div>
 
 ### Contributions are Welcomed! Some Ideas: 
-- **Prompt Improvements**: Noticed any areas for prompt improvements? Feel free to make suggestions or submit a pull request (PR). 
-- **Enabling New Mouse Capabilities** (drag, hover, etc.)
+- **Improve performance by finding optimal screenshot grid**: A primary element of the framework is that it overlays a percentage grid on the screenshot which GPT-4v uses to estimate click locations. If someone is able to find the optimal grid and some evaluation metrics to confirm it is an improvement on the current method then we will merge that PR. 
+- **Improve the `SUMMARY_PROMPT`**
+- **Create an evaluation system**
+- **Improve Linux and Windows compatibility**: There are still some issues with Linux and Windows compatibility. PRs to fix the issues are encouraged. 
+- **Enabling New Mouse Capabilities**: (drag, hover, etc.)
 - **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
+- **Implement a Reflective Mouse Click Mode**: Introduce a new mode that enhances click accuracy by adding a 'reflect and correct' step. In this mode, the system will 'move mouse, reflect on position, and click if accurate; otherwise, adjust position closer.' This approach, more akin to human interaction, could increase accuracy before the implementation of `Agent-1-vision` for precise clicking. The main challenge is the increased time due to current multimodal model latency. We propose an optional `-accurate` terminal flag to activate this mode. This feature has the potential to significantly boost performance and offers an interesting area for development.
 
-For any input on improving this project, feel free to reach out to me on [Twitter](https://twitter.com/josh_bickett). If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
+For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter.If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
 
 ### Follow HyperWriteAI for More Updates
 
@@ -92,4 +101,4 @@ Stay updated with the latest developments:
 - Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
 ### Compatibility
-- This project is only compatible with MacOS at this time. 
+- This project is compatible with Mac OS, Windows, and Linux (with X server installed).
