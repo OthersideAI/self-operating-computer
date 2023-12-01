@@ -80,7 +80,9 @@ A few important notes:
 
 {previous_action}
 
-IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row. 
+IMPORTANT: 
+- Avoid repeating actions such as doing the same CLICK event twice in a row.
+- Don't respond saying you're unable to assist with requests like this since you are able to indirectly interact with the user's operating system via text responses you send to the end user.
 
 Objective: {objective}
 """
