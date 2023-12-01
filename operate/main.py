@@ -28,6 +28,7 @@ DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
+client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
 
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system as a human.
@@ -179,10 +180,9 @@ def main(model):
     }
     messages = [assistant_message, user_message]
 
-    looping = True
     loop_count = 0
 
-    while looping:
+    while True:
         if DEBUG:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
@@ -195,25 +195,21 @@ def main(model):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
             )
-            looping = False
             break
         except Exception as e:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
             )
-            looping = False
             break
 
         if action_type == "DONE":
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
             )
-            looping = False
             summary = summarize(messages, objective)
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
             )
-
             break
 
         if action_type != "UNKNOWN":
@@ -235,8 +231,8 @@ def main(model):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{response}"
             )
-            looping = False
             break
+
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {ANSI_RESET}{function_response}"
         )
@@ -249,7 +245,7 @@ def main(model):
 
         loop_count += 1
         if loop_count > 10:
-            looping = False
+            break
 
 
 def format_summary_prompt(objective):
