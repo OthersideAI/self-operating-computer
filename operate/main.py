@@ -20,9 +20,8 @@ from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
-import schedule
-import threading
-import time
+from googletrans import Translator
+
 
 load_dotenv()
 
@@ -183,13 +182,29 @@ def main(model):
     messages = [assistant_message, user_message]
 
     loop_count = 0
-
-    # Start the schedule manager in a separate thread
-    schedule_thread = threading.Thread(target=schedule_manager)
-    schedule_thread.daemon = True
-    schedule_thread.start()
-
+    # Initialize the translator for language detection and translation
+    translator = Translator()
+    
     while True:
+        user_input = input("Enter your request: ")
+
+        # Detect user's language
+        user_lang = translator.detect(user_input).lang
+
+        if user_lang != 'en':
+            # Translate user input to English for processing
+            user_input = translator.translate(user_input, dest='en').text
+        
+        # Get the AI-generated response
+        AI_response = "Your AI-generated response"  # Replace this with your AI model's response
+
+        # Translate AI-generated response back to the user's language if needed
+        if user_lang != 'en':
+            AI_response = translator.translate(AI_response, dest=user_lang).text
+
+        # Print or communicate the AI_response to the user
+        print(f"AI Response: {AI_response}")
+        
         if DEBUG:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
@@ -254,38 +269,16 @@ def main(model):
         if loop_count > 10:
             break
 
-def scheduled_task():
-    """
-    Function to perform scheduled tasks.
-    """
-    try:
-        # Interaction with the AI model or specific actions based on the schedule
-        response = get_next_action("gpt-4-vision-preview", messages, "Scheduled Task")
-        action = parse_oai_response(response)
-        action_type = action.get("type")
-        action_detail = action.get("data")
+def detect_language(text):
+    translator = Translator()
+    detected = translator.detect(text)
+    return detected.lang
 
-        if action_type == "SEARCH":
-            search_result = search(action_detail)
-            print(f"Performed scheduled search: {search_result}")
-        elif action_type == "TYPE":
-            typed_text = keyboard_type(action_detail)
-            print(f"Typed scheduled text: {typed_text}")
-        elif action_type == "CLICK":
-            clicked_element = mouse_click(action_detail)
-            print(f"Clicked scheduled element: {clicked_element}")
-        else:
-            print("No scheduled action defined.")
-    except Exception as e:
-        print(f"Error in scheduled task execution: {e}")
+def translate_text(text, target_lang='en'):
+    translator = Translator()
+    translated = translator.translate(text, dest=target_lang)
+    return translated.text
 
-def schedule_manager():
-    """
-    Function to manage the schedule.
-    """
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 def format_summary_prompt(objective):
     """
     Format the summary prompt
