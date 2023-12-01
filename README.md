@@ -20,7 +20,12 @@
 > **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
 
 ### Ongoing Development
-At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing a multimodal model with more accurate click location predictions.
+At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
+
+### Agent-1-Vision Model API Access
+We will soon be offering API access to our Agent-1-Vision model.
+
+If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
 
 ### Additional Thoughts
 We recognize that some operating system functions may be more efficiently executed with hotkeys such as entering the Browser Address bar using `command + L` rather than by simulating a mouse click at the correct XY location. We plan to make these improvements over time. However, it's important to note that many actions require the accurate selection of visual elements on the screen, necessitating precise XY mouse click locations. A primary focus of this project is to refine the accuracy of determining these click locations. We believe this is essential for achieving a fully self-operating computer in the current technological landscape.
@@ -93,3 +98,4 @@ Stay updated with the latest developments:
 
 ### Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
+https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com
