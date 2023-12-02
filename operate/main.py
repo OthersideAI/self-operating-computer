@@ -245,7 +245,7 @@ def main(model):
         messages.append(message)
 
         loop_count += 1
-        if loop_count > 10:
+        if loop_count > 15:
             break
 
 
