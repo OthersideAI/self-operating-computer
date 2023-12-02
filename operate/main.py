@@ -95,16 +95,16 @@ IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a
 Objective: {objective}
 """
 
-ACCURATE_PIXEL_COUNT = 200
+ACCURATE_PIXEL_COUNT = 200 # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
 ACCURATE_MODE_VISION_PROMPT = """
-It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}.
+It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
 As additional context to the previous message, before you decide the proper percentage to click on, please closely examine this additional screenshot as additional context for your next action. 
-This screenshot was taken around the location of the current cursor that you just tried clicking on. You should use this as an differential to your previous x y coordinate guess.
+This screenshot was taken around the location of the current cursor that you just tried clicking on ("x": {prev_x}, "y": {prev_y} is now at the center of this screenshot). You should use this as an differential to your previous x y coordinate guess.
 
 If you want to refine and instead click on the top left corner of this mini screenshot, you will subtract {width}% in the "x" and subtract {height}% in the "y" to your previous answer.
 Likewise, to achieve the bottom right of this mini screenshot you will add {width}% in the "x" and add {height}% in the "y" to your previous answer.
 
-There are four lines across each dimension, divided evenly to give you better context of the location of the cursor and exactly how much to edit your previous answer.
+There are four segmenting lines across each dimension, divided evenly. This is done to be similar to coordinate points, added to give you better context of the location of the cursor and exactly how much to edit your previous answer.
 
 Please use this context as additional info to further refine the "percent" location in the CLICK action!
 """
@@ -293,8 +293,8 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
     """
     Format the accurate mode vision prompt
     """
-    width = (ACCURATE_PIXEL_COUNT/2)/monitor_size['width']
-    height = (ACCURATE_PIXEL_COUNT/2)/monitor_size['height']
+    width = ((ACCURATE_PIXEL_COUNT/2)/monitor_size['width']) * 100
+    height = ((ACCURATE_PIXEL_COUNT/2)/monitor_size['height']) * 100
     prompt = ACCURATE_MODE_VISION_PROMPT.format(prev_x=prev_x, prev_y=prev_y, width=width, height=height)
     return prompt
 
@@ -331,7 +331,8 @@ def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
         screenshot_filename = os.path.join(
             "screenshots", "screenshot_mini.png"
         )
-        capture_mini_screenshot_with_cursor(screenshot_filename)
+        print(f"{ANSI_BRIGHT_GREEN}[prev_x: {prev_x}, prev_y: {prev_y}]")
+        capture_mini_screenshot_with_cursor(file_path=screenshot_filename, x=prev_x, y=prev_y)
 
         new_screenshot_filename = os.path.join(
             "screenshots", "screenshot_mini_with_grid.png"
@@ -447,6 +448,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                 click_data_json = json.loads(f"{{{click_data}}}")
                 prev_x = click_data_json["x"]
                 prev_y = click_data_json["y"]
+                print(f"{ANSI_BRIGHT_GREEN}[click_data_json: {click_data_json}]")
                 content = accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
@@ -664,27 +666,32 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
     user_platform = platform.system()
 
     if user_platform == "Linux":
-        display = Xlib.display.Display()
-        root = display.screen().root
+        x = float(x[:-1]) # convert x from "50%" to 50.
+        y = float(y[:-1])
 
-        print(f"root: {root}")
+        print(f"x, y right now {x} {y}")
+        print(monitor_size)
 
-        # Get the current pointer position
-        pointer = root.query_pointer()
-        x, y = pointer.root_x, pointer.root_y
+        x = (x/100) * monitor_size['width'] # convert x from 50 to 0.5 * monitor_width
+        y = (y/100) * monitor_size['height']
+
+        print(f"x, y right now {x} {y}")
 
         # Define the coordinates for the rectangle
-        x1, y1 = x - ACCURATE_PIXEL_COUNT/2, y - ACCURATE_PIXEL_COUNT/2
-        x2, y2 = x + ACCURATE_PIXEL_COUNT/2, y + ACCURATE_PIXEL_COUNT/2
+        x1, y1 = int(x - ACCURATE_PIXEL_COUNT/2), int(y - ACCURATE_PIXEL_COUNT/2)
+        x2, y2 = int(x + ACCURATE_PIXEL_COUNT/2), int(y + ACCURATE_PIXEL_COUNT/2)
+
+        print(f"got x1 y1 x2 y2 {x1} {y1} {x2} {y2}")
 
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
         screenshot.save(file_path)            
 
+        print("saved screenshot")
 
         screenshots_dir = "screenshots"
         grid_screenshot_filename = os.path.join(screenshots_dir, "screenshot_mini_with_grid.png")
 
-        add_grid_to_image(file_path, grid_screenshot_filename, 25)
+        add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT/4))
 
         print(f"{ANSI_BRIGHT_GREEN}[finished adding grid to mini screenshot]")
 
@@ -699,6 +706,8 @@ def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot
         # Use xlib to prevent scrot dependency for Linux
         screen = Xlib.display.Display().screen()
         size = screen.width_in_pixels, screen.height_in_pixels
+        monitor_size["width"] = size[0]
+        monitor_size["height"] = size[1]
         screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
         screenshot.save(file_path)            
     elif user_platform == "Darwin":  # (Mac OS)
