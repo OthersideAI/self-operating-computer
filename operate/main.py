@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
+import sys
 
 
 load_dotenv()
@@ -131,6 +132,7 @@ style = PromptStyle.from_dict(
     }
 )
 
+
 # Check if on a windows terminal that supports ANSI escape codes
 def supports_ansi():
     """
@@ -167,6 +169,7 @@ else:
     ANSI_YELLOW = ""
     ANSI_RED = ""
     ANSI_BRIGHT_MAGENTA = ""
+
 
 def main(model):
     """
