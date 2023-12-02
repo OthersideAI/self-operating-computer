@@ -21,7 +21,8 @@ from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
-
+from .exceptions import *
+from .enums import Color, Platforms
 
 load_dotenv()
 
@@ -110,18 +111,6 @@ Now share the results!
 """
 
 
-class ModelNotRecognizedException(Exception):
-    """Exception raised for unrecognized models."""
-
-    def __init__(self, model, message="Model not recognized"):
-        self.model = model
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"{self.message} : {self.model} "
-
-
 # Define style
 style = PromptStyle.from_dict(
     {
@@ -131,22 +120,6 @@ style = PromptStyle.from_dict(
         "dialog shadow": "bg:#003800",
     }
 )
-# Standard green text
-ANSI_GREEN = "\033[32m"
-# Bright/bold green text
-ANSI_BRIGHT_GREEN = "\033[92m"
-# Reset to default text color
-ANSI_RESET = "\033[0m"
-# ANSI escape code for blue text
-ANSI_BLUE = "\033[94m"  # This is for bright blue
-
-# Standard yellow text
-ANSI_YELLOW = "\033[33m"
-
-ANSI_RED = "\033[31m"
-
-# Bright magenta text
-ANSI_BRIGHT_MAGENTA = "\033[95m"
 
 
 def main(model):
@@ -167,8 +140,8 @@ def main(model):
     else:
         os.system("clear")
 
-    print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
-    print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+    print(f"{Color.ANSI_GREEN}[Self-Operating Computer]\n{Color.ANSI_RESET}{USER_QUESTION}")
+    print(f"{Color.ANSI_YELLOW}[User]{Color.ANSI_RESET}")
 
     objective = prompt(
         style=style,
@@ -194,28 +167,28 @@ def main(model):
 
         except ModelNotRecognizedException as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
+                f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_RED}[Error] -> {e} {Color.ANSI_RESET}"
             )
             break
         except Exception as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
+                f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_RED}[Error] -> {e} {Color.ANSI_RESET}"
             )
             break
 
         if action_type == "DONE":
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
+                f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_BLUE} Objective complete {Color.ANSI_RESET}"
             )
             summary = summarize(messages, objective)
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+                f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_BLUE} Summary\n{Color.ANSI_RESET}{summary}"
             )
             break
 
         if action_type != "UNKNOWN":
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} {ANSI_RESET}{action_detail}"
+                f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_BRIGHT_MAGENTA} [Act] {action_type} {Color.ANSI_RESET}{action_detail}"
             )
 
         function_response = ""
@@ -227,15 +200,15 @@ def main(model):
             function_response = mouse_click(action_detail)
         else:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}"
+                f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_RED}[Error] something went wrong :({Color.ANSI_RESET}"
             )
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{response}"
+                f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_RED}[Error] AI response\n{Color.ANSI_RESET}{response}"
             )
             break
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {ANSI_RESET}{function_response}"
+            f"{Color.ANSI_GREEN}[Self-Operating Computer]{Color.ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {Color.ANSI_RESET}{function_response}"
         )
 
         message = {
@@ -271,8 +244,7 @@ def format_vision_prompt(objective, previous_action):
 
 def get_next_action(model, messages, objective):
     if model == "gpt-4-vision-preview":
-        content = get_next_action_from_openai(messages, objective)
-        return content
+        return get_next_action_from_openai(messages, objective)
     elif model == "agent-1":
         return "coming soon"
 
@@ -526,7 +498,7 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     image.save(new_image_path)
 
 
-def keyboard_type(text):
+def keyboard_type(text: str) -> str:
     text = text.replace("\\n", "\n")
     for char in text:
         pyautogui.write(char)
@@ -534,16 +506,18 @@ def keyboard_type(text):
     return "Type: " + text
 
 
-def search(text):
-    if platform.system() == "Windows":
-        pyautogui.press("win")
-    elif platform.system() == "Linux":
-        pyautogui.press("win")
-    else:
-        # Press and release Command and Space separately
-        pyautogui.keyDown("command")
-        pyautogui.press("space")
-        pyautogui.keyUp("command")
+def search(text: str) -> str:
+    match platform.system():
+        case Platforms.Windows:
+            pyautogui.press("win")
+
+        case Platforms.Linux:
+            pyautogui.press("win")
+
+        case _:
+            pyautogui.keyDown("command")
+            pyautogui.press("space")
+            pyautogui.keyUp("command")
 
     # Now type the text
     for char in text:
@@ -556,20 +530,24 @@ def search(text):
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
     user_platform = platform.system()
 
-    if user_platform == "Windows":
-        screenshot = pyautogui.screenshot()
-        screenshot.save(file_path)
-    elif user_platform == "Linux":
-        # Use xlib to prevent scrot dependency for Linux
-        screen = Xlib.display.Display().screen()
-        size = screen.width_in_pixels, screen.height_in_pixels
-        screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
-        screenshot.save(file_path)
-    elif user_platform == "Darwin":  # (Mac OS)
-        # Use the screencapture utility to capture the screen with the cursor
-        subprocess.run(["screencapture", "-C", file_path])
-    else:
-        print(f"The platform you're using ({user_platform}) is not currently supported")
+    match user_platform:
+        case Platforms.Windows:
+            screenshot = pyautogui.screenshot()
+            screenshot.save(file_path)
+
+        case Platforms.Linux:
+            # Use xlib to prevent scrot dependency for Linux
+            screen = Xlib.display.Display().screen()
+            size = screen.width_in_pixels, screen.height_in_pixels
+            screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
+            screenshot.save(file_path)
+
+        case Platforms.Darwin:
+            # Use the screencapture utility to capture the screen with the cursor
+            subprocess.run(["screencapture", "-C", file_path])
+
+        case _:
+            print(f"The platform you're using ({user_platform}) is not currently supported")
 
 
 def extract_json_from_string(s):
@@ -616,7 +594,7 @@ def main_entry():
         args = parser.parse_args()
         main(args.model)
     except KeyboardInterrupt:
-        print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
+        print(f"\n{Color.ANSI_BRIGHT_MAGENTA}Exiting...")
 
 
 if __name__ == "__main__":
