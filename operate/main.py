@@ -684,6 +684,7 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
         print(f"got x1 y1 x2 y2 {x1} {y1} {x2} {y2}")
 
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        screenshot = screenshot.resize((screenshot.width * 4, screenshot.height * 4), Image.LANCZOS)
         screenshot.save(file_path)            
 
         print("saved screenshot")
@@ -691,7 +692,7 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
         screenshots_dir = "screenshots"
         grid_screenshot_filename = os.path.join(screenshots_dir, "screenshot_mini_with_grid.png")
 
-        add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT/4))
+        add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT))
 
         print(f"{ANSI_BRIGHT_GREEN}[finished adding grid to mini screenshot]")
 
