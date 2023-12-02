@@ -443,6 +443,9 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                 click_data_json = json.loads(f"{{{click_data}}}")
                 prev_x = click_data_json["x"]
                 prev_y = click_data_json["y"]
+
+                if DEBUG:
+                    print(f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}")
                 content = accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
@@ -660,13 +663,13 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
         x2, y2 = int(x + ACCURATE_PIXEL_COUNT/2), int(y + ACCURATE_PIXEL_COUNT/2)
 
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
-        screenshot = screenshot.resize((screenshot.width * 4, screenshot.height * 4), Image.LANCZOS)
+        screenshot = screenshot.resize((screenshot.width * 2, screenshot.height * 2), Image.LANCZOS) # upscale the image so it's easier to see and percentage marks more visible
         screenshot.save(file_path)            
 
         screenshots_dir = "screenshots"
         grid_screenshot_filename = os.path.join(screenshots_dir, "screenshot_mini_with_grid.png")
 
-        add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT))
+        add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT/2))
 
 
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):

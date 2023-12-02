@@ -165,6 +165,8 @@ cython_debug/
 screenshot.png
 screenshot_with_grid.png
 screenshot_with_labeled_grid.png
+screenshot_mini.png
+screenshot_mini_with_grid.png
 grid_screenshot.png
 grid_reflection_screenshot.png
 reflection_screenshot.png
