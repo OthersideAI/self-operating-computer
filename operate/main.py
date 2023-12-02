@@ -326,12 +326,10 @@ def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
     """
     Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location 
     """
-    print(f"{ANSI_BRIGHT_GREEN}[enterred accurate_mode_double_check]")
     try:
         screenshot_filename = os.path.join(
             "screenshots", "screenshot_mini.png"
         )
-        print(f"{ANSI_BRIGHT_GREEN}[prev_x: {prev_x}, prev_y: {prev_y}]")
         capture_mini_screenshot_with_cursor(file_path=screenshot_filename, x=prev_x, y=prev_y)
 
         new_screenshot_filename = os.path.join(
@@ -378,7 +376,6 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
     """
     Get the next action for Self-Operating Computer
     """
-    print(f"{ANSI_BRIGHT_GREEN}[enterred get_next_action_from_openai]")
     # sleep for a second
     time.sleep(1)
     try:
@@ -436,8 +433,6 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
             }
         )
 
-        print(f"{ANSI_BRIGHT_GREEN}[messages: {messages}]")
-
         content = response.choices[0].message.content
 
         if accurate_mode:
@@ -448,7 +443,6 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                 click_data_json = json.loads(f"{{{click_data}}}")
                 prev_x = click_data_json["x"]
                 prev_y = click_data_json["y"]
-                print(f"{ANSI_BRIGHT_GREEN}[click_data_json: {click_data_json}]")
                 content = accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
@@ -526,8 +520,6 @@ def mouse_click(click_detail):
     try:
         x = convert_percent_to_decimal(click_detail["x"])
         y = convert_percent_to_decimal(click_detail["y"])
-
-        print(f"{ANSI_RED}[mouse_click: | x: {x}, y: {y}] upd x: {x * monitor_size['width']}, upd y: {y * monitor_size['height']}{ANSI_RESET}")
 
         if click_detail and isinstance(x, float) and isinstance(y, float):
             click_at_percentage(x, y)
@@ -693,8 +685,6 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
         grid_screenshot_filename = os.path.join(screenshots_dir, "screenshot_mini_with_grid.png")
 
         add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT))
-
-        print(f"{ANSI_BRIGHT_GREEN}[finished adding grid to mini screenshot]")
 
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
     file_path=os.path.join("screenshots", "screenshot.png")
