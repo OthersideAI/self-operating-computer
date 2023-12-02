@@ -48,6 +48,11 @@ cd self-operating-computer
 
 3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
 
+**If you are using poetry**
+```
+cat requirements.txt | xargs poetry add
+```
+
 ```
 python3 -m venv venv
 ```
