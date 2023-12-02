@@ -13,6 +13,10 @@ import pyautogui
 import argparse
 import platform
 import Xlib.display
+import PIL
+import openai
+import requests
+import binascii
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
@@ -381,6 +385,31 @@ def get_next_action_from_openai(messages, objective):
     except Exception as e:
         print(f"Error parsing JSON: {e}")
         return "Failed take action after looking at the screenshot"
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+        return "Directory/file not found "
+    except PermissionError as e:
+        print(f"Permission error: {e}")
+        return "Permission denied "
+    except PIL.ImageError as e:
+        print(f"Image error: {e}")
+        return "Error with the image processing"
+    except IOError as e:
+        print(f"I/O error: {e}")
+        return "Input/output error"
+    except binascii.Error as e:
+         print(f"Base64 encoding error: {e}")
+         return "Base64 encoding/decoding error"
+    except openai.error.OpenAIError as e:
+        print(f"OpenAI API error: {e}")
+        return "OpenAI API error"
+    except requests.exceptions.RequestException as e:
+        print(f"Request error: {e}")
+        return "Request error"
+    except Exception as e:
+        print(f"Unknown error: {e}")
+        return "Unknown error occurred"
+
 
 
 def parse_oai_response(response):
@@ -403,7 +432,6 @@ def parse_oai_response(response):
         return {"type": "SEARCH", "data": search_data}
 
     return {"type": "UNKNOWN", "data": response}
-
 
 def summarize(messages, objective):
     try:
@@ -430,7 +458,7 @@ def summarize(messages, objective):
                 },
             ],
         }
-        # create a copy of messages and save to pseudo_messages
+        
         messages.append(summary_message)
 
         response = client.chat.completions.create(
@@ -442,9 +470,21 @@ def summarize(messages, objective):
         content = response.choices[0].message.content
         return content
 
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+        return "File not found error"
+    except PermissionError as e:
+        print(f"Permission error: {e}")
+        return "Permission denied error"
+    except PIL.ImageError as e:
+        print(f"Image error: {e}")
+        return "Error with image processing"
+    except IOError as e:
+        print(f"I/O error: {e}")
+        return "Input/output error"
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
-        return "Failed to summarize the workflow"
+        print(f"Unknown error: {e}")
+        return "Unknown error occurred"
 
 
 def mouse_click(click_detail):
