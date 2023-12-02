@@ -341,7 +341,6 @@ def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
         accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
-        print("Accurate mode vision prompt, ", accurate_vision_prompt)
 
         accurate_mode_message = {
             "role": "user",
@@ -653,30 +652,22 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
         x = float(x[:-1]) # convert x from "50%" to 50.
         y = float(y[:-1])
 
-        print(f"x, y right now {x} {y}")
-        print(monitor_size)
-
         x = (x/100) * monitor_size['width'] # convert x from 50 to 0.5 * monitor_width
         y = (y/100) * monitor_size['height']
-
-        print(f"x, y right now {x} {y}")
 
         # Define the coordinates for the rectangle
         x1, y1 = int(x - ACCURATE_PIXEL_COUNT/2), int(y - ACCURATE_PIXEL_COUNT/2)
         x2, y2 = int(x + ACCURATE_PIXEL_COUNT/2), int(y + ACCURATE_PIXEL_COUNT/2)
 
-        print(f"got x1 y1 x2 y2 {x1} {y1} {x2} {y2}")
-
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
         screenshot = screenshot.resize((screenshot.width * 4, screenshot.height * 4), Image.LANCZOS)
         screenshot.save(file_path)            
-
-        print("saved screenshot")
 
         screenshots_dir = "screenshots"
         grid_screenshot_filename = os.path.join(screenshots_dir, "screenshot_mini_with_grid.png")
 
         add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT))
+
 
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
     file_path=os.path.join("screenshots", "screenshot.png")
