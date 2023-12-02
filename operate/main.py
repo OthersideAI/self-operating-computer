@@ -12,6 +12,7 @@ import pyautogui
 import argparse
 import platform
 import Xlib.display
+import mss
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
@@ -568,11 +569,14 @@ def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot
         screenshot = pyautogui.screenshot()
         screenshot.save(file_path)
     elif user_platform == "Linux":
-        # Use xlib to prevent scrot dependency for Linux
-        screen = Xlib.display.Display().screen()
-        size = screen.width_in_pixels, screen.height_in_pixels
-        screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
-        screenshot.save(file_path)
+        # Linux screenshot just the current active monitor
+        with mss.mss() as sct:
+            # Get information of the primary monitor
+            monitor = sct.monitors[1]  # Change the index if needed
+            # Capture a screenshot of the primary monitor
+            screenshot = sct.grab(monitor)
+            sct_img = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+            sct_img.save(file_path) 
     elif user_platform == "Darwin":  # (Mac OS)
         # Use the screencapture utility to capture the screen with the cursor
         subprocess.run(["screencapture", "-C", file_path])
