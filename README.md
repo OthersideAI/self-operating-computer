@@ -102,3 +102,7 @@ Stay updated with the latest developments:
 
 ### Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=OthersideAI/self-operating-computer&type=Timeline)](https://star-history.com/#OthersideAI/self-operating-computer&Timeline)
