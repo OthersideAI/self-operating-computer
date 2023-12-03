@@ -15,6 +15,8 @@
 - **Compatibility**: Designed for various multimodal models.
 - **Integration**: Currently integrated with **GPT-4v** as the default model.
 - **Future Plans**: Support for additional models.
+- **Accessibility**: Voice control thanks to [Whisper](https://github.com/mallorbc/whisper_mic) & [younesbram](https://github.com/younesbram)
+
 
 ### Current Challenges
 > **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
@@ -65,6 +67,15 @@ source venv/bin/activate
 5. **Install the project requirements**:
 ```
 pip install -r requirements.txt
+```
+5.1 **Optional installs for voice control**:
+```
+pip install -r requirements-audio.txt
+
+For mac users:
+brew install portaudio
+For Linux users:
+sudo apt install portaudio19-dev python3-pyaudio
 ```
 6. **Install Project and Command-Line Interface**:
 ```
