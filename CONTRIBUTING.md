@@ -18,7 +18,7 @@ We appreciate your contributions!
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
 
 ## Guidelines
-This will primarily be a [Software 2.0](https://karpathy.medium.com/software-2-0-a64152b37c35) project. 
+This will primarily be a [Software 2.0](https://karpathy.medium.com/software-2-0-a64152b37c35) project. For this reason: 
 
 - Let's try to hold off refactors into separate files until `main.py` is more than 1000 lines
 
