@@ -1,5 +1,5 @@
 # Contributing
-============
+We appreciate your contributions!
 
 ## Process
 1. Fork it
@@ -18,6 +18,7 @@
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
 
 ## Guidelines
-This will primarily be a [Software 2.0](https://karpathy.medium.com/software-2-0-a64152b37c35) project. For this reason: 
-1. Let's try to avoid refactors into separate files until `main.py` is more than 1000 lines
-2. Let's try to keep `main.py` under 1000 lines
+This will primarily be a [Software 2.0](https://karpathy.medium.com/software-2-0-a64152b37c35) project. 
+
+- Let's try to hold off refactors into separate files until `main.py` is more than 1000 lines
+
