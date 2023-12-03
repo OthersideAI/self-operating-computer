@@ -92,7 +92,7 @@ operate
 - **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
 - **Implement a Reflective Mouse Click Mode**: Introduce a new mode that enhances click accuracy by adding a 'reflect and correct' step. In this mode, the system will 'move mouse, reflect on position, and click if accurate; otherwise, adjust position closer.' This approach, more akin to human interaction, could increase accuracy before the implementation of `Agent-1-vision` for precise clicking. The main challenge is the increased time due to current multimodal model latency. We propose an optional `-accurate` terminal flag to activate this mode. This feature has the potential to significantly boost performance and offers an interesting area for development.
 
-For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter.If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
+For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
 
 ### Follow HyperWriteAI for More Updates
 
