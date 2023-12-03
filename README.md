@@ -46,7 +46,14 @@ git clone https://github.com/OthersideAI/self-operating-computer.git
 cd self-operating-computer
 ```
 
+3. **Create a Python virtual environment with Poetry**.
+
+```
+cat requirements.txt | xargs poetry add
+```
+
 3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
+
 
 ```
 python3 -m venv venv
@@ -82,13 +89,13 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-### Contributions are Welcomed! Some Ideas: 
-- **Prompt Improvements**: Noticed any areas for prompt improvements? Feel free to make suggestions or submit a pull request (PR). 
-- **Enabling New Mouse Capabilities** (drag, hover, etc.)
-- **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
-- **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
+### Contributions are Welcomed!:
 
-For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter.
+If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
+
+### Feedback
+
+For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. 
 
 ### Follow HyperWriteAI for More Updates
 
@@ -98,3 +105,7 @@ Stay updated with the latest developments:
 
 ### Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=OthersideAI/self-operating-computer&type=Timeline)](https://star-history.com/#OthersideAI/self-operating-computer&Timeline)
