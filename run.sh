@@ -5,7 +5,6 @@
 #   Issues: https://github.com/OthersideAI/self-operating-computer/issues
 #   Requires: bash, curl/wget, python3, pip, git
 #
-#   Currently this only work on MacOS systems. 
 #   Please open an issue if you notice any bugs.
 #
 #
@@ -101,18 +100,7 @@ fi
 if ! command_exists git; then
     echo "Git not found. Installing Git..."
     install_packages git
-fi
-
-# Check if the directory exists and is not empty
-if [ -d "self-operating-computer" ] && [ "$(ls -A self-operating-computer)" ]; then
-    echo "Directory 'self-operating-computer' already exists and is not empty. Skipping clone operation..."
-else
-    # Clone the repository
-    run_script "git clone https://github.com/OthersideAI/self-operating-computer.git"
-fi
-
-# Change directory
-cd self-operating-computer || { log_error "Unable to navigate to the project directory."; exit 1; }
+fi 
 
 # Create a Python virtual environment
 run_script "python3 -m venv venv"
