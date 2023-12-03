@@ -89,17 +89,13 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-### Contributions are Welcomed! Some Ideas: 
-- **Improve performance by finding optimal screenshot grid**: A primary element of the framework is that it overlays a percentage grid on the screenshot which GPT-4v uses to estimate click locations. If someone is able to find the optimal grid and some evaluation metrics to confirm it is an improvement on the current method then we will merge that PR. 
-- **Improve the `SUMMARY_PROMPT`**
-- **Create an evaluation system**
-- **Improve Linux and Windows compatibility**: There are still some issues with Linux and Windows compatibility. PRs to fix the issues are encouraged. 
-- **Enabling New Mouse Capabilities**: (drag, hover, etc.)
-- **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
-- **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
-- **Implement a Reflective Mouse Click Mode**: Introduce a new mode that enhances click accuracy by adding a 'reflect and correct' step. In this mode, the system will 'move mouse, reflect on position, and click if accurate; otherwise, adjust position closer.' This approach, more akin to human interaction, could increase accuracy before the implementation of `Agent-1-vision` for precise clicking. The main challenge is the increased time due to current multimodal model latency. We propose an optional `-accurate` terminal flag to activate this mode. This feature has the potential to significantly boost performance and offers an interesting area for development.
+### Contributions are Welcomed!:
 
-For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter.If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
+If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
+
+### Feedback
+
+For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. 
 
 ### Follow HyperWriteAI for More Updates
 
@@ -109,3 +105,7 @@ Stay updated with the latest developments:
 
 ### Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=OthersideAI/self-operating-computer&type=Timeline)](https://star-history.com/#OthersideAI/self-operating-computer&Timeline)

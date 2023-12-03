@@ -3,7 +3,6 @@ Self-Operating Computer
 """
 import os
 import time
-import random
 import base64
 import json
 import math
