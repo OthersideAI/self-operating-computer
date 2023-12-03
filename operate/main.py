@@ -705,7 +705,6 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
         height = ACCURATE_PIXEL_COUNT
         # Use the screencapture utility to capture the screen with the cursor
         rect = f"-R{x1},{y1},{width},{height}"
-        print("rect", rect)
         subprocess.run(["screencapture", "-C", rect, file_path])
 
         screenshots_dir = "screenshots"
