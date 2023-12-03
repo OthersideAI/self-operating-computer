@@ -26,7 +26,7 @@ import sys
 
 load_dotenv()
 
-DEBUG = False
+DEBUG: bool = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -90,7 +90,7 @@ Objective: {objective}
 """
 
 
-USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
+USER_QUESTION: str = "Hello, I can help you with anything. What would you like done?"
 
 SUMMARY_PROMPT = """
 You are a Self-Operating Computer. You just completed a request from a user by operating the computer. Now you need to share the results.
@@ -292,7 +292,7 @@ def format_vision_prompt(objective, previous_action):
     return prompt
 
 
-def get_next_action(model, messages, objective):
+def get_next_action(model: str, messages, objective):
     if model == "gpt-4-vision-preview":
         content = get_next_action_from_openai(messages, objective)
         return content
@@ -383,7 +383,7 @@ def get_next_action_from_openai(messages, objective):
         return "Failed take action after looking at the screenshot"
 
 
-def parse_oai_response(response):
+def parse_oai_response(response: str):
     if response == "DONE":
         return {"type": "DONE", "data": None}
     elif response.startswith("CLICK"):
@@ -549,7 +549,7 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     image.save(new_image_path)
 
 
-def keyboard_type(text):
+def keyboard_type(text: str):
     text = text.replace("\\n", "\n")
     for char in text:
         pyautogui.write(char)
@@ -557,7 +557,7 @@ def keyboard_type(text):
     return "Type: " + text
 
 
-def search(text):
+def search(text: str) -> str:
     if platform.system() == "Windows":
         pyautogui.press("win")
     elif platform.system() == "Linux":
