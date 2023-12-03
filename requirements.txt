@@ -5,7 +5,6 @@ charset-normalizer==3.3.2
 colorama==0.4.6
 contourpy==1.2.0
 cycler==0.12.1
-whisper-mic
 distro==1.8.0
 EasyProcess==1.1
 entrypoint2==1.1
