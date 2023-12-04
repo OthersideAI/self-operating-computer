@@ -91,6 +91,10 @@ operate
 
 ### Accurate mouse clicks
 When running operate, you can optionally add an -accurate tag when running operate to improve the model's mouse clicking accuracy. However, by turning on -accurate, additional GPT requests will be sent. 
+**Example run**:
+```
+operate -accurate
+```
 
 ### Contributions are Welcomed!:
 

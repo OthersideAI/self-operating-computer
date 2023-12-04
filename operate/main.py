@@ -27,7 +27,7 @@ import sys
 
 load_dotenv()
 
-DEBUG = False
+DEBUG = True
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -37,6 +37,8 @@ monitor_size = {
     "width": 1920,
     "height": 1080,
 }
+
+accuracy_amt = 3
 
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system as a human.
@@ -108,6 +110,17 @@ Likewise, to achieve the bottom right of this mini screenshot you will add {widt
 There are four segmenting lines across each dimension, divided evenly. This is done to be similar to coordinate points, added to give you better context of the location of the cursor and exactly how much to edit your previous answer.
 
 Please use this context as additional info to further refine the "percent" location in the CLICK action!
+"""
+
+ACCURATE_SCOPE_PROMPT = """
+It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. 
+In order to more accurately click, we are instead showing you a scoped in screenshot of a specific area, a previous grid you've chosen. 
+
+Based on what you will like to click on, please select the grid in which the element or the point you would like to click on is in there. 
+Please select which grid you will want to select from. The grids are numbered from 0 to 15, where top left is 0, then going one cell down from top left is 1, bottom left is 3, and then the cell to the right of the top left is 4. 
+The bottom right grid is 15. All pictures of grids to pick from are numbered in the same manner, top down and left to right. 
+
+Please select the grid from 0 to 15 inclusive that contains the point in which you want to click.
 """
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -582,6 +595,70 @@ def click_at_percentage(
     pyautogui.click(x_pixel, y_pixel)
     return "Successfully clicked"
 
+# Function to draw text with a white rectangle background
+def draw_label_with_background(
+    position, text, draw, font_size, bg_width, bg_height
+):
+    # Adjust the position based on the background size
+    text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)
+    # Draw the text background
+    # draw.rectangle(
+    #     [position[0], position[1], position[0] + bg_width, position[1] + bg_height],
+    #     fill="white",
+    # )
+    # Draw the text
+    draw.text(text_position, text, fill="green", font_size=font_size, anchor="mm")
+
+
+def add_grid_to_image_by_percentages(original_image_path, new_image_path, num_grids):
+    """
+    Adding a grid to an image based on the number of grids per axis 
+    """
+
+    # Load the image
+    image = Image.open(original_image_path)
+
+    # Create a drawing object
+    draw = ImageDraw.Draw(image)
+
+    # Get the image size
+    width, height = image.size
+
+    # Reduce the font size a bit
+    font_size = int(height / 40)
+
+    # Calculate the background size based on the font size
+    bg_width = int(font_size * 1.2)  # Adjust as necessary
+    bg_height = int(font_size * 1.2)  # Adjust as necessary
+
+    for x in range(0, num_grids):
+        for y in range(0, num_grids):
+            x_coord = x * (width/num_grids) + (width/num_grids)/2 - bg_width/2
+            y_coord = y * (height/num_grids) + (height/num_grids)/2 - bg_height/2
+
+            # Calculate the percentage of the width and height
+            draw_label_with_background(
+                (x_coord, y_coord),
+                f"{x * num_grids + y}",
+                draw,
+                font_size,
+                bg_width,
+                bg_height,
+            )
+
+    for x in range(0, num_grids):
+        width_multiplier = width/num_grids;
+        line = ((x * width_multiplier, 0), (x * width_multiplier, height))
+        draw.line(line, fill="blue")
+
+    for y in range(0, num_grids):
+        height_multiplier = height/num_grids;
+        line = ((0, y * height_multiplier), (width, y * height_multiplier))
+        draw.line(line, fill="blue")
+    
+    # Save the image with the grid
+    image.save(new_image_path)
+
 
 def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     """
@@ -602,20 +679,6 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     # Calculate the background size based on the font size
     bg_width = int(font_size * 4.2)  # Adjust as necessary
     bg_height = int(font_size * 1.2)  # Adjust as necessary
-
-    # Function to draw text with a white rectangle background
-    def draw_label_with_background(
-        position, text, draw, font_size, bg_width, bg_height
-    ):
-        # Adjust the position based on the background size
-        text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)
-        # Draw the text background
-        draw.rectangle(
-            [position[0], position[1], position[0] + bg_width, position[1] + bg_height],
-            fill="white",
-        )
-        # Draw the text
-        draw.text(text_position, text, fill="black", font_size=font_size, anchor="mm")
 
     # Draw vertical lines and labels at every `grid_interval` pixels
     for x in range(grid_interval, width, grid_interval):
