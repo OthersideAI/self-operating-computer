@@ -27,7 +27,7 @@ import sys
 
 load_dotenv()
 
-DEBUG = True
+DEBUG = False
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -64,9 +64,10 @@ If no scrolling is required, simply set vert-scroll to 0.
 - Reason: Justify why the action you're performing is necessary.
 
 Note that scrolling and clicking will be performed after the cursor moves to your given x and y percentages of the screen.
+In a MOUSE action where you need to scroll, set the X/Y percentages so that the mouse first hovers over the scrollable UI element.
 Scrolling can be done any time you need to get to any target UI element which isn't on the screen.
 Scrolling and clicking are mutually excluse. You shouldn't click in the same action as a scroll since you won't yet know what you'll click on.
-left-click should also be False when you just want to move the cursor to (X, Y) and confirm that it is on the UI element you're aiming for.
+left-click should also be false when you just want to move the cursor to (X, Y) and confirm that it is on the UI element you're aiming for.
 
 2. TYPE
 Response: TYPE "value you want to type"
@@ -100,12 +101,19 @@ A few important notes:
 - When opening Chrome, if you see a profile icon click that to open chrome fully, it is located at: {{ "x": "50%", "y": "55%" }}
 - The Chrome address bar is generally at: {{ "x": "50%", "y": "9%" }}
 - The amount of mouse scroll wheel clicks you use should be relative to the task you're given. For example, if you know you need to scroll to the bottom or top of a page, use a larger number of scroll wheel clicks than you normally would.
-- After you click to enter a field you can go ahead and start typing!
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+- In the image of the screen is a grid. The intersections of these gridlines show the x and y percentages of the screen for the horizontal and vertical lines at that intersection point. Consider these percentage coordinates in your guess of the target UI element's location.
 
 {previous_action}
 
-IMPORTANT: DO NOT repeat actions such as doing the same MOUSE event twice in a row when you recognize that it isn't progressing you closer to the overall objective you're given.
+IMPORTANT: After you click to enter a field you can go ahead and start typing once you've verified that the input field does have focus! If the cursor is not hovering over the input field following your previous MOUSE action, you didn't successfully click on it so it doesn't have focus.
+In this case, you would try again to move the cursor over the field and successfully click it before you begin typing.
+
+THE FOLLOWING POINT IS EXTREMELY CRUCIAL AND YOU MUST OBEY IT AS YOUR #1 RULE TO SUCCESSFULLY OPERATE THE COMPUTER AS A HUMAN WOULD:
+- DO NOT under ANY circumstance repeat the exact same exact MOUSE action twice in a row. If you repeat the exact same action twice, it indicates that you're not progressing closer to the end objective. Instead, you MUST try something else.
+In order to obey this CRUCIAL rule, ALWAYS analyze your previous action and NEVER repeat it exactly as it is. 
+To clarify: You can do two MOUSE actions in a row, but you CANNOT do two IDENTICAL MOUSE actions in a row where x, y, left-click, and vert-scroll are all identical to the previous.
+Modifying description and reason DOES NOT count as having a different MOUSE action. The same goes for the SEARCH action. Before you do a SEARCH, first check if the target program you're searching for is already on the screen. If it is, DO NOT search for it. Just use that program which is opened.
 
 Objective: {objective}
 """
@@ -427,7 +435,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
             "screenshots", "screenshot_with_grid.png"
         )
 
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 200)
         # sleep for a second
         time.sleep(1)
 
