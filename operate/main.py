@@ -45,7 +45,7 @@ From looking at the screen and the objective your goal is to take the best next 
 
 To operate the computer you have the four options below.
 
-1. CLICK - Move mouse and click
+1. CLICK - Move mouse and click, scrolling if required
 2. TYPE - Type on the keyboard
 3. SEARCH - Search for a program on Mac and open it
 4. DONE - When you completed the task respond with the exact following phrase content
@@ -53,8 +53,11 @@ To operate the computer you have the four options below.
 Here are the response formats below.
 
 1. CLICK
-Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
+Response: CLICK {{ "x": "percent", "y": "percent", "vert-scroll": "clicks", "description": "~description here~", "reason": "~reason here~" }} 
 Note that the percents work where the top left corner is "x": "0%" and "y": "0%" and the bottom right corner is "x": "100%" and "y": "100%"
+When vertical scrolling is required, you can give a positive value for vert-scroll clicks to scroll up, or a negative value to scroll down.
+If no scrolling is required, simply set vert-scroll to 0. Note that scrolling will be performed after the cursor moves to your given
+x and y percentages. This will allow you to first hover the cursor over a scrollable region of the UI.
 
 2. TYPE
 Response: TYPE "value you want to type"
@@ -74,7 +77,7 @@ Objective: Open Spotify and play the beatles
 SEARCH Spotify
 __
 Objective: Find an image of a banana
-CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }}
+CLICK {{ "x": "50%", "y": "60%", "vert-scroll": "0", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }}
 __
 Objective: Go buy a book about the history of the internet
 TYPE https://www.amazon.com/
@@ -545,9 +548,11 @@ def mouse_click(click_detail):
     try:
         x = convert_percent_to_decimal(click_detail["x"])
         y = convert_percent_to_decimal(click_detail["y"])
+        v_clicks =  click_detail["vert-scroll"]
 
-        if click_detail and isinstance(x, float) and isinstance(y, float):
+        if click_detail and isinstance(x, float) and isinstance(y, float) and isinstance(v_clicks, int):
             click_at_percentage(x, y)
+            pyautogui.scroll(v_clicks)
             return click_detail["description"]
         else:
             return "We failed to click"
