@@ -97,6 +97,12 @@ If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/Oth
 
 For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. 
 
+### Join Our Discord Community
+
+For real-time discussions and community support, join our Discord server. 
+- If you're already a member, join the discussion in our specific [Text Channel](https://discord.com/channels/877638638001877052/1181241785834541157).
+- If you're new, first [join our Discord Server](https://discord.gg/YqaKtyBEzM) and then navigate to the desired text channel.
+
 ### Follow HyperWriteAI for More Updates
 
 Stay updated with the latest developments:
