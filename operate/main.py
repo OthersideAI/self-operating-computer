@@ -602,17 +602,22 @@ def click_at_percentage(
 
 # Function to draw text with a white rectangle background
 def draw_label_with_background(
-    position, text, draw, font_size, bg_width, bg_height
+    position, text, draw, font_size, bg_width=0, bg_height=0, grid=False
 ):
-    # Adjust the position based on the background size
-    text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)
-    # Draw the text background
-    # draw.rectangle(
-    #     [position[0], position[1], position[0] + bg_width, position[1] + bg_height],
-    #     fill="white",
-    # )
+    if grid:
+        text_position = (position[0], position[1])
+    else:
+        # Adjust the position based on the background size
+        text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)
+        # Draw the text background
+        draw.rectangle(
+            [position[0], position[1], position[0] + bg_width, position[1] + bg_height],
+            fill="white",
+        )
+
     # Draw the text
-    draw.text(text_position, text, fill="green", font_size=font_size, anchor="mm")
+    fill_color = "green" if grid else "black"
+    draw.text(text_position, text, fill=fill_color, font_size=font_size, anchor="mm")
 
 
 def add_grid_to_image_by_percentages(original_image_path, new_image_path, num_grids):
@@ -647,8 +652,7 @@ def add_grid_to_image_by_percentages(original_image_path, new_image_path, num_gr
                 f"{x * num_grids + y}",
                 draw,
                 font_size,
-                bg_width,
-                bg_height,
+                grid=True
             )
 
     for x in range(0, num_grids):
@@ -698,8 +702,8 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
                 f"{x_percent}%,{y_percent}%",
                 draw,
                 font_size,
-                bg_width,
-                bg_height,
+                bg_width=bg_width,
+                bg_height=bg_height,
             )
 
     # Draw horizontal lines - labels are already added with vertical lines
