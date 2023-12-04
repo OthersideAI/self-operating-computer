@@ -426,7 +426,12 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
             "screenshots", "screenshot_with_grid.png"
         )
 
+        sample_screenshot_select_grid= os.path.join(
+            "screenshots", "screenshot_with_grid_options.png"
+        )
+
         add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+        add_grid_to_image_by_percentages(screenshot_filename, sample_screenshot_select_grid, 4)
         # sleep for a second
         time.sleep(1)
 
