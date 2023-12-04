@@ -58,6 +58,8 @@ Note that the percents work where the top left corner is "x": "0%" and "y": "0%"
 When vertical scrolling is required, you can give a positive value for vert-scroll clicks to scroll up, or a negative value to scroll down.
 If no scrolling is required, simply set vert-scroll to 0. Note that scrolling will be performed after the cursor moves to your given
 x and y percentages. This will allow you to first hover the cursor over a scrollable region of the UI.
+Also note that clicks in the context of scrolling refers to mouse scroll wheel clicks. Scrolling can be done any time you need to get any target
+UI element on the screen.
 
 2. TYPE
 Response: TYPE "value you want to type"
@@ -89,12 +91,13 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - When opening Chrome, if you see a profile icon click that to open chrome fully, it is located at: {{ "x": "50%", "y": "55%" }}
 - The Chrome address bar is generally at: {{ "x": "50%", "y": "9%" }}
+- The amount of mouse scroll wheel clicks you use should be relative to the task you're given. For example, if you know you need to scroll to the bottom or top of a page, use a larger number of scroll wheel clicks than you normally would.
 - After you click to enter a field you can go ahead and start typing!
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 {previous_action}
 
-IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row.
+IMPORTANT: DO NOT repeat actions such as doing the same CLICK event twice in a row when you recognize that it isn't progressing you closer to the overall objective you're given.
 
 Objective: {objective}
 """
