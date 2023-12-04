@@ -89,6 +89,9 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
+### Accurate mouse clicks
+When running operate, you can optionally add an -accurate tag when running operate to improve the model's mouse clicking accuracy. However, by turning on -accurate, additional GPT requests will be sent. 
+
 ### Contributions are Welcomed!:
 
 If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
