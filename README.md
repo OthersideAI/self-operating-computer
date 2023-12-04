@@ -46,18 +46,12 @@ git clone https://github.com/OthersideAI/self-operating-computer.git
 cd self-operating-computer
 ```
 
-3. **Create a Python virtual environment with Poetry**.
-
-```
-cat requirements.txt | xargs poetry add
-```
-
 3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
-
 
 ```
 python3 -m venv venv
 ```
+
 4. **Activate the virtual environment**:
 ```
 source venv/bin/activate
