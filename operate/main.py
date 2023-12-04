@@ -19,8 +19,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont, ImageGrab
-import matplotlib.font_manager as fm
+from PIL import Image, ImageDraw, ImageGrab
 from openai import OpenAI
 import sys
 
