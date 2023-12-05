@@ -68,15 +68,6 @@ source venv/bin/activate
 ```
 pip install -r requirements.txt
 ```
-5.1 **Optional installs for voice control**:
-```
-pip install -r requirements-audio.txt
-
-For mac users:
-brew install portaudio
-For Linux users:
-sudo apt install portaudio19-dev python3-pyaudio
-```
 6. **Install Project and Command-Line Interface**:
 ```
 pip install .
@@ -99,6 +90,29 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
+
+### Using `operate` Modes
+
+#### Voice Mode
+- Install the additional `requirements-audio.txt`
+```
+pip install -r requirements-audio.txt
+```
+**Install device requirements**
+- For mac users:
+```
+brew install portaudio
+```
+- For Linux users:
+```
+sudo apt install portaudio19-dev python3-pyaudio
+```
+Run with voice mode
+```
+operate --voice
+
+```
+
 
 ### Contributions are Welcomed!:
 
