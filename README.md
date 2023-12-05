@@ -11,18 +11,18 @@
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
 </div>
 
-### Key Features
+## Key Features
 - **Compatibility**: Designed for various multimodal models.
 - **Integration**: Currently integrated with **GPT-4v** as the default model.
 - **Future Plans**: Support for additional models.
 
-### Current Challenges
+## Current Challenges
 > **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
 
-### Ongoing Development
+## Ongoing Development
 At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
 
-### Agent-1-Vision Model API Access
+## Agent-1-Vision Model API Access
 We will soon be offering API access to our Agent-1-Vision model.
 
 If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
@@ -89,26 +89,47 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-### Contributions are Welcomed!:
+## Using `operate` Modes
+
+### Voice Mode
+- Install the additional `requirements-audio.txt`
+```
+pip install -r requirements-audio.txt
+```
+**Install device requirements**
+- For mac users:
+```
+brew install portaudio
+```
+- For Linux users:
+```
+sudo apt install portaudio19-dev python3-pyaudio
+```
+Run with voice mode
+```
+operate --voice
+```
+
+## Contributions are Welcomed!:
 
 If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
 
-### Feedback
+## Feedback
 
 For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. 
 
-### Join Our Discord Community
+## Join Our Discord Community
 
 For real-time discussions and community support, join our Discord server. 
 - If you're already a member, join the discussion in [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
 - If you're new, first [join our Discord Server](https://discord.gg/YqaKtyBEzM) and then navigate to the [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
 
-### Follow HyperWriteAI for More Updates
+## Follow HyperWriteAI for More Updates
 
 Stay updated with the latest developments:
 - Follow HyperWriteAI on [Twitter](https://twitter.com/HyperWriteAI).
 - Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
-### Compatibility
+## Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
 
