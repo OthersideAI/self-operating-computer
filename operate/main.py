@@ -13,7 +13,7 @@ import argparse
 import platform
 import Xlib.display
 import Xlib.X
-import Xlib.Xutil # not sure if Xutil is necessary
+import Xlib.Xutil  # not sure if Xutil is necessary
 
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
@@ -97,7 +97,9 @@ IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a
 Objective: {objective}
 """
 
-ACCURATE_PIXEL_COUNT = 200 # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
+ACCURATE_PIXEL_COUNT = (
+    200  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
+)
 ACCURATE_MODE_VISION_PROMPT = """
 It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
 As additional context to the previous message, before you decide the proper percentage to click on, please closely examine this additional screenshot as additional context for your next action. 
@@ -193,12 +195,12 @@ else:
     ANSI_BRIGHT_MAGENTA = ""
 
 
-def main(model, accurate_mode, voice_mode=False, voice_mode=False):
+def main(model, accurate_mode, voice_mode=False):
     """
     Main function for the Self-Operating Computer
     """
     # Initialize WhisperMic if voice_mode is True if voice_mode is True
-    mic = WhisperMic() if voice_mode else None  if voice_mode else None
+    mic = WhisperMic() if voice_mode else None if voice_mode else None
 
     message_dialog(
         title="Self-Operating Computer",
@@ -214,7 +216,9 @@ def main(model, accurate_mode, voice_mode=False, voice_mode=False):
         print("\033c", end="")
 
     if voice_mode:
-        print(f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Listening for your command... (speak now)")
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Listening for your command... (speak now)"
+        )
         try:
             objective = mic.listen()
         except Exception as e:
@@ -324,9 +328,11 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
     """
     Format the accurate mode vision prompt
     """
-    width = ((ACCURATE_PIXEL_COUNT/2)/monitor_size['width']) * 100
-    height = ((ACCURATE_PIXEL_COUNT/2)/monitor_size['height']) * 100
-    prompt = ACCURATE_MODE_VISION_PROMPT.format(prev_x=prev_x, prev_y=prev_y, width=width, height=height)
+    width = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["width"]) * 100
+    height = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["height"]) * 100
+    prompt = ACCURATE_MODE_VISION_PROMPT.format(
+        prev_x=prev_x, prev_y=prev_y, width=width, height=height
+    )
     return prompt
 
 
@@ -353,15 +359,16 @@ def get_last_assistant_message(messages):
                 return messages[index]
     return None  # Return None if no assistant message is found
 
+
 def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
     """
-    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location 
+    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
     """
     try:
-        screenshot_filename = os.path.join(
-            "screenshots", "screenshot_mini.png"
+        screenshot_filename = os.path.join("screenshots", "screenshot_mini.png")
+        capture_mini_screenshot_with_cursor(
+            file_path=screenshot_filename, x=prev_x, y=prev_y
         )
-        capture_mini_screenshot_with_cursor(file_path=screenshot_filename, x=prev_x, y=prev_y)
 
         new_screenshot_filename = os.path.join(
             "screenshots", "screenshot_mini_with_grid.png"
@@ -475,7 +482,9 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                 prev_y = click_data_json["y"]
 
                 if DEBUG:
-                    print(f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}")
+                    print(
+                        f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
+                    )
                 content = accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
@@ -548,6 +557,7 @@ def summarize(messages, objective):
     except Exception as e:
         print(f"Error parsing JSON: {e}")
         return "Failed to summarize the workflow"
+
 
 def mouse_click(click_detail):
     try:
@@ -678,36 +688,48 @@ def search(text):
     return "Open program: " + text
 
 
-def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "screenshot_mini.png"), x=0, y=0):
+def capture_mini_screenshot_with_cursor(
+    file_path=os.path.join("screenshots", "screenshot_mini.png"), x=0, y=0
+):
     user_platform = platform.system()
 
     if user_platform == "Linux":
-        x = float(x[:-1]) # convert x from "50%" to 50.
+        x = float(x[:-1])  # convert x from "50%" to 50.
         y = float(y[:-1])
 
-        x = (x/100) * monitor_size['width'] # convert x from 50 to 0.5 * monitor_width
-        y = (y/100) * monitor_size['height']
+        x = (x / 100) * monitor_size[
+            "width"
+        ]  # convert x from 50 to 0.5 * monitor_width
+        y = (y / 100) * monitor_size["height"]
 
         # Define the coordinates for the rectangle
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT/2), int(y - ACCURATE_PIXEL_COUNT/2)
-        x2, y2 = int(x + ACCURATE_PIXEL_COUNT/2), int(y + ACCURATE_PIXEL_COUNT/2)
+        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
+        x2, y2 = int(x + ACCURATE_PIXEL_COUNT / 2), int(y + ACCURATE_PIXEL_COUNT / 2)
 
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
-        screenshot = screenshot.resize((screenshot.width * 2, screenshot.height * 2), Image.LANCZOS) # upscale the image so it's easier to see and percentage marks more visible
-        screenshot.save(file_path)            
+        screenshot = screenshot.resize(
+            (screenshot.width * 2, screenshot.height * 2), Image.LANCZOS
+        )  # upscale the image so it's easier to see and percentage marks more visible
+        screenshot.save(file_path)
 
         screenshots_dir = "screenshots"
-        grid_screenshot_filename = os.path.join(screenshots_dir, "screenshot_mini_with_grid.png")
+        grid_screenshot_filename = os.path.join(
+            screenshots_dir, "screenshot_mini_with_grid.png"
+        )
 
-        add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT/2))
+        add_grid_to_image(
+            file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)
+        )
     elif user_platform == "Darwin":
-        x = float(x[:-1]) # convert x from "50%" to 50.
+        x = float(x[:-1])  # convert x from "50%" to 50.
         y = float(y[:-1])
 
-        x = (x/100) * monitor_size['width'] # convert x from 50 to 0.5 * monitor_width
-        y = (y/100) * monitor_size['height']
+        x = (x / 100) * monitor_size[
+            "width"
+        ]  # convert x from 50 to 0.5 * monitor_width
+        y = (y / 100) * monitor_size["height"]
 
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT/2), int(y - ACCURATE_PIXEL_COUNT/2)
+        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
 
         width = ACCURATE_PIXEL_COUNT
         height = ACCURATE_PIXEL_COUNT
@@ -716,13 +738,17 @@ def capture_mini_screenshot_with_cursor(file_path=os.path.join("screenshots", "s
         subprocess.run(["screencapture", "-C", rect, file_path])
 
         screenshots_dir = "screenshots"
-        grid_screenshot_filename = os.path.join(screenshots_dir, "screenshot_mini_with_grid.png")
+        grid_screenshot_filename = os.path.join(
+            screenshots_dir, "screenshot_mini_with_grid.png"
+        )
 
-        add_grid_to_image(file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT/2))
+        add_grid_to_image(
+            file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)
+        )
 
 
 def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
-    file_path=os.path.join("screenshots", "screenshot.png")
+    file_path = os.path.join("screenshots", "screenshot.png")
     user_platform = platform.system()
 
     if user_platform == "Windows":
@@ -735,7 +761,7 @@ def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot
         monitor_size["width"] = size[0]
         monitor_size["height"] = size[1]
         screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
-        screenshot.save(file_path)            
+        screenshot.save(file_path)
     elif user_platform == "Darwin":  # (Mac OS)
         # Use the screencapture utility to capture the screen with the cursor
         subprocess.run(["screencapture", "-C", file_path])
@@ -796,19 +822,12 @@ def main_entry():
         action="store_true",
         required=False,
     )
-    # Add a voice flag
-    parser.add_argument(
-        "--voice",
-        help="Use voice input mode",
-        action="store_true",
-    )
 
     try:
         args = parser.parse_args()
-        main(args.model, accurate_mode=args.accurate, voice_mode=args.voice, voice_mode=args.voice)
+        main(args.model, accurate_mode=args.accurate, voice_mode=args.voice)
     except KeyboardInterrupt:
         print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
-
 
 
 if __name__ == "__main__":
