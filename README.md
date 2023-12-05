@@ -130,3 +130,6 @@ Stay updated with the latest developments:
 ## Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
 
+### OpenAI Rate Limiting Note
+The ```gpt-4-vision-preview``` model is required. To unlock access to this model, your account needs to spend at least \$5 in API credits. Pre-paying for these credits will unlock access if you haven't already spent the minimum \$5.   
+Learn more **[here](https://platform.openai.com/docs/guides/rate-limits?context=tier-one)**
