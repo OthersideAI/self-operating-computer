@@ -23,7 +23,6 @@ from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
 import sys
-from whisper_mic import WhisperMic
 
 
 load_dotenv()
@@ -199,8 +198,22 @@ def main(model, accurate_mode, voice_mode=False):
     """
     Main function for the Self-Operating Computer
     """
+    mic = None
     # Initialize WhisperMic if voice_mode is True if voice_mode is True
-    mic = WhisperMic() if voice_mode else None if voice_mode else None
+    """
+    Main function for the Self-Operating Computer
+    """
+    if voice_mode:
+        try:
+            from whisper_mic import WhisperMic
+
+            # Initialize WhisperMic if import is successful
+            mic = WhisperMic()
+        except ImportError:
+            print(
+                "Voice mode requires the 'whisper_mic' module. Please install it using 'pip install -r requirements-audio.txt'"
+            )
+            sys.exit(1)
 
     message_dialog(
         title="Self-Operating Computer",
