@@ -51,7 +51,7 @@ cd self-operating-computer
 ```
 python3 -m venv venv
 ```
-If you use Poetry instead of `venv`  create a Python virtual environment with Poetry. 
+If you use Poetry instead of `venv`  create a Python virtual environment like so. 
 ```
 cat requirements.txt | xargs poetry add
 ```
