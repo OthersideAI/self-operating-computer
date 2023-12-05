@@ -91,9 +91,9 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-### Using `operate` Modes
+## Using `operate` Modes
 
-#### Voice Mode
+### Voice Mode
 - Install the additional `requirements-audio.txt`
 ```
 pip install -r requirements-audio.txt
@@ -114,26 +114,26 @@ operate --voice
 ```
 
 
-### Contributions are Welcomed!:
+## Contributions are Welcomed!:
 
 If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
 
-### Feedback
+## Feedback
 
 For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. 
 
-### Join Our Discord Community
+## Join Our Discord Community
 
 For real-time discussions and community support, join our Discord server. 
 - If you're already a member, join the discussion in [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
 - If you're new, first [join our Discord Server](https://discord.gg/YqaKtyBEzM) and then navigate to the [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
 
-### Follow HyperWriteAI for More Updates
+## Follow HyperWriteAI for More Updates
 
 Stay updated with the latest developments:
 - Follow HyperWriteAI on [Twitter](https://twitter.com/HyperWriteAI).
 - Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
-### Compatibility
+## Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
 
