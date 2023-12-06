@@ -33,6 +33,10 @@ We recognize that some operating system functions may be more efficiently execut
 
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
+
+## OUTAGE NOTIFICATION: gpt-4-vision-preview
+This model is currently experiencing an outage so the self-operating computer may not work as expected. 
+
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
