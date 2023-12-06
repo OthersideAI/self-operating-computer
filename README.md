@@ -59,11 +59,7 @@ cat requirements.txt | xargs poetry add
 ```
 source venv/bin/activate
 ```
-5. **Install the project requirements**:
-```
-pip install -r requirements.txt
-```
-6. **Install Project and Command-Line Interface**:
+6. **Install Project Requirements and Command-Line Interface**:
 ```
 pip install .
 ```
