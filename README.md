@@ -11,6 +11,9 @@
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
 </div>
 
+<span style="color:red">## OUTAGE NOTIFICATION: gpt-4-vision-preview<br>This model is currently experiencing an outage so the self-operating computer may not work as expected.</span>
+
+
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
 - **Integration**: Currently integrated with **GPT-4v** as the default model.
@@ -33,9 +36,6 @@ We recognize that some operating system functions may be more efficiently execut
 
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
-
-## OUTAGE NOTIFICATION: gpt-4-vision-preview
-This model is currently experiencing an outage so the self-operating computer may not work as expected. 
 
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
