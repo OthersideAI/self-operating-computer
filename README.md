@@ -11,7 +11,8 @@
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
 </div>
 
-<span style="color:red">## OUTAGE NOTIFICATION: gpt-4-vision-preview<br>This model is currently experiencing an outage so the self-operating computer may not work as expected.</span>
+:rotating_light: **OUTAGE NOTIFICATION: gpt-4-vision-preview**
+**This model is currently experiencing an outage so the self-operating computer may not work as expected.**
 
 
 ## Key Features
