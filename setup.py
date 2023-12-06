@@ -6,7 +6,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="self-operating-computer",
-    version="1.0.0",
+    version="1.0.1",
     packages=find_packages(),
     install_requires=required,  # Add dependencies here
     entry_points={
