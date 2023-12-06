@@ -11,18 +11,18 @@
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
 </div>
 
-### Key Features
+## Key Features
 - **Compatibility**: Designed for various multimodal models.
 - **Integration**: Currently integrated with **GPT-4v** as the default model.
 - **Future Plans**: Support for additional models.
 
-### Current Challenges
+## Current Challenges
 > **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
 
-### Ongoing Development
+## Ongoing Development
 At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
 
-### Agent-1-Vision Model API Access
+## Agent-1-Vision Model API Access
 We will soon be offering API access to our Agent-1-Vision model.
 
 If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
@@ -46,17 +46,14 @@ git clone https://github.com/OthersideAI/self-operating-computer.git
 cd self-operating-computer
 ```
 
-3. **Create a Python virtual environment with Poetry**.
-
-```
-cat requirements.txt | xargs poetry add
-```
-
 3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
-
 
 ```
 python3 -m venv venv
+```
+If you use Poetry instead of `venv`  create a Python virtual environment like so. 
+```
+cat requirements.txt | xargs poetry add
 ```
 4. **Activate the virtual environment**:
 ```
@@ -89,23 +86,50 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-### Contributions are Welcomed!:
+## Using `operate` Modes
+
+### Voice Mode
+- Install the additional `requirements-audio.txt`
+```
+pip install -r requirements-audio.txt
+```
+**Install device requirements**
+- For mac users:
+```
+brew install portaudio
+```
+- For Linux users:
+```
+sudo apt install portaudio19-dev python3-pyaudio
+```
+Run with voice mode
+```
+operate --voice
+```
+
+## Contributions are Welcomed!:
 
 If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
 
-### Feedback
+## Feedback
 
 For any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. 
 
-### Follow HyperWriteAI for More Updates
+## Join Our Discord Community
+
+For real-time discussions and community support, join our Discord server. 
+- If you're already a member, join the discussion in [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
+- If you're new, first [join our Discord Server](https://discord.gg/YqaKtyBEzM) and then navigate to the [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
+
+## Follow HyperWriteAI for More Updates
 
 Stay updated with the latest developments:
 - Follow HyperWriteAI on [Twitter](https://twitter.com/HyperWriteAI).
 - Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
 
-### Compatibility
+## Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
 
-### Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=OthersideAI/self-operating-computer&type=Timeline)](https://star-history.com/#OthersideAI/self-operating-computer&Timeline)
+## OpenAI Rate Limiting Note
+The ```gpt-4-vision-preview``` model is required. To unlock access to this model, your account needs to spend at least \$5 in API credits. Pre-paying for these credits will unlock access if you haven't already spent the minimum \$5.   
+Learn more **[here](https://platform.openai.com/docs/guides/rate-limits?context=tier-one)**
