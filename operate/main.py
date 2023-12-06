@@ -568,7 +568,7 @@ def summarize(messages, objective):
         return content
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
+        print(f"Error in summarize: {e}")
         return "Failed to summarize the workflow"
 
 
@@ -760,8 +760,7 @@ def capture_mini_screenshot_with_cursor(
         )
 
 
-def capture_screen_with_cursor(file_path=os.path.join("screenshots", "screenshot.png")):
-    file_path = os.path.join("screenshots", "screenshot.png")
+def capture_screen_with_cursor(file_path):
     user_platform = platform.system()
 
     if user_platform == "Windows":
