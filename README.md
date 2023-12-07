@@ -54,7 +54,6 @@ git clone https://github.com/OthersideAI/self-operating-computer.git
 cd self-operating-computer
 ./deploy/bare-metal/linux/debian.sh
 source venv/bin/activate
-pip install .
 ```
 
 ### 2. **Edit the default settings in your choice of text editor:**
@@ -97,7 +96,7 @@ pip install -r requirements-audio.txt
 brew install portaudio
 ```
 
-Now you should be ready to run in voice mode with the following command:
+Now you should be ready to run in voice mode with the `-v` flag:
 ```
 soc run -v
 ```
