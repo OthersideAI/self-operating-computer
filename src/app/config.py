@@ -9,7 +9,7 @@ ROOT_PATH: Path = Path(__file__).parent.parent.parent
 SRC_PATH: Path = ROOT_PATH / 'src'
 """ The source path of the application which is typically the src directory within the ROOT_PATH. """
 
-DEFAULT_ENV_PATH: Path = Path('/etc/self-operating-computer/self-operating-computer.env')
+DEFAULT_ENV_PATH: Path = Path('./.env')
 """ The default path to the environment file to load settings from. """
 
 DEFAULT_SECRETS_PATH: Path | None = None

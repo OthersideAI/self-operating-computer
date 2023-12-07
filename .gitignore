@@ -7,3 +7,4 @@ venv
 ___*
 /build
 /screenshots/*.png
+.env
