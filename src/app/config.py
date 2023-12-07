@@ -33,7 +33,7 @@ class AppSettings(BaseSettings):
     screenshot_directory: str = './screenshots'
     voice_mode: bool = False
     
-    version: str = '0.1.0'
+    version: str = '1.0.4'
     """ The application version number """
 
     """ The following settings are automatically loaded at application startup. """
