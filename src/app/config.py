@@ -20,8 +20,7 @@ class AppSettings(BaseSettings):
     """ The application settings class that loads setting values from the application environment. """
 
     accurate_mode: bool = False
-    config_path: str = '/etc/self-operating-computer/config.yml'
-    env_file: str = '/etc/self-operating-computer/self-operating-computer.env'
+    env_file: str = './.env'
     env_file_encoding: str = 'UTF-8'
     env_secrets_dir: str | None = None
     debug: bool = False
@@ -88,66 +87,7 @@ def load_settings(env_file_path: str | None = None, env_file_encoding: str | Non
     # Load base app configuration settings from the given environment file and the local environment
     app_settings = AppSettings(**params)
 
-    # Load additional configuration from the given YAML configuration file (if any)
-    if app_settings.config_path is not None:
-        if not app_settings.config_path.startswith('/'):
-            app_settings.config_path = os.path.join(app_settings.root_path, app_settings.config_path)
-        app_settings = load_config(app_settings)
-
     return app_settings
-
-
-def load_config(app_settings: AppSettings) -> AppSettings:
-    """ Loads the app's configuration from the given configuration file. """
-    from yaml import YAMLError
-
-    config_path: str | None = app_settings.config_path
-
-    if not isinstance(config_path, str):
-        return app_settings
-
-    if len(config_path.strip()) == 0:
-        return app_settings
-
-    if not config_path.startswith('/'):
-        config_path = os.path.join(app_settings.root_path, config_path)
-
-    try:
-        with open(config_path, 'r') as f:
-            app_settings.config = yaml.load(f, Loader=yaml.FullLoader)
-            f.close()
-    except FileNotFoundError:
-        # print(f'The given path for the configuration file does not exist: {config_path}')
-        pass
-    except IsADirectoryError:
-        # print(f'The given path for the configuration file is not a file: {config_path}')
-        pass
-    except PermissionError:
-        # print(f'Permission denied when trying to read the configuration file: {config_path}')
-        pass
-    except UnicodeDecodeError:
-        # print(f'Failed to decode the configuration file: {config_path}')
-        pass
-    except YAMLError as e:
-        # print(f'Failed to parse the configuration file "{config_path}": {e}')
-        pass
-
-    return app_settings
-
-
-def save_config(app_settings: AppSettings, config: dict[str, any]) -> bool:
-    """ Saves the app's configuration to the defined configuration file setting path. """
-
-    config_path: str = app_settings.config_path
-
-    if not config_path.startswith('/'):
-        config_path = os.path.join(app_settings.root_path, config_path)
-
-    with open(config_path, 'w') as f:
-        yaml.dump(config, f)
-        f.close()
-
-    return True
 
 
 # Load application settings from the environment and environment configuration files

@@ -42,7 +42,6 @@ python3-xlib==0.15
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 pytweening==1.0.7
-pyyaml==6.0
 requests==2.31.0
 rubicon-objc==0.4.7
 six==1.16.0

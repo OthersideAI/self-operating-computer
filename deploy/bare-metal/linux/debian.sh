@@ -16,7 +16,7 @@ $CMD_PREFIX apt-get -y --ignore-missing install "${pkgs[@]}"
 username=$(whoami)
 groupname=$(id -gn)
 root_path=$(pwd)
-config_path=${1:-/etc/self-operating-computer/self-operating-computer.env}
+config_path=${1:-./.env}
 source_path=${2:-$root_path/deploy/config/defaults.env}
 
 rm -fr venv
