@@ -684,8 +684,6 @@ def keyboard_type(text):
 
 
 def search(text):
-    import time
-
     if platform.system() == "Windows":
         pyautogui.press("win")
     elif platform.system() == "Linux":
