@@ -32,9 +32,19 @@ class Terminal:
     """Terminal class for handling console output"""
 
     @staticmethod
-    def print(title: str, content: str or None = None, color: str = ANSI_BLUE):
+    def print(title: str or None, content: str or None = None, color: str = ANSI_BLUE, prefix: bool = True):
         """Print a formatted message"""
-        message: str = f'{ANSI_GREEN}[Self-Operating Computer]{color} {title}'
+        message: str = ''
+
+        if prefix:
+            message += f'{ANSI_GREEN}[Self-Operating Computer]'
+
+        message += color
+
+        if title is not None:
+            if prefix:
+                message += ' '
+            message += title
 
         if content is not None:
             message += f'\n{ANSI_RESET}{content}'
@@ -44,17 +54,17 @@ class Terminal:
         print(message)
 
     @staticmethod
-    def print_action(title: str, content: str or None = None):
+    def print_action(title: str or None, content: str or None = None):
         """Print a formatted error message"""
         Terminal.print(f'[Act] {title}', content, ANSI_BRIGHT_MAGENTA)
 
     @staticmethod
-    def print_error(title: str, content: str or None = None):
+    def print_error(title: str or None, content: str or None = None):
         """Print a formatted error message"""
         Terminal.print(f'[Error] {title}', content, ANSI_RED)
 
     @staticmethod
-    def print_message(title: str, content: str or None = None):
+    def print_message(title: str or None, content: str or None = None):
         """Print a formatted message"""
         Terminal.print(title, content)
 

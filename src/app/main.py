@@ -10,7 +10,7 @@ from app.config import settings
 from app.lib import prompts
 from app.lib import terminal
 from app.lib.openai import OpenAIWrapper
-
+from app.lib.terminal import Terminal
 
 # Define style
 style = PromptStyle.from_dict(
@@ -36,9 +36,8 @@ def main():
             # Initialize WhisperMic if import is successful
             mic = WhisperMic()
         except ImportError:
-            print(
-                "Voice mode requires the 'whisper_mic' module. Please install it using 'pip install -r requirements-audio.txt'"
-            )
+            Terminal.print_error('Missing Dependency', "Voice mode requires the 'whisper_mic' module. "
+                                 + "Please install it using 'pip install -r requirements-audio.txt'")
             sys.exit(1)
 
     # Display an intro prompt
@@ -48,23 +47,19 @@ def main():
         style=style,
     ).run()
 
-    print(f'Platform: {platform.system()}')
-
     # Clear the console
     terminal.clear_console()
 
     if settings.voice_mode:
-        print(
-            f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_RESET} Listening for your command... (speak now)"
-        )
+        Terminal.print_message(None, 'Listening for your command... (speak now)')
         try:
             objective = mic.listen()
         except Exception as e:
-            print(f"{terminal.ANSI_RED}Error in capturing voice input: {e}{terminal.ANSI_RESET}")
+            Terminal.print_error('Error in capturing voice input', str(e))
             return  # Exit if voice input fails
     else:
-        print(f"{terminal.ANSI_GREEN}[Self-Operating Computer]\n{terminal.ANSI_RESET}{prompts.USER_QUESTION}")
-        print(f"{terminal.ANSI_YELLOW}[User]{terminal.ANSI_RESET}")
+        Terminal.print_message(None, prompts.USER_QUESTION)
+        Terminal.print('[User]', None, terminal.ANSI_YELLOW, False)
         objective = prompt(style=style)
 
     oai.execute_objective(objective)
