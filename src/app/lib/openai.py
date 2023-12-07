@@ -7,7 +7,7 @@ import typing
 
 from openai import OpenAI
 from app.config import settings
-from app.lib import prompts, terminal
+from app.lib import prompts
 from app.lib.exceptions import ModelNotRecognizedException
 from app.lib.actions import KeyboardAction, MouseAction, ScreenshotAction, SearchAction
 from app.lib.prompts import Prompt
@@ -27,6 +27,12 @@ class ModelMessage(object):
         self.role = role
         self.content = content
 
+    def __str__(self):
+        return f'[{self.role}] {self.content}'
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class ModelResponse(object):
     """Provides a consistent response format for the OpenAI API"""
@@ -42,6 +48,12 @@ class ModelResponse(object):
     def __init__(self, action: str, data: re.Match or None):
         self.action = action
         self.data = data
+
+    def __str__(self):
+        return f'[{self.action}] {self.data}'
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class OpenAIWrapper:
@@ -68,7 +80,7 @@ class OpenAIWrapper:
 
         while True:
             if settings.debug:
-                print("[loop] messages before next action:\n\n\n", self._messages[1:])
+                Terminal.print_message('[loop] messages before next action:', self._messages[1:])
 
             try:
                 response = self.get_next_action(objective)
@@ -128,18 +140,81 @@ class OpenAIWrapper:
 
         raise ModelNotRecognizedException(settings.openai_model)
 
-    def get_last_assistant_message(self):
+    def get_next_action_from_openai(self, objective):
         """
-        Retrieve the last message from the assistant in the messages array.
-        If the last assistant message is the first message in the array, return None.
+        Get the next action for Self-Operating Computer
         """
-        for index in reversed(range(len(self._messages))):
-            if self._messages[index].role == ModelMessage.ROLE_ASSISTANT:
-                if index == 0:  # Check if the assistant message is the first in the array
-                    return None
-                else:
-                    return self._messages[index]
-        return None  # Return None if no assistant message is found
+        # sleep for a second
+        time.sleep(1)
+        try:
+            screenshots_dir = "screenshots"
+            if not os.path.exists(screenshots_dir):
+                os.makedirs(screenshots_dir)
+
+            screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+
+            # Call the function to capture the screen with the cursor
+            ScreenshotAction.capture_screen_with_cursor(screenshot_filename)
+
+            new_screenshot_filename = os.path.join("screenshots", "screenshot_with_grid.png")
+
+            ImageUtil.add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+
+            # sleep for a second
+            time.sleep(1)
+
+            with open(new_screenshot_filename, "rb") as img_file:
+                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+            previous_action = self.get_last_assistant_message()
+
+            vision_prompt = Prompt.format_vision_prompt(objective, previous_action)
+
+            vision_message: ModelMessage = self.create_message(ModelMessage.ROLE_USER, [
+                {"type": "text", "text": vision_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ], append=False)
+
+            # create a copy of messages and save to pseudo_messages
+            pseudo_messages = self.get_messages_as_objects().copy()
+            pseudo_messages.append(vision_message.__dict__)
+
+            response = self._client.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=pseudo_messages,
+                presence_penalty=1,
+                frequency_penalty=1,
+                temperature=0.7,
+                max_tokens=300,
+            )
+
+            self.create_message(ModelMessage.ROLE_USER, '`screenshot.png`')
+
+            content = response.choices[0].message.content
+
+            if settings.accurate_mode:
+                if content.startswith(ModelResponse.ACTION_CLICK):
+                    # Adjust pseudo_messages to include the accurate_mode_message
+
+                    click_data = re.search(r"CLICK \{ (.+) \}", content).group(1)
+                    click_data_json = json.loads(f"{{{click_data}}}")
+                    prev_x = click_data_json["x"]
+                    prev_y = click_data_json["y"]
+
+                    if settings.debug:
+                        print(f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}")
+
+                    content = self.accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
+                    assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
+
+            return content
+
+        except Exception as e:
+            Terminal.print_error('Error parsing JSON:', str(e))
+            return "Failed take action after looking at the screenshot"
 
     def accurate_mode_double_check(self, pseudo_messages, prev_x, prev_y):
         """
@@ -187,90 +262,28 @@ class OpenAIWrapper:
             Terminal.print_error('Error re-prompting model for accurate_mode:', str(e))
             return "ERROR"
 
-    def get_next_action_from_openai(self, objective):
+    def get_last_assistant_message(self):
         """
-        Get the next action for Self-Operating Computer
+        Retrieve the last message from the assistant in the messages array.
+        If the last assistant message is the first message in the array, return None.
         """
-        # sleep for a second
-        time.sleep(1)
-        try:
-            screenshots_dir = "screenshots"
-            if not os.path.exists(screenshots_dir):
-                os.makedirs(screenshots_dir)
-
-            screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
-            # Call the function to capture the screen with the cursor
-            ScreenshotAction.capture_screen_with_cursor(screenshot_filename)
-
-            new_screenshot_filename = os.path.join(
-                "screenshots", "screenshot_with_grid.png"
-            )
-
-            ImageUtil.add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
-            # sleep for a second
-            time.sleep(1)
-
-            with open(new_screenshot_filename, "rb") as img_file:
-                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-            previous_action = self.get_last_assistant_message()
-
-            vision_prompt = Prompt.format_vision_prompt(objective, previous_action)
-
-            vision_message: ModelMessage = self.create_message(ModelMessage.ROLE_USER, [
-                {"type": "text", "text": vision_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ], append=False)
-
-            # create a copy of messages and save to pseudo_messages
-            pseudo_messages = self.get_messages_as_objects().copy()
-            pseudo_messages.append(vision_message.__dict__)
-
-            response = self._client.chat.completions.create(
-                model="gpt-4-vision-preview",
-                messages=pseudo_messages,
-                presence_penalty=1,
-                frequency_penalty=1,
-                temperature=0.7,
-                max_tokens=300,
-            )
-
-            self.create_message(ModelMessage.ROLE_USER, '`screenshot.png`')
-
-            content = response.choices[0].message.content
-
-            if settings.accurate_mode:
-                if content.startswith(ModelResponse.ACTION_CLICK):
-                    # Adjust pseudo_messages to include the accurate_mode_message
-
-                    click_data = re.search(r"CLICK \{ (.+) \}", content).group(1)
-                    click_data_json = json.loads(f"{{{click_data}}}")
-                    prev_x = click_data_json["x"]
-                    prev_y = click_data_json["y"]
-
-                    if settings.debug:
-                        print(
-                            f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
-                        )
-                    content = self.accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
-                    assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
-
-            return content
-
-        except Exception as e:
-            print(f"Error parsing JSON: {e}")
-            return "Failed take action after looking at the screenshot"
+        for index in reversed(range(len(self._messages))):
+            if self._messages[index].role == ModelMessage.ROLE_ASSISTANT:
+                if index == 0:  # Check if the assistant message is the first in the array
+                    return None
+                else:
+                    return self._messages[index]
+        return None  # Return None if no assistant message is found
 
     def summarize(self, objective):
         try:
             screenshots_dir = "screenshots"
+
             if not os.path.exists(screenshots_dir):
                 os.makedirs(screenshots_dir)
 
             screenshot_filename = os.path.join(screenshots_dir, "summary_screenshot.png")
+
             # Call the function to capture the screen with the cursor
             ScreenshotAction.capture_screen_with_cursor(screenshot_filename)
 
@@ -297,7 +310,7 @@ class OpenAIWrapper:
             return content
 
         except Exception as e:
-            print(f"Error in summarize: {e}")
+            Terminal.print_error('Error with summarizing:', str(e))
             return "Failed to summarize the workflow"
 
     def parse_oai_response(self, response) -> ModelResponse:

@@ -1,7 +1,6 @@
 """
 Self-Operating Computer
 """
-import platform
 import sys
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
