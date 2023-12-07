@@ -1,3 +1,6 @@
+from app.lib.constants import monitor_size, ACCURATE_PIXEL_COUNT
+
+USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system as a human.
@@ -70,8 +73,6 @@ There are four segmenting lines across each dimension, divided evenly. This is d
 Please use this context as additional info to further refine the "percent" location in the CLICK action!
 """
 
-USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
-
 SUMMARY_PROMPT = """
 You are a Self-Operating Computer. You just completed a request from a user by operating the computer. Now you need to share the results.
 
@@ -89,3 +90,32 @@ The original objective was: {objective}
 
 Now share the results!
 """
+
+
+class Prompt:
+
+    @staticmethod
+    def format_summary_prompt(objective):
+        """Format the summary prompt"""
+        prompt = SUMMARY_PROMPT.format(objective=objective)
+        return prompt
+
+    @staticmethod
+    def format_vision_prompt(objective, previous_action):
+        """Format the vision prompt"""
+        if previous_action:
+            previous_action = f"Here was the previous action you took: {previous_action}"
+        else:
+            previous_action = ""
+        prompt = VISION_PROMPT.format(objective=objective, previous_action=previous_action)
+        return prompt
+
+    @staticmethod
+    def format_accurate_mode_vision_prompt(prev_x, prev_y):
+        """Format the accurate mode vision prompt"""
+        width = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["width"]) * 100
+        height = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["height"]) * 100
+        prompt = ACCURATE_MODE_VISION_PROMPT.format(
+            prev_x=prev_x, prev_y=prev_y, width=width, height=height
+        )
+        return prompt

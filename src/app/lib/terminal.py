@@ -28,6 +28,45 @@ else:
     ANSI_BRIGHT_MAGENTA = ""
 
 
+class Terminal:
+    """Terminal class for handling console output"""
+
+    @staticmethod
+    def print(title: str, content: str or None = None, color: str = ANSI_BLUE):
+        """Print a formatted message"""
+        message: str = f'{ANSI_GREEN}[Self-Operating Computer]{color} {title}'
+
+        if content is not None:
+            message += f'\n{ANSI_RESET}{content}'
+        else:
+            message += ANSI_RESET
+
+        print(message)
+
+    @staticmethod
+    def print_action(title: str, content: str or None = None):
+        """Print a formatted error message"""
+        Terminal.print(f'[Act] {title}', content, ANSI_BRIGHT_MAGENTA)
+
+    @staticmethod
+    def print_error(title: str, content: str or None = None):
+        """Print a formatted error message"""
+        Terminal.print(f'[Error] {title}', content, ANSI_RED)
+
+    @staticmethod
+    def print_message(title: str, content: str or None = None):
+        """Print a formatted message"""
+        Terminal.print(title, content)
+
+    @staticmethod
+    def clear_console():
+        # Clear the console
+        if checks.PLATFORM_WINDOWS:
+            os.system('cls')
+        else:
+            print("\033c", end="")
+
+
 def clear_console():
     # Clear the console
     if checks.PLATFORM_WINDOWS:

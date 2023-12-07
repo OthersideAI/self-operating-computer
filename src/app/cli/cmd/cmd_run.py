@@ -18,7 +18,7 @@ from app.lib import terminal
     '-m',
     '--model',
     type=click.Choice(
-        ['gpt-4-vision-preview', 'gpt-4-1106-preview', 'gpt-4', 'gpt-4-32k', 'gpt-4-0613', 'gpt-4-32k-0613'],
+        ['gpt-4-vision-preview', 'agent-1'],
         case_sensitive=False),
     help='The model to use.',
     default=settings.openai_model,
