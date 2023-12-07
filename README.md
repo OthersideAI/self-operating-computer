@@ -44,67 +44,78 @@ https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
-1. **Clone the repo** to a directory on your computer:
+**You must have `git` installed in order to execute the following commands.**
+
+**These instructions are partially specific to Linux machines.**
+
+### TL;DR
+
+1. **Setup the execution environment:**
 ```
 git clone https://github.com/OthersideAI/self-operating-computer.git
-```
-2. **Cd into directory**:
-
-```
 cd self-operating-computer
-```
-
-3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
-
-```
-python3 -m venv venv
-```
-4. **Activate the virtual environment**:
-```
+./deploy/bare-metal/linux/debian.sh
 source venv/bin/activate
-```
-6. **Install Project Requirements and Command-Line Interface**:
-```
 pip install .
 ```
-7. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
+
+2. **Edit the default settings in your choice of text editor:**
 ```
-mv .example.env .env
-``` 
-8. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+vim .env
 ```
-OPENAI_API_KEY='your-key-here'
+
+**Notice!** Make sure you at lest set the SOC_OPENAI_API_KEY setting to your OpenAI API key or the app will not work.
+
+**Notice!** Make sure to adjust the `screen_width` and `screen_height` settings to match your screen resolution.
+
+**Notice!** All settings can be set via environment variables just as they are in the `.env` file.
+
+3. **Run it!**
+
+**Mac Users:** When you run this app, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+
 ```
-9. **Run it**!
+soc run
 ```
-operate
-```
-10. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-## Using `operate` Modes
+## Using `soc` Modes
 
 ### Voice Mode
-- Install the additional `requirements-audio.txt`
+
+Additional dependencies for voice mode need to be installed with the following commands:
+
+**All Users:**
 ```
 pip install -r requirements-audio.txt
 ```
-**Install device requirements**
-- For mac users:
+
+**For Mac Users**
 ```
 brew install portaudio
 ```
-- For Linux users:
+
+Now you should be ready to run in voice mode with the following command:
 ```
-sudo apt install portaudio19-dev python3-pyaudio
+soc run -v
 ```
-Run with voice mode
+
+### High Accuracy Mode
+
+To run in high-accuracy mode where additional screenshots are taken for verification, run with the `-a` flag:
 ```
-operate --voice
+soc run -a
+```
+
+### Debug Mode
+
+To run with additional debugging output, run with the `-d` flag:
+```
+soc run -d
 ```
 
 ## Contributions are Welcomed!:

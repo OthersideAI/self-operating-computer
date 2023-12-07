@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Define system packages required for the project
-pkgs=(build-essential python3 python3-dev python3-pip python3-venv)
+pkgs=(build-essential python3 python3-dev python3-pip python3-venv portaudio19-dev python3-pyaudio)
 
 # Add sudo to elevated commands when not running as root already
 CMD_PREFIX=
