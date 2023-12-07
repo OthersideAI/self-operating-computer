@@ -31,7 +31,6 @@ def main():
     if settings.voice_mode:
         try:
             from whisper_mic import WhisperMic
-
             # Initialize WhisperMic if import is successful
             mic = WhisperMic()
         except ImportError:

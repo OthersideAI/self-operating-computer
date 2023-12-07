@@ -84,8 +84,7 @@ class OpenAIWrapper:
 
             try:
                 response = self.get_next_action(objective)
-                model_response: ModelResponse = self.parse_oai_response(response)
-
+                model_response: ModelResponse = self.parse_response(response)
             except ModelNotRecognizedException as e:
                 Terminal.print_error(str(e))
                 break
@@ -101,26 +100,58 @@ class OpenAIWrapper:
             if model_response.action != ModelResponse.ACTION_UNKNOWN:
                 Terminal.print_action(model_response.action, model_response.data)
 
-            function_response: str = ''
-            if model_response.action == ModelResponse.ACTION_SEARCH:
-                function_response = SearchAction.search(model_response.data)
-            elif model_response.action == ModelResponse.ACTION_TYPE:
-                function_response = KeyboardAction.type(model_response.data)
-            elif model_response.action == ModelResponse.ACTION_CLICK:
-                function_response = MouseAction.click(model_response.data)
-            else:
-                Terminal.print_error('Something went wrong!')
-                Terminal.print_error('AI Response:', response)
-                break
-
-            Terminal.print_action(f'{model_response.action} COMPLETE', function_response)
-
-            self.create_message(ModelMessage.ROLE_ASSISTANT, function_response)
+            self.process_response(model_response)
 
             self._loop_count += 1
             if self._loop_count > 15:
                 break
 
+    def parse_response(self, response) -> ModelResponse:
+        action: str = ModelResponse.ACTION_UNKNOWN
+        data: re.Match or str or None = response
+
+        if response == ModelResponse.ACTION_DONE:
+            action = ModelResponse.ACTION_DONE
+            data = None
+        elif response.startswith(ModelResponse.ACTION_CLICK):
+            # Adjust the regex to match the correct format
+            click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
+            action = ModelResponse.ACTION_CLICK
+            data = json.loads(f"{{{click_data}}}")
+
+        elif response.startswith(ModelResponse.ACTION_TYPE):
+            # Extract the text to type
+            action = ModelResponse.ACTION_TYPE
+            data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
+
+        elif response.startswith(ModelResponse.ACTION_SEARCH):
+            # Extract the search query
+            action = ModelResponse.ACTION_SEARCH
+            data = re.search(r'SEARCH "(.+)"', response).group(1)
+
+        return ModelResponse(action, data)
+
+    def process_response(self, response: ModelResponse) -> bool:
+        """Process the response from the model and execute the appropriate action"""
+        
+        if response.action not in [ModelResponse.ACTION_CLICK, ModelResponse.ACTION_SEARCH, ModelResponse.ACTION_TYPE]:
+            Terminal.print_error('Something went wrong!')
+            Terminal.print_error('AI Response:', response)
+            return False
+        
+        action_response: str = ''
+
+        if response.action == ModelResponse.ACTION_SEARCH:
+            action_response = SearchAction.search(response.data)
+        elif response.action == ModelResponse.ACTION_TYPE:
+            action_response = KeyboardAction.type(response.data)
+        elif response.action == ModelResponse.ACTION_CLICK:
+            action_response = MouseAction.click(response.data)
+
+        Terminal.print_action(f'{response.action} COMPLETE', action_response)
+
+        self.create_message(ModelMessage.ROLE_ASSISTANT, action_response)
+    
     def create_message(self, role: str, content: typing.Any, append: bool = True) -> ModelMessage:
         """Creates a new message to send to the model and caches it in the messages array"""
         message: ModelMessage = ModelMessage(role, content)
@@ -312,28 +343,3 @@ class OpenAIWrapper:
         except Exception as e:
             Terminal.print_error('Error with summarizing:', str(e))
             return "Failed to summarize the workflow"
-
-    def parse_oai_response(self, response) -> ModelResponse:
-        action: str = ModelResponse.ACTION_UNKNOWN
-        data: re.Match or str or None = response
-
-        if response == ModelResponse.ACTION_DONE:
-            action = ModelResponse.ACTION_DONE
-            data = None
-        elif response.startswith(ModelResponse.ACTION_CLICK):
-            # Adjust the regex to match the correct format
-            click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
-            action = ModelResponse.ACTION_CLICK
-            data = json.loads(f"{{{click_data}}}")
-
-        elif response.startswith(ModelResponse.ACTION_TYPE):
-            # Extract the text to type
-            action = ModelResponse.ACTION_TYPE
-            data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
-
-        elif response.startswith(ModelResponse.ACTION_SEARCH):
-            # Extract the search query
-            action = ModelResponse.ACTION_SEARCH
-            data = re.search(r'SEARCH "(.+)"', response).group(1)
-
-        return ModelResponse(action, data)
