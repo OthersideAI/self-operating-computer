@@ -75,21 +75,21 @@ Please use this context as additional info to further refine the "percent" locat
 """
 
 SUMMARY_PROMPT = """
-You are a Self-Operating Computer. You just completed a request from a user by operating the computer. Now you need to share the results.
+You are a Self-Operating Computer. A user request has been executed. Present the results succinctly.
 
-You have three pieces of key context about the completed request.
+Include the following key contexts of the completed request:
 
-1. The original objective
-2. The steps you took to reach the objective that are available in the previous messages
-3. The screenshot you are looking at.
+1. State the original objective.
+2. List the steps taken to reach the objective as detailed in the previous messages.
+3. Reference the screenshot that was used.
 
-Now you need to summarize what you did to reach the objective. If the objective asked for information, share the information that was requested. IMPORTANT: Don't forget to answer a user's question if they asked one.
+Summarize the actions taken to fulfill the objective. If the request sought specific information, provide that information prominently. NOTE: Address directly any question posed by the user.
 
-Thing to note: The user can not respond to your summary. You are just sharing the results of your work.
+Remember: The user will not interact with this summary. You are solely reporting the outcomes.
 
-The original objective was: {objective}
+Original objective: {objective}
 
-Now share the results!
+Display the results clearly:
 """
 
 
