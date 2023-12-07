@@ -155,6 +155,8 @@ class SearchAction:
 
     @staticmethod
     def search(text):
+        import time
+
         if checks.PLATFORM_WINDOWS or checks.PLATFORM_LINUX:
             pyautogui.press("win")
         else:
@@ -162,6 +164,9 @@ class SearchAction:
             pyautogui.keyDown("command")
             pyautogui.press("space")
             pyautogui.keyUp("command")
+
+        # This helps prevent the search from being typed too quickly before the search bar is ready
+        time.sleep(1)
 
         # Now type the text
         for char in text:
