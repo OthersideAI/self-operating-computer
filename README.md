@@ -48,9 +48,7 @@ Below are instructions to set up the Self-Operating Computer Framework locally o
 
 **These instructions are partially specific to Linux machines.**
 
-### TL;DR
-
-1. **Setup the execution environment:**
+### 1. **Setup the execution environment:**
 ```
 git clone https://github.com/OthersideAI/self-operating-computer.git
 cd self-operating-computer
@@ -59,7 +57,7 @@ source venv/bin/activate
 pip install .
 ```
 
-2. **Edit the default settings in your choice of text editor:**
+### 2. **Edit the default settings in your choice of text editor:**
 ```
 vim .env
 ```
@@ -70,7 +68,7 @@ vim .env
 
 **Notice!** All settings can be set via environment variables just as they are in the `.env` file.
 
-3. **Run it!**
+### 3. **Run it!**
 
 **Mac Users:** When you run this app, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
