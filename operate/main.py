@@ -684,6 +684,8 @@ def keyboard_type(text):
 
 
 def search(text):
+    import time
+
     if platform.system() == "Windows":
         pyautogui.press("win")
     elif platform.system() == "Linux":
@@ -693,6 +695,8 @@ def search(text):
         pyautogui.keyDown("command")
         pyautogui.press("space")
         pyautogui.keyUp("command")
+
+    time.sleep(1)
 
     # Now type the text
     for char in text:
