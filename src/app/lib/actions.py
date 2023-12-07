@@ -6,8 +6,9 @@ import subprocess
 import time
 import Xlib
 from PIL import Image, ImageGrab
+from app.config import settings
 from app.lib import checks
-from app.lib.constants import monitor_size, ACCURATE_PIXEL_COUNT
+from app.lib.constants import ACCURATE_PIXEL_COUNT
 from app.lib.util import ImageUtil
 
 
@@ -20,8 +21,8 @@ class ScreenshotAction:
             x = float(x[:-1])  # convert x from "50%" to 50.
             y = float(y[:-1])
 
-            x = (x / 100) * monitor_size["width"]  # convert x from 50 to 0.5 * monitor_width
-            y = (y / 100) * monitor_size["height"]
+            x = (x / 100) * settings.screen_width  # convert x from 50 to 0.5 * monitor_width
+            y = (y / 100) * settings.screen_height
 
             # Define the coordinates for the rectangle
             x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
@@ -43,8 +44,8 @@ class ScreenshotAction:
             x = float(x[:-1])  # convert x from "50%" to 50.
             y = float(y[:-1])
 
-            x = (x / 100) * monitor_size["width"]  # convert x from 50 to 0.5 * monitor_width
-            y = (y / 100) * monitor_size["height"]
+            x = (x / 100) * settings.screen_width  # convert x from 50 to 0.5 * monitor_width
+            y = (y / 100) * settings.screen_height
 
             x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
 
@@ -68,8 +69,8 @@ class ScreenshotAction:
             # Use xlib to prevent scrot dependency for Linux
             screen = Xlib.display.Display().screen()
             size = screen.width_in_pixels, screen.height_in_pixels
-            monitor_size["width"] = size[0]
-            monitor_size["height"] = size[1]
+            settings.screen_width = size[0]
+            settings.screen_height = size[1]
             screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
             screenshot.save(file_path)
         elif checks.PLATFORM_MACOS:

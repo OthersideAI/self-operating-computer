@@ -178,16 +178,15 @@ class OpenAIWrapper:
         # sleep for a second
         time.sleep(1)
         try:
-            screenshots_dir = "screenshots"
-            if not os.path.exists(screenshots_dir):
-                os.makedirs(screenshots_dir)
+            if not os.path.exists(settings.screenshot_directory):
+                os.makedirs(settings.screenshot_directory)
 
-            screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+            screenshot_filename = os.path.join(settings.screenshot_directory, "screenshot.png")
 
             # Call the function to capture the screen with the cursor
             ScreenshotAction.capture_screen_with_cursor(screenshot_filename)
 
-            new_screenshot_filename = os.path.join("screenshots", "screenshot_with_grid.png")
+            new_screenshot_filename = os.path.join(settings.screenshot_directory, "screenshot_with_grid.png")
 
             ImageUtil.add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
 
@@ -253,14 +252,11 @@ class OpenAIWrapper:
         for further fine-tuning of clicked location
         """
         try:
-            screenshot_filename = os.path.join("screenshots", "screenshot_mini.png")
-            ScreenshotAction.capture_mini_screenshot_with_cursor(
-                file_path=screenshot_filename, x=prev_x, y=prev_y
-            )
+            screenshot_filename = os.path.join(settings.screenshot_directory, "screenshot_mini.png")
 
-            new_screenshot_filename = os.path.join(
-                "screenshots", "screenshot_mini_with_grid.png"
-            )
+            ScreenshotAction.capture_mini_screenshot_with_cursor(file_path=screenshot_filename, x=prev_x, y=prev_y)
+
+            new_screenshot_filename = os.path.join(settings.screenshot_directory, "screenshot_mini_with_grid.png")
 
             with open(new_screenshot_filename, "rb") as img_file:
                 img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -308,12 +304,10 @@ class OpenAIWrapper:
 
     def summarize(self, objective):
         try:
-            screenshots_dir = "screenshots"
+            if not os.path.exists(settings.screenshot_directory):
+                os.makedirs(settings.screenshot_directory)
 
-            if not os.path.exists(screenshots_dir):
-                os.makedirs(screenshots_dir)
-
-            screenshot_filename = os.path.join(screenshots_dir, "summary_screenshot.png")
+            screenshot_filename = os.path.join(settings.screenshot_directory, "summary_screenshot.png")
 
             # Call the function to capture the screen with the cursor
             ScreenshotAction.capture_screen_with_cursor(screenshot_filename)

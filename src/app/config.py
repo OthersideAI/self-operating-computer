@@ -29,6 +29,9 @@ class AppSettings(BaseSettings):
     openai_api_url: str = 'https://api.openai.com/v1'
     openai_model: str = 'gpt-4-vision-preview'
     root_path: str = str(ROOT_PATH)
+    screen_height: int = 1080
+    screen_width: int = 1920
+    screenshot_directory: str = './screenshots'
     voice_mode: bool = False
     
     version: str = '0.1.0'

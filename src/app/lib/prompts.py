@@ -1,4 +1,5 @@
-from app.lib.constants import monitor_size, ACCURATE_PIXEL_COUNT
+from app.config import settings
+from app.lib.constants import ACCURATE_PIXEL_COUNT
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
@@ -113,8 +114,8 @@ class Prompt:
     @staticmethod
     def format_accurate_mode_vision_prompt(prev_x, prev_y):
         """Format the accurate mode vision prompt"""
-        width = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["width"]) * 100
-        height = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["height"]) * 100
+        width = ((ACCURATE_PIXEL_COUNT / 2) / settings.screen_width) * 100
+        height = ((ACCURATE_PIXEL_COUNT / 2) / settings.screen_height) * 100
         prompt = ACCURATE_MODE_VISION_PROMPT.format(
             prev_x=prev_x, prev_y=prev_y, width=width, height=height
         )
