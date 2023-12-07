@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 # Read the contents of your requirements.txt file
 with open("requirements.txt") as f:
@@ -11,11 +11,11 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 setup(
     name="self-operating-computer",
     version="1.0.4",
-    packages=find_packages(),
+    package_dir={'': 'src'},
     install_requires=required,  # Add dependencies here
     entry_points={
         "console_scripts": [
-            "operate=operate.main:main_entry",
+            "soc = app.cli.start:cli",
         ],
     },
     long_description=long_description,  # Add project description here

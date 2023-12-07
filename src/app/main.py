@@ -9,7 +9,6 @@ import math
 import re
 import subprocess
 import pyautogui
-import argparse
 import platform
 import Xlib.display
 import Xlib.X
@@ -18,132 +17,25 @@ import Xlib.Xutil  # not sure if Xutil is necessary
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
-from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont, ImageGrab
-import matplotlib.font_manager as fm
+from PIL import Image, ImageDraw, ImageGrab
 from openai import OpenAI
 import sys
+from app.config import settings
+from app.lib import prompts
+from app.lib.exceptions import ModelNotRecognizedException
+from app.lib import checks, terminal
 
 
-load_dotenv()
-
-DEBUG = False
-
-client = OpenAI()
-client.api_key = os.getenv("OPENAI_API_KEY")
-client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+client = OpenAI(api_key=settings.openai_api_key, base_url=settings.openai_api_url)
 
 monitor_size = {
-    "width": 1920,
-    "height": 1080,
+    "width": 3840,
+    "height": 2160,
 }
-
-VISION_PROMPT = """
-You are a Self-Operating Computer. You use the same operating system as a human.
-
-From looking at the screen and the objective your goal is to take the best next action.
-
-To operate the computer you have the four options below.
-
-1. CLICK - Move mouse and click
-2. TYPE - Type on the keyboard
-3. SEARCH - Search for a program on Mac and open it
-4. DONE - When you completed the task respond with the exact following phrase content
-
-Here are the response formats below.
-
-1. CLICK
-Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
-Note that the percents work where the top left corner is "x": "0%" and "y": "0%" and the bottom right corner is "x": "100%" and "y": "100%"
-
-2. TYPE
-Response: TYPE "value you want to type"
-
-2. SEARCH
-Response: SEARCH "app you want to search for on Mac"
-
-3. DONE
-Response: DONE
-
-Here are examples of how to respond.
-__
-Objective: Follow up with the vendor in outlook
-TYPE Hello, I hope you are doing well. I wanted to follow up
-__
-Objective: Open Spotify and play the beatles
-SEARCH Spotify
-__
-Objective: Find an image of a banana
-CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }}
-__
-Objective: Go buy a book about the history of the internet
-TYPE https://www.amazon.com/
-__
-
-A few important notes:
-
-- Default to opening Google Chrome with SEARCH to find things that are on the internet.
-- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
-- When opening Chrome, if you see a profile icon click that to open chrome fully, it is located at: {{ "x": "50%", "y": "55%" }}
-- The Chrome address bar is generally at: {{ "x": "50%", "y": "9%" }}
-- After you click to enter a field you can go ahead and start typing!
-- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
-
-{previous_action}
-
-IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row.
-
-Objective: {objective}
-"""
 
 ACCURATE_PIXEL_COUNT = (
     200  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
 )
-ACCURATE_MODE_VISION_PROMPT = """
-It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
-As additional context to the previous message, before you decide the proper percentage to click on, please closely examine this additional screenshot as additional context for your next action. 
-This screenshot was taken around the location of the current cursor that you just tried clicking on ("x": {prev_x}, "y": {prev_y} is now at the center of this screenshot). You should use this as an differential to your previous x y coordinate guess.
-
-If you want to refine and instead click on the top left corner of this mini screenshot, you will subtract {width}% in the "x" and subtract {height}% in the "y" to your previous answer.
-Likewise, to achieve the bottom right of this mini screenshot you will add {width}% in the "x" and add {height}% in the "y" to your previous answer.
-
-There are four segmenting lines across each dimension, divided evenly. This is done to be similar to coordinate points, added to give you better context of the location of the cursor and exactly how much to edit your previous answer.
-
-Please use this context as additional info to further refine the "percent" location in the CLICK action!
-"""
-
-USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
-
-SUMMARY_PROMPT = """
-You are a Self-Operating Computer. You just completed a request from a user by operating the computer. Now you need to share the results.
-
-You have three pieces of key context about the completed request.
-
-1. The original objective
-2. The steps you took to reach the objective that are available in the previous messages
-3. The screenshot you are looking at.
-
-Now you need to summarize what you did to reach the objective. If the objective asked for information, share the information that was requested. IMPORTANT: Don't forget to answer a user's question if they asked one.
-
-Thing to note: The user can not respond to your summary. You are just sharing the results of your work.
-
-The original objective was: {objective}
-
-Now share the results!
-"""
-
-
-class ModelNotRecognizedException(Exception):
-    """Exception raised for unrecognized models."""
-
-    def __init__(self, model, message="Model not recognized"):
-        self.model = model
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"{self.message} : {self.model} "
-
 
 # Define style
 style = PromptStyle.from_dict(
@@ -156,54 +48,14 @@ style = PromptStyle.from_dict(
 )
 
 
-# Check if on a windows terminal that supports ANSI escape codes
-def supports_ansi():
-    """
-    Check if the terminal supports ANSI escape codes
-    """
-    plat = platform.system()
-    supported_platform = plat != "Windows" or "ANSICON" in os.environ
-    is_a_tty = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
-    return supported_platform and is_a_tty
-
-
-if supports_ansi():
-    # Standard green text
-    ANSI_GREEN = "\033[32m"
-    # Bright/bold green text
-    ANSI_BRIGHT_GREEN = "\033[92m"
-    # Reset to default text color
-    ANSI_RESET = "\033[0m"
-    # ANSI escape code for blue text
-    ANSI_BLUE = "\033[94m"  # This is for bright blue
-
-    # Standard yellow text
-    ANSI_YELLOW = "\033[33m"
-
-    ANSI_RED = "\033[31m"
-
-    # Bright magenta text
-    ANSI_BRIGHT_MAGENTA = "\033[95m"
-else:
-    ANSI_GREEN = ""
-    ANSI_BRIGHT_GREEN = ""
-    ANSI_RESET = ""
-    ANSI_BLUE = ""
-    ANSI_YELLOW = ""
-    ANSI_RED = ""
-    ANSI_BRIGHT_MAGENTA = ""
-
-
-def main(model, accurate_mode, voice_mode=False):
+def main():
     """
     Main function for the Self-Operating Computer
     """
     mic = None
-    # Initialize WhisperMic if voice_mode is True if voice_mode is True
-    """
-    Main function for the Self-Operating Computer
-    """
-    if voice_mode:
+
+    # Initialize WhisperMic if voice mode enabled
+    if settings.voice_mode:
         try:
             from whisper_mic import WhisperMic
 
@@ -215,34 +67,33 @@ def main(model, accurate_mode, voice_mode=False):
             )
             sys.exit(1)
 
+    # Display an intro prompt
     message_dialog(
         title="Self-Operating Computer",
         text="Ask a computer to do anything.",
         style=style,
     ).run()
 
-    print("SYSTEM", platform.system())
-    # Clear the console
-    if platform.system() == "Windows":
-        os.system("cls")
-    else:
-        print("\033c", end="")
+    print(f'Platform: {platform.system()}')
 
-    if voice_mode:
+    # Clear the console
+    terminal.clear_console()
+
+    if settings.voice_mode:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Listening for your command... (speak now)"
+            f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_RESET} Listening for your command... (speak now)"
         )
         try:
             objective = mic.listen()
         except Exception as e:
-            print(f"{ANSI_RED}Error in capturing voice input: {e}{ANSI_RESET}")
+            print(f"{terminal.ANSI_RED}Error in capturing voice input: {e}{terminal.ANSI_RESET}")
             return  # Exit if voice input fails
     else:
-        print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
-        print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+        print(f"{terminal.ANSI_GREEN}[Self-Operating Computer]\n{terminal.ANSI_RESET}{prompts.USER_QUESTION}")
+        print(f"{terminal.ANSI_YELLOW}[User]{terminal.ANSI_RESET}")
         objective = prompt(style=style)
 
-    assistant_message = {"role": "assistant", "content": USER_QUESTION}
+    assistant_message = {"role": "assistant", "content": prompts.USER_QUESTION}
     user_message = {
         "role": "user",
         "content": f"Objective: {objective}",
@@ -252,38 +103,39 @@ def main(model, accurate_mode, voice_mode=False):
     loop_count = 0
 
     while True:
-        if DEBUG:
+        if settings.debug:
             print("[loop] messages before next action:\n\n\n", messages[1:])
+
         try:
-            response = get_next_action(model, messages, objective, accurate_mode)
+            response = get_next_action(settings.openai_model, messages, objective, settings.accurate_mode)
             action = parse_oai_response(response)
             action_type = action.get("type")
             action_detail = action.get("data")
 
         except ModelNotRecognizedException as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
+                f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_RED}[Error] -> {e} {terminal.ANSI_RESET}"
             )
             break
         except Exception as e:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
+                f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_RED}[Error] -> {e} {terminal.ANSI_RESET}"
             )
             break
 
         if action_type == "DONE":
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
+                f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_BLUE} Objective complete {terminal.ANSI_RESET}"
             )
             summary = summarize(messages, objective)
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+                f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_BLUE} Summary\n{terminal.ANSI_RESET}{summary}"
             )
             break
 
         if action_type != "UNKNOWN":
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} {ANSI_RESET}{action_detail}"
+                f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_BRIGHT_MAGENTA} [Act] {action_type} {terminal.ANSI_RESET}{action_detail}"
             )
 
         function_response = ""
@@ -295,15 +147,15 @@ def main(model, accurate_mode, voice_mode=False):
             function_response = mouse_click(action_detail)
         else:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}"
+                f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_RED}[Error] something went wrong :({terminal.ANSI_RESET}"
             )
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{response}"
+                f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_RED}[Error] AI response\n{terminal.ANSI_RESET}{response}"
             )
             break
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {ANSI_RESET}{function_response}"
+            f"{terminal.ANSI_GREEN}[Self-Operating Computer]{terminal.ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {terminal.ANSI_RESET}{function_response}"
         )
 
         message = {
@@ -321,7 +173,7 @@ def format_summary_prompt(objective):
     """
     Format the summary prompt
     """
-    prompt = SUMMARY_PROMPT.format(objective=objective)
+    prompt = prompts.SUMMARY_PROMPT.format(objective=objective)
     return prompt
 
 
@@ -333,7 +185,7 @@ def format_vision_prompt(objective, previous_action):
         previous_action = f"Here was the previous action you took: {previous_action}"
     else:
         previous_action = ""
-    prompt = VISION_PROMPT.format(objective=objective, previous_action=previous_action)
+    prompt = prompts.VISION_PROMPT.format(objective=objective, previous_action=previous_action)
     return prompt
 
 
@@ -343,7 +195,7 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
     """
     width = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["width"]) * 100
     height = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["height"]) * 100
-    prompt = ACCURATE_MODE_VISION_PROMPT.format(
+    prompt = prompts.ACCURATE_MODE_VISION_PROMPT.format(
         prev_x=prev_x, prev_y=prev_y, width=width, height=height
     )
     return prompt
@@ -494,7 +346,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                 prev_x = click_data_json["x"]
                 prev_y = click_data_json["y"]
 
-                if DEBUG:
+                if settings.debug:
                     print(
                         f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
                     )
@@ -683,6 +535,8 @@ def keyboard_type(text):
 
 
 def search(text):
+    import time
+
     if platform.system() == "Windows":
         pyautogui.press("win")
     elif platform.system() == "Linux":
@@ -807,40 +661,3 @@ def convert_percent_to_decimal(percent_str):
     except ValueError as e:
         print(f"Error converting percent to decimal: {e}")
         return None
-
-
-def main_entry():
-    parser = argparse.ArgumentParser(
-        description="Run the self-operating-computer with a specified model."
-    )
-    parser.add_argument(
-        "-m",
-        "--model",
-        help="Specify the model to use",
-        required=False,
-        default="gpt-4-vision-preview",
-    )
-
-    # Add a voice flag
-    parser.add_argument(
-        "--voice",
-        help="Use voice input mode",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "-accurate",
-        help="Activate Reflective Mouse Click Mode",
-        action="store_true",
-        required=False,
-    )
-
-    try:
-        args = parser.parse_args()
-        main(args.model, accurate_mode=args.accurate, voice_mode=args.voice)
-    except KeyboardInterrupt:
-        print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
-
-
-if __name__ == "__main__":
-    main_entry()
