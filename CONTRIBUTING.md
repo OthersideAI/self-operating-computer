@@ -9,7 +9,6 @@ We appreciate your contributions!
 5. Create new Pull Request
 
 ## Contribution Ideas
-- **Remove necessity for `pip install .`**: I think by uploading packages to PyPi we can reduce the installation code steps by consolidating `pip install -r requirements.txt` and `pip install .`. If that's possible that'd be great. 
 - **Improve performance by finding optimal screenshot grid**: A primary element of the framework is that it overlays a percentage grid on the screenshot which GPT-4v uses to estimate click locations. If someone is able to find the optimal grid and some evaluation metrics to confirm it is an improvement on the current method then we will merge that PR. 
 - **Improve the `SUMMARY_PROMPT`**
 - **Create an evaluation system**
