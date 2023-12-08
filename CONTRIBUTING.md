@@ -14,7 +14,6 @@ We appreciate your contributions!
 - **Improve the `SUMMARY_PROMPT`**
 - **Improve Linux and Windows compatibility**: There are still some issues with Linux and Windows compatibility. PRs to fix the issues are encouraged. 
 - **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
-- **Framework Architecture Improvements**: Think you can enhance the framework architecture described in the intro? We welcome suggestions and PRs.
 - **Iterate `--accurate` flag functionality**: Look at https://github.com/OthersideAI/self-operating-computer/pull/57 for previous iteration
 
 ## Guidelines
