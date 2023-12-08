@@ -195,7 +195,7 @@ else:
     ANSI_BRIGHT_MAGENTA = ""
 
 
-def main(model, accurate_mode, voice_mode=False):
+def main(model, accurate_mode, prompt, voice_mode=False):
     """
     Main function for the Self-Operating Computer
     """
@@ -216,11 +216,15 @@ def main(model, accurate_mode, voice_mode=False):
             )
             sys.exit(1)
 
-    message_dialog(
-        title="Self-Operating Computer",
-        text="Ask a computer to do anything.",
-        style=style,
-    ).run()
+    # Skip message dialog if prompt was given directly
+    if not prompt:
+        message_dialog(
+            title="Self-Operating Computer",
+            text="Ask a computer to do anything.",
+            style=style,
+        ).run()
+    else:
+        print("Running direct prompt...")
 
     print("SYSTEM", platform.system())
     # Clear the console
@@ -229,7 +233,9 @@ def main(model, accurate_mode, voice_mode=False):
     else:
         print("\033c", end="")
 
-    if voice_mode:
+    if prompt: # Skip objective prompt if it was given as an argument
+        objective = prompt
+    elif voice_mode:
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Listening for your command... (speak now)"
         )
@@ -835,10 +841,18 @@ def main_entry():
         action="store_true",
         required=False,
     )
+    
+    # Allow for direct input of prompt
+    parser.add_argument(
+        "--prompt",
+        help="Directly input the objective prompt",
+        type=str,
+        required=False,
+    )
 
     try:
         args = parser.parse_args()
-        main(args.model, accurate_mode=args.accurate, voice_mode=args.voice)
+        main(args.model, accurate_mode=args.accurate, prompt=args.prompt, voice_mode=args.voice)
     except KeyboardInterrupt:
         print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
 
