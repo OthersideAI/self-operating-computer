@@ -3,6 +3,7 @@ import os
 import subprocess
 import platform
 import base64
+import json
 import openai
 
 from dotenv import load_dotenv
@@ -14,8 +15,10 @@ TEST_CASES = {
 
 EVALUATION_PROMPT = """
 Your job is to look at the given screenshot and determine if the following guideline is met in the image.
-You can only respond in one of two possible ways: 'TRUE' or 'FALSE' with those exact spellings.
-Respond TRUE or FALSE based on whether or not the given guideline is met.
+You must respond in the following format ONLY. Do not add anything else:
+{{ "guideline_met": (true|false), "reason": "Explanation for why guideline was or wasn't met" }}
+guideline_met must be set to a JSON boolean. True if the image meets the given guideline.
+reason must be a string containing a justification for your decision.
 
 Guideline: {guideline}
 """
@@ -65,11 +68,13 @@ def format_evaluation_prompt(guideline):
 
 
 def parse_eval_content(content):
-    if content == "TRUE":
-        return True
-    elif content == "FALSE":
-        return False
-    else:
+    try:
+        res = json.loads(content)
+        
+        print(res["reason"])
+        
+        return res["guideline_met"]
+    except:
         print("The model gave a bad evaluation response and it couldn't be parsed. Exiting...")
         exit(1)
 
@@ -131,8 +136,10 @@ def main():
         result = run_test_case(objective, guideline)
         if result:
             print(f"{ANSI_GREEN}[PASSED]{ANSI_RESET} '{objective}'")
+            passed += 1
         else:
             print(f"{ANSI_RED}[FAILED]{ANSI_RESET} '{objective}'")
+            failed += 1
 
     print(
         f"{ANSI_BRIGHT_MAGENTA}[EVALUATION COMPLETE]{ANSI_RESET} {passed} tests passed, {failed} tests failed"
