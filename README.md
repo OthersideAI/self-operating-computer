@@ -63,23 +63,23 @@ python3 -m venv venv
 ```
 source venv/bin/activate
 ```
-6. **Install Project Requirements and Command-Line Interface**:
+5. **Install Project Requirements and Command-Line Interface: Instead of using `pip install .`, you can now install the project directly from PyPI with:**
 ```
-pip install .
+pip install self-operating-computer
 ```
-7. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
+6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
 ```
 mv .example.env .env
 ``` 
-8. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
 ```
 OPENAI_API_KEY='your-key-here'
 ```
-9. **Run it**!
+8. **Run it**!
 ```
 operate
 ```
-10. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+9. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
