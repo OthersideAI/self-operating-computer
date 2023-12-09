@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
 import sys
+from typing import List
 
 
 load_dotenv()
@@ -397,6 +398,12 @@ def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
             file_path=screenshot_filename, x=prev_x, y=prev_y
         )
 
+        grid_counter = 1
+        grid_choice = os.path.join(
+            "screenshots", ("screenshot_grid_" + grid_counter + ".png")
+        )
+        add_grid_choice_to_image(screenshot_filename, grid_choice, 4)
+
         new_screenshot_filename = os.path.join(
             "screenshots", "screenshot_mini_with_grid.png"
         )
@@ -455,12 +462,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
             "screenshots", "screenshot_with_grid.png"
         )
 
-        sample_screenshot_select_grid= os.path.join(
-            "screenshots", "screenshot_with_grid_options.png"
-        )
-
         add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
-        add_grid_to_image_by_percentages(screenshot_filename, sample_screenshot_select_grid, 4)
         # sleep for a second
         time.sleep(1)
 
@@ -651,10 +653,9 @@ def draw_label_with_background(
     fill_color = "green" if grid else "black"
     draw.text(text_position, text, fill=fill_color, font_size=font_size, anchor="mm")
 
-
-def add_grid_to_image_by_percentages(original_image_path, new_image_path, num_grids):
+def add_grid_choice_to_image(original_image_path, new_image_path, num_grids):
     """
-    Adding a grid to an image based on the number of grids per axis 
+    Adding a grid to an image based on the number of grids per axis, evenly 
     """
 
     # Load the image
@@ -776,22 +777,54 @@ def search(text):
     return "Open program: " + text
 
 
+def capture_mini_screenshot_with_percentages(file_path: str, top_left: List[int], bottom_right: List[int], upscale: int):
+    """
+    Captures a mini screenshot based on percentages
+
+    Params:
+    top_left: [x, y] in percentages as a decimal value between 0 and 1. top left corner is [0, 0]
+    """
+
+    x1 = top_left[0] * monitor_size["width"]
+    y1 = top_left[1] * monitor_size["height"]
+    x2 = bottom_right[0] * monitor_size["width"]
+    y2 = bottom_right[1] * monitor_size["height"]
+
+    user_platform = platform.system()
+    if user_platform == "Linux":
+        screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+
+        screenshot = screenshot.resize(
+            (screenshot.width * upscale, screenshot.height * upscale), Image.LANCZOS
+        )  # upscale the image so it's easier to see and percentage marks more visible
+
+        screenshot.save(file_path)
+    elif user_platform == "Darwin":
+        width = x2 - x1
+        height = y2 - y1
+        # Use the screencapture utility to capture the screen with the cursor
+        rect = f"-R{x1},{y1},{width},{height}"
+        subprocess.run(["screencapture", "-C", rect, file_path])
+
 def capture_mini_screenshot_with_cursor(
     file_path=os.path.join("screenshots", "screenshot_mini.png"), x=0, y=0
 ):
+    """
+    Captures a mini screenshot centered around x y coord, ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
+    """
     user_platform = platform.system()
 
+    x = convert_percent_to_decimal(x)
+    y = convert_percent_to_decimal(y)
+
+    x = x * monitor_size["width"]  # convert x from 50 to 0.5 * monitor_width
+    y = y * monitor_size["height"]
+
+    # Define the coordinates for the rectangle
+    x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
+
     if user_platform == "Linux":
-        x = float(x[:-1])  # convert x from "50%" to 50.
-        y = float(y[:-1])
-
-        x = (x / 100) * monitor_size[
-            "width"
-        ]  # convert x from 50 to 0.5 * monitor_width
-        y = (y / 100) * monitor_size["height"]
-
         # Define the coordinates for the rectangle
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
         x2, y2 = int(x + ACCURATE_PIXEL_COUNT / 2), int(y + ACCURATE_PIXEL_COUNT / 2)
 
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
@@ -809,16 +842,6 @@ def capture_mini_screenshot_with_cursor(
             file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)
         )
     elif user_platform == "Darwin":
-        x = float(x[:-1])  # convert x from "50%" to 50.
-        y = float(y[:-1])
-
-        x = (x / 100) * monitor_size[
-            "width"
-        ]  # convert x from 50 to 0.5 * monitor_width
-        y = (y / 100) * monitor_size["height"]
-
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
-
         width = ACCURATE_PIXEL_COUNT
         height = ACCURATE_PIXEL_COUNT
         # Use the screencapture utility to capture the screen with the cursor
