@@ -8,6 +8,7 @@ import openai
 
 from dotenv import load_dotenv
 
+# "Objective for `operate`" : "Guideline for passing this test case given to GPT-4v"
 TEST_CASES = {
     "Go to Github.com": "The Github home page is visible.",
     "Go to Youtube.com and play a video": "The YouTube video player is visible.",
