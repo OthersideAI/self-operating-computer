@@ -46,7 +46,7 @@ else:
 def run_test_case(prompt, guideline):
     '''Returns True if the result of the test with the given prompt meets the given guideline.'''
     # Run main.py with the test case prompt
-    subprocess.run(['operate', '--prompt', f'"{prompt}"'])
+    subprocess.run(['operate', '--prompt', f'"{prompt}"'], stdout=subprocess.DEVNULL)
     
     return True
 
@@ -60,15 +60,17 @@ def main():
         "Open YouTube and play holiday music": "The YouTube video player is loaded and actively playing holiday music.",
         "Open Google Docs and write a poem": "A Google Doc file is opened in the browser with a poem typed into it.",
     }
+    
+    print(f"{ANSI_BRIGHT_MAGENTA}[STARTING EVALUATION]{ANSI_RESET} NOTE: `operate` output is silenced.")
 
     for prompt, guideline in test_cases.items():
-        print(f"{ANSI_BLUE}[EVALUATING]{ANSI_RESET} Test case '{prompt}'")
+        print(f"{ANSI_BLUE}[EVALUATING]{ANSI_RESET} '{prompt}'")
         
         result = run_test_case(prompt, guideline)
         if result:
-            print(f"{ANSI_GREEN}[PASSED]{ANSI_RESET} Test case '{prompt}'")
+            print(f"{ANSI_GREEN}[PASSED]{ANSI_RESET} '{prompt}'")
         else:
-            print(f"{ANSI_RED}[FAILED]{ANSI_RESET} Test case '{prompt}'")
+            print(f"{ANSI_RED}[FAILED]{ANSI_RESET} '{prompt}'")
 
 
 if __name__ == "__main__":
