@@ -24,6 +24,7 @@ import matplotlib.font_manager as fm
 from openai import OpenAI
 import sys
 from typing import List
+import copy
 
 
 load_dotenv()
@@ -100,7 +101,7 @@ Objective: {objective}
 """
 
 ACCURATE_PIXEL_COUNT = (
-    200  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
+    400  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
 )
 ACCURATE_MODE_VISION_PROMPT = """
 It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
@@ -117,13 +118,14 @@ Please use this context as additional info to further refine the "percent" locat
 
 ACCURATE_SCOPE_PROMPT = """
 It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. 
+You have previously decided to click on a specific point, but in order to improve accuracy we have turned this from a point regression task to a classification task where you have to pick the grid that has the point you wish to click on. 
 In order to more accurately click, we are instead showing you a scoped in screenshot of a specific area, a previous grid you've chosen. 
 
+You will need to pick a grid option from 0 to {num_grids} inclusive. The order of grids is in column major order, starting from the top left grid, being 0, then going down first, and then to the right.
 Based on what you will like to click on, please select the grid in which the element or the point you would like to click on is in there. 
-Please select which grid you will want to select from. The grids are numbered from 0 to 15, where top left is 0, then going one cell down from top left is 1, bottom left is 3, and then the cell to the right of the top left is 4. 
-The bottom right grid is 15. All pictures of grids to pick from are numbered in the same manner, top down and left to right. 
 
 Please select the grid from 0 to 15 inclusive that contains the point in which you want to click.
+Return an output of the form GRID "grid number you are choosing" 
 """
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -364,6 +366,16 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
     return prompt
 
 
+def format_accurate_scope_prompt(prev_x: int, prev_y: int, num_grid_choices: int):
+    """
+    Format the accurate mode vision prompt
+    """
+    prompt = ACCURATE_SCOPE_PROMPT.format(
+        prev_x=prev_x, prev_y=prev_y, num_grids=num_grid_choices 
+    )
+    return prompt
+
+
 def get_next_action(model, messages, objective, accurate_mode):
     if model == "gpt-4-vision-preview":
         content = get_next_action_from_openai(messages, objective, accurate_mode)
@@ -388,54 +400,84 @@ def get_last_assistant_message(messages):
     return None  # Return None if no assistant message is found
 
 
-def accurate_mode_click(pseudo_messages, prev_x, prev_y):
+def accurate_mode_click(pseudo_messages_og, prev_x, prev_y):
     """
     Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor and grid choices for further finetuning of clicked location
     """
     try:
-        grid_counter = 1
-        screenshot_filename = os.path.join("screenshots", "screenshot_grid_" + grid_counter + ".png")
+        pseudo_messages = copy.deepcopy(pseudo_messages_og)
+        screenshot_filename = os.path.join("screenshots", "screenshot_grid_0.png")
         capture_mini_screenshot_with_cursor(
             file_path=screenshot_filename, x=prev_x, y=prev_y
         )
 
-        grid_choice = os.path.join(
-            "screenshots", ("screenshot_grid_" + grid_counter + "_with_grid.png")
-        )
-        add_grid_choice_to_image(screenshot_filename, grid_choice, 4)
-
-        with open(grid_choice, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
+        num_grids_accuracy = [4, 4, 2, 2]
         # for loop through 4, each one keep narrowing down grid choices
+        for i in range(4):
+            num_grids = num_grids_accuracy[i]
+            accurate_scope_prompt = format_accurate_scope_prompt(prev_x, prev_y, num_grids * num_grids - 1)
 
-        accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
+            grid_choice = os.path.join(
+                "screenshots", ("screenshot_grid_" + str(i) + "_with_grid.png")
+            )
+            add_grid_choice_to_image(screenshot_filename, grid_choice, num_grids)
 
-        accurate_mode_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": accurate_vision_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ],
-        }
+            with open(grid_choice, "rb") as img_file:
+                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        pseudo_messages.append(accurate_mode_message)
+            accurate_scope_message = {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": accurate_scope_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
 
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=pseudo_messages,
-            presence_penalty=1,
-            frequency_penalty=1,
-            temperature=0.7,
-            max_tokens=300,
-        )
+            pseudo_messages.append(copy.deepcopy(accurate_scope_message))
 
-        content = response.choices[0].message.content
+            response = client.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=pseudo_messages,
+                temperature=0,
+                max_tokens=300,
+            )
 
-        return content
+            content = response.choices[0].message.content
+            parsed_content = parse_oai_response(content)
+
+            if DEBUG:
+                print(f"{ANSI_GREEN}[parsed content: {parsed_content}]")
+
+        # accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
+
+        # accurate_mode_message = {
+        #     "role": "user",
+        #     "content": [
+        #         {"type": "text", "text": accurate_vision_prompt},
+        #         {
+        #             "type": "image_url",
+        #             "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+        #         },
+        #     ],
+        # }
+
+        # pseudo_messages.append(accurate_mode_message)
+
+        # response = client.chat.completions.create(
+        #     model="gpt-4-vision-preview",
+        #     messages=pseudo_messages,
+        #     presence_penalty=1,
+        #     frequency_penalty=1,
+        #     temperature=0.7,
+        #     max_tokens=300,
+        # )
+
+        # content = response.choices[0].message.content
+
+        # return content
     except Exception as e:
         print(f"Error reprompting model for accurate_mode: {e}")
         return "ERROR"
@@ -545,6 +587,11 @@ def parse_oai_response(response):
         # Extract the search query
         search_data = re.search(r'SEARCH "(.+)"', response).group(1)
         return {"type": "SEARCH", "data": search_data}
+
+    elif response.startswith("GRID"):
+        # Extract the grid option selected
+        grid_data = re.search(r'\b(\d+)\b', response).group(1)
+        return {"type": "GRID", "data": int(grid_data)}
 
     return {"type": "UNKNOWN", "data": response}
 
