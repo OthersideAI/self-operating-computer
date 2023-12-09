@@ -9,8 +9,8 @@ import openai
 from dotenv import load_dotenv
 
 TEST_CASES = {
-    "Go to Google.com": "The Google home page is visible with the search bar.",
-    "Play a video on YouTube": "A YouTube video is playing.",
+    "Go to Github.com": "The Github home page is visible.",
+    "Go to Youtube.com and play a video": "The YouTube video player is visible.",
 }
 
 EVALUATION_PROMPT = """
