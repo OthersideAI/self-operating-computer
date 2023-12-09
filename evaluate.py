@@ -7,7 +7,10 @@ import openai
 
 from dotenv import load_dotenv
 
-SUMMARY_SCREENSHOT_PATH = os.path.join('screenshots', 'summary_screenshot.png')
+TEST_CASES = {
+    "Go to Google.com": "The Google home page is visible with the search bar.",
+    "Play a video on YouTube": "A YouTube video is playing.",
+}
 
 EVALUATION_PROMPT = """
 Your job is to look at the given screenshot and determine if the following guideline is met in the image.
@@ -16,6 +19,8 @@ Respond TRUE or FALSE based on whether or not the given guideline is met.
 
 Guideline: {guideline}
 """
+
+SUMMARY_SCREENSHOT_PATH = os.path.join('screenshots', 'summary_screenshot.png')
 
 # Check if on a windows terminal that supports ANSI escape codes
 def supports_ansi():
@@ -116,17 +121,10 @@ def run_test_case(objective, guideline):
 def main():
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
-
-    # Define the test cases and the guidelines
-    test_cases = {
-        "Go to Google.com": "The Google home page is visible with the search bar.",
-        "Open YouTube and play holiday music": "The YouTube video player is loaded and actively playing holiday music.",
-        "Open Google Docs and write a poem": "A Google Doc file is opened in the browser with a poem typed into it.",
-    }
     
     print(f"{ANSI_BRIGHT_MAGENTA}[STARTING EVALUATION]{ANSI_RESET} NOTE: `operate` output is silenced.")
 
-    for objective, guideline in test_cases.items():
+    for objective, guideline in TEST_CASES.items():
         print(f"{ANSI_BLUE}[EVALUATING]{ANSI_RESET} '{objective}'")
         
         result = run_test_case(objective, guideline)
