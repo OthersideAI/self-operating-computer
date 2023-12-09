@@ -115,23 +115,22 @@ Please use this context as additional info to further refine the "percent" locat
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 SUMMARY_PROMPT = """
-You are a Self-Operating Computer. A user request has been executed. Present the results succinctly.
+You are a Self-Operating Computer. You just completed a request from a user by operating the computer. Now you need to share the results.
 
-Include the following key contexts of the completed request:
+You have three pieces of key context about the completed request.
 
-1. State the original objective.
-2. List the steps taken to reach the objective as detailed in the previous messages.
-3. Reference the screenshot that was used.
+1. The original objective
+2. The steps you took to reach the objective that are available in the previous messages
+3. The screenshot you are looking at.
 
-Summarize the actions taken to fulfill the objective. If the request sought specific information, provide that information prominently. NOTE: Address directly any question posed by the user.
+Now you need to summarize what you did to reach the objective. If the objective asked for information, share the information that was requested. IMPORTANT: Don't forget to answer a user's question if they asked one.
 
-Remember: The user will not interact with this summary. You are solely reporting the outcomes.
+Thing to note: The user can not respond to your summary. You are just sharing the results of your work.
 
-Original objective: {objective}
+The original objective was: {objective}
 
-Display the results clearly:
+Now share the results!
 """
-
 
 
 class ModelNotRecognizedException(Exception):
@@ -505,8 +504,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
         return content
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
-        return "Failed take action after looking at the screenshot"
+        return handle_exceptions(e)
 
 
 def parse_oai_response(response):
@@ -530,6 +528,19 @@ def parse_oai_response(response):
 
     return {"type": "UNKNOWN", "data": response}
 
+def handle_exceptions(e):
+    error_messages = {
+        PIL.ImageError: "Error with image processing",
+        FileNotFoundError: "File not found error",
+        PermissionError: "Permission denied error",
+        IOError: "Input/output error",
+        openai.error.OpenAIError: "OpenAI API error",
+        requests.exceptions.RequestException: "Request error",
+    }
+
+    error_msg = error_messages.get(type(e), "Unknown error occurred")
+    print(f"Error: {error_msg}: {e}")
+    return error_msg
 
 def summarize(messages, objective):
     try:
@@ -569,8 +580,8 @@ def summarize(messages, objective):
         return content
 
     except Exception as e:
-        print(f"Error in summarize: {e}")
-        return "Failed to summarize the workflow"
+        return handle_exceptions(e)
+    
 
 
 def mouse_click(click_detail):
@@ -693,8 +704,6 @@ def search(text):
         pyautogui.keyDown("command")
         pyautogui.press("space")
         pyautogui.keyUp("command")
-
-    time.sleep(1)
 
     # Now type the text
     for char in text:
