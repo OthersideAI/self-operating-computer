@@ -122,8 +122,9 @@ def main():
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
     
-    print(f"{ANSI_BRIGHT_MAGENTA}[STARTING EVALUATION]{ANSI_RESET} NOTE: `operate` output is silenced.")
+    print(f"{ANSI_BRIGHT_MAGENTA}[STARTING EVALUATION]{ANSI_RESET}")
 
+    passed = 0; failed = 0
     for objective, guideline in TEST_CASES.items():
         print(f"{ANSI_BLUE}[EVALUATING]{ANSI_RESET} '{objective}'")
         
@@ -133,6 +134,9 @@ def main():
         else:
             print(f"{ANSI_RED}[FAILED]{ANSI_RESET} '{objective}'")
 
+    print(
+        f"{ANSI_BRIGHT_MAGENTA}[EVALUATION COMPLETE]{ANSI_RESET} {passed} tests passed, {failed} tests failed"
+    )
 
 if __name__ == "__main__":
     main()
