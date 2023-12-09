@@ -388,28 +388,26 @@ def get_last_assistant_message(messages):
     return None  # Return None if no assistant message is found
 
 
-def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
+def accurate_mode_click(pseudo_messages, prev_x, prev_y):
     """
-    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
+    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor and grid choices for further finetuning of clicked location
     """
     try:
-        screenshot_filename = os.path.join("screenshots", "screenshot_mini.png")
+        grid_counter = 1
+        screenshot_filename = os.path.join("screenshots", "screenshot_grid_" + grid_counter + ".png")
         capture_mini_screenshot_with_cursor(
             file_path=screenshot_filename, x=prev_x, y=prev_y
         )
 
-        grid_counter = 1
         grid_choice = os.path.join(
-            "screenshots", ("screenshot_grid_" + grid_counter + ".png")
+            "screenshots", ("screenshot_grid_" + grid_counter + "_with_grid.png")
         )
         add_grid_choice_to_image(screenshot_filename, grid_choice, 4)
 
-        new_screenshot_filename = os.path.join(
-            "screenshots", "screenshot_mini_with_grid.png"
-        )
-
-        with open(new_screenshot_filename, "rb") as img_file:
+        with open(grid_choice, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        # for loop through 4, each one keep narrowing down grid choices
 
         accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
 
@@ -519,7 +517,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                     print(
                         f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
                     )
-                content = accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
+                content = accurate_mode_click(pseudo_messages, prev_x, prev_y)
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
         return content
