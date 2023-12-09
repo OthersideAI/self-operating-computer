@@ -700,6 +700,8 @@ def search(text):
         pyautogui.press("space")
         pyautogui.keyUp("command")
 
+    time.sleep(1)
+
     # Now type the text
     for char in text:
         pyautogui.write(char)
