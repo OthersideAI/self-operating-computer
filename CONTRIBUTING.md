@@ -8,6 +8,11 @@ We appreciate your contributions!
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
+## Modifying and Running Code
+1. Make changes in `operate/main.py`
+2. Run `pip install .` again
+3. Run `operate` to test your changes
+
 ## Contribution Ideas
 - **Develop an Automated End-to-End Testing System**:  Build an automated testing framework that can be run before merging PRs to `main` to confirm no test cases broke. An example of such a test case would be "go to google docs and write a poem". This testing system should be flexible to add new test cases in the future and reduce the time spent on manually testing each PR. 
 - **Improve performance by finding optimal screenshot grid**: A primary element of the framework is that it overlays a percentage grid on the screenshot which GPT-4v uses to estimate click locations. If someone is able to find the optimal grid and some evaluation metrics to confirm it is an improvement on the current method then we will merge that PR. 
