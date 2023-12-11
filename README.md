@@ -11,6 +11,13 @@
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
 </div>
 
+<!--
+:rotating_light: **OUTAGE NOTIFICATION: gpt-4-vision-preview**
+**This model is currently experiencing an outage so the self-operating computer may not work as expected.**
+-->
+
+
+
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
 - **Integration**: Currently integrated with **GPT-4v** as the default model.
@@ -33,6 +40,7 @@ We recognize that some operating system functions may be more efficiently execut
 
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
+
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
@@ -51,35 +59,27 @@ cd self-operating-computer
 ```
 python3 -m venv venv
 ```
-If you use Poetry instead of `venv`  create a Python virtual environment like so. 
-```
-cat requirements.txt | xargs poetry add
-```
 4. **Activate the virtual environment**:
 ```
 source venv/bin/activate
 ```
-5. **Install the project requirements**:
+5. **Install Project Requirements and Command-Line Interface: Instead of using `pip install .`, you can now install the project directly from PyPI with:**
 ```
-pip install -r requirements.txt
+pip install self-operating-computer
 ```
-6. **Install Project and Command-Line Interface**:
-```
-pip install .
-```
-7. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
+6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
 ```
 mv .example.env .env
 ``` 
-8. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
 ```
 OPENAI_API_KEY='your-key-here'
 ```
-9. **Run it**!
+8. **Run it**!
 ```
 operate
 ```
-10. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+9. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
