@@ -200,9 +200,6 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
     """
     mic = None
     # Initialize WhisperMic if voice_mode is True if voice_mode is True
-    """
-    Main function for the Self-Operating Computer
-    """
     if voice_mode:
         try:
             from whisper_mic import WhisperMic
