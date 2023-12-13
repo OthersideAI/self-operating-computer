@@ -53,6 +53,7 @@ try:
         if monitor.is_primary:
             monitor_size["width"] = monitor.width
             monitor_size["height"] = monitor.height
+            print(f"Primary monitor size: {monitor_size}")
 
 except Exception as e:
     print(f"Error getting monitor size: {e}")
