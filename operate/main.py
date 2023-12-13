@@ -33,8 +33,6 @@ client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
 
-
-
 """
 Screen Size Settings
 """
@@ -42,7 +40,6 @@ monitor_size = {
     "width": 1920,
     "height": 1080,
 }
-
 
 try:
     """
@@ -53,14 +50,12 @@ try:
         if monitor.is_primary:
             monitor_size["width"] = monitor.width
             monitor_size["height"] = monitor.height
-            print(f"Primary monitor size: {monitor_size}")
+            monitor_metrics = f"width: {monitor.width} height: {monitor.height}"
+            # print(f"Primary monitor size: {monitor_size}")
 
 except Exception as e:
+    monitor_metrics = f"Error getting monitor size: {e}\nUsing default monitor size {monitor_size}"
     print(f"Error getting monitor size: {e}")
-    print(f"Using default monitor size {monitor_size}")
-
-
-
 
 
 VISION_PROMPT = """
@@ -266,6 +261,7 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
             print(f"{ANSI_RED}Error in capturing voice input: {e}{ANSI_RESET}")
             return  # Exit if voice input fails
     else:
+        print(f"{ANSI_GREEN}[Display Settings]{monitor_metrics}")
         print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
         print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
         objective = prompt(style=style)
