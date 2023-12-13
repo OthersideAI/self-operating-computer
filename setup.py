@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 
 setup(
     name="self-operating-computer",
-    version="1.0.5",
+    version="1.0.6",
     packages=find_packages(),
     install_requires=required,  # Add dependencies here
     entry_points={
