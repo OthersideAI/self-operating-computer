@@ -24,7 +24,7 @@ Upon completion of each objective, GPT-4v will give an evaluation and determine 
 
 `evaluate.py` will print out if each test case `[PASSED]` or `[FAILED]`. In addition, a justification will be given on why the pass/fail was given.   
 
-It is **strongly** recommended that a screenshot of the `evaluate.py` output is included in any PR which could impact the performance of SOC.
+It is recommended that a screenshot of the `evaluate.py` output is included in any PR which could impact the performance of SOC.
 
 ## Contribution Ideas
 - **Improve performance by finding optimal screenshot grid**: A primary element of the framework is that it overlays a percentage grid on the screenshot which GPT-4v uses to estimate click locations. If someone is able to find the optimal grid and some evaluation metrics to confirm it is an improvement on the current method then we will merge that PR. 
