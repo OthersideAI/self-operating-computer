@@ -33,10 +33,34 @@ client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
 client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
 
+
+
+"""
+Screen Size Settings
+"""
 monitor_size = {
     "width": 1920,
     "height": 1080,
 }
+
+
+try:
+    """
+    Obtain primary monitor size
+    """
+    from screeninfo import get_monitors
+    for monitor in get_monitors():
+        if monitor.is_primary:
+            monitor_size["width"] = monitor.width
+            monitor_size["height"] = monitor.height
+
+except Exception as e:
+    print(f"Error getting monitor size: {e}")
+    print(f"Using default monitor size {monitor_size}")
+
+
+
+
 
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system as a human.
