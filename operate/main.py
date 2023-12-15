@@ -23,11 +23,13 @@ from PIL import Image, ImageDraw, ImageFont, ImageGrab
 import matplotlib.font_manager as fm
 from openai import OpenAI
 import sys
+from typing import List
+import copy
 
 
 load_dotenv()
 
-DEBUG = False
+DEBUG = True
 
 client = OpenAI()
 client.api_key = os.getenv("OPENAI_API_KEY")
@@ -37,6 +39,8 @@ monitor_size = {
     "width": 1920,
     "height": 1080,
 }
+
+accuracy_amt = 3
 
 VISION_PROMPT = """
 You are a Self-Operating Computer. You use the same operating system as a human.
@@ -97,7 +101,7 @@ Objective: {objective}
 """
 
 ACCURATE_PIXEL_COUNT = (
-    200  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
+    400  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
 )
 ACCURATE_MODE_VISION_PROMPT = """
 It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
@@ -110,6 +114,18 @@ Likewise, to achieve the bottom right of this mini screenshot you will add {widt
 There are four segmenting lines across each dimension, divided evenly. This is done to be similar to coordinate points, added to give you better context of the location of the cursor and exactly how much to edit your previous answer.
 
 Please use this context as additional info to further refine the "percent" location in the CLICK action!
+"""
+
+ACCURATE_SCOPE_PROMPT = """
+It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. 
+You have previously decided to click on a specific point, but in order to improve accuracy we have turned this from a point regression task to a classification task where you have to pick the grid that has the point you wish to click on. 
+In order to more accurately click, we are instead showing you a scoped in screenshot of a specific area, a previous grid you've chosen. 
+
+You will need to pick a grid option from 0 to {num_grids} inclusive. The order of grids is in column major order, starting from the top left grid, being 0, then going down first, and then to the right.
+Based on what you will like to click on, please select the grid in which the element or the point you would like to click on is in there. 
+
+Please select the grid from 0 to 15 inclusive that contains the point in which you want to click.
+Return an output of the form GRID "grid number you are choosing" 
 """
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -352,6 +368,16 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
     return prompt
 
 
+def format_accurate_scope_prompt(prev_x: int, prev_y: int, num_grid_choices: int):
+    """
+    Format the accurate mode vision prompt
+    """
+    prompt = ACCURATE_SCOPE_PROMPT.format(
+        prev_x=prev_x, prev_y=prev_y, num_grids=num_grid_choices 
+    )
+    return prompt
+
+
 def get_next_action(model, messages, objective, accurate_mode):
     if model == "gpt-4-vision-preview":
         content = get_next_action_from_openai(messages, objective, accurate_mode)
@@ -376,50 +402,84 @@ def get_last_assistant_message(messages):
     return None  # Return None if no assistant message is found
 
 
-def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
+def accurate_mode_click(pseudo_messages_og, prev_x, prev_y):
     """
-    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
+    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor and grid choices for further finetuning of clicked location
     """
     try:
-        screenshot_filename = os.path.join("screenshots", "screenshot_mini.png")
+        pseudo_messages = copy.deepcopy(pseudo_messages_og)
+        screenshot_filename = os.path.join("screenshots", "screenshot_grid_0.png")
         capture_mini_screenshot_with_cursor(
             file_path=screenshot_filename, x=prev_x, y=prev_y
         )
 
-        new_screenshot_filename = os.path.join(
-            "screenshots", "screenshot_mini_with_grid.png"
-        )
+        num_grids_accuracy = [4, 4, 2, 2]
+        # for loop through 4, each one keep narrowing down grid choices
+        for i in range(4):
+            num_grids = num_grids_accuracy[i]
+            accurate_scope_prompt = format_accurate_scope_prompt(prev_x, prev_y, num_grids * num_grids - 1)
 
-        with open(new_screenshot_filename, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+            grid_choice = os.path.join(
+                "screenshots", ("screenshot_grid_" + str(i) + "_with_grid.png")
+            )
+            add_grid_choice_to_image(screenshot_filename, grid_choice, num_grids)
 
-        accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
+            with open(grid_choice, "rb") as img_file:
+                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        accurate_mode_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": accurate_vision_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ],
-        }
+            accurate_scope_message = {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": accurate_scope_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
 
-        pseudo_messages.append(accurate_mode_message)
+            pseudo_messages.append(copy.deepcopy(accurate_scope_message))
 
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=pseudo_messages,
-            presence_penalty=1,
-            frequency_penalty=1,
-            temperature=0.7,
-            max_tokens=300,
-        )
+            response = client.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=pseudo_messages,
+                temperature=0,
+                max_tokens=300,
+            )
 
-        content = response.choices[0].message.content
+            content = response.choices[0].message.content
+            parsed_content = parse_oai_response(content)
 
-        return content
+            if DEBUG:
+                print(f"{ANSI_GREEN}[parsed content: {parsed_content}]")
+
+        # accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
+
+        # accurate_mode_message = {
+        #     "role": "user",
+        #     "content": [
+        #         {"type": "text", "text": accurate_vision_prompt},
+        #         {
+        #             "type": "image_url",
+        #             "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+        #         },
+        #     ],
+        # }
+
+        # pseudo_messages.append(accurate_mode_message)
+
+        # response = client.chat.completions.create(
+        #     model="gpt-4-vision-preview",
+        #     messages=pseudo_messages,
+        #     presence_penalty=1,
+        #     frequency_penalty=1,
+        #     temperature=0.7,
+        #     max_tokens=300,
+        # )
+
+        # content = response.choices[0].message.content
+
+        # return content
     except Exception as e:
         print(f"Error reprompting model for accurate_mode: {e}")
         return "ERROR"
@@ -501,7 +561,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                     print(
                         f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
                     )
-                content = accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
+                content = accurate_mode_click(pseudo_messages, prev_x, prev_y)
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
         return content
@@ -529,6 +589,11 @@ def parse_oai_response(response):
         # Extract the search query
         search_data = re.search(r'SEARCH "(.+)"', response).group(1)
         return {"type": "SEARCH", "data": search_data}
+
+    elif response.startswith("GRID"):
+        # Extract the grid option selected
+        grid_data = re.search(r'\b(\d+)\b', response).group(1)
+        return {"type": "GRID", "data": int(grid_data)}
 
     return {"type": "UNKNOWN", "data": response}
 
@@ -616,6 +681,73 @@ def click_at_percentage(
     pyautogui.click(x_pixel, y_pixel)
     return "Successfully clicked"
 
+# Function to draw text with a white rectangle background
+def draw_label_with_background(
+    position, text, draw, font_size, bg_width=0, bg_height=0, grid=False
+):
+    if grid:
+        text_position = (position[0], position[1])
+    else:
+        # Adjust the position based on the background size
+        text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)
+        # Draw the text background
+        draw.rectangle(
+            [position[0], position[1], position[0] + bg_width, position[1] + bg_height],
+            fill="white",
+        )
+
+    # Draw the text
+    fill_color = "green" if grid else "black"
+    draw.text(text_position, text, fill=fill_color, font_size=font_size, anchor="mm")
+
+def add_grid_choice_to_image(original_image_path, new_image_path, num_grids):
+    """
+    Adding a grid to an image based on the number of grids per axis, evenly 
+    """
+
+    # Load the image
+    image = Image.open(original_image_path)
+
+    # Create a drawing object
+    draw = ImageDraw.Draw(image)
+
+    # Get the image size
+    width, height = image.size
+
+    # Reduce the font size a bit
+    font_size = int(height / 40)
+
+    # Calculate the background size based on the font size
+    bg_width = int(font_size * 1.2)  # Adjust as necessary
+    bg_height = int(font_size * 1.2)  # Adjust as necessary
+
+    for x in range(0, num_grids):
+        for y in range(0, num_grids):
+            x_coord = x * (width/num_grids) + (width/num_grids)/2 - bg_width/2
+            y_coord = y * (height/num_grids) + (height/num_grids)/2 - bg_height/2
+
+            # Calculate the percentage of the width and height
+            draw_label_with_background(
+                (x_coord, y_coord),
+                f"{x * num_grids + y}",
+                draw,
+                font_size,
+                grid=True
+            )
+
+    for x in range(0, num_grids):
+        width_multiplier = width/num_grids;
+        line = ((x * width_multiplier, 0), (x * width_multiplier, height))
+        draw.line(line, fill="blue")
+
+    for y in range(0, num_grids):
+        height_multiplier = height/num_grids;
+        line = ((0, y * height_multiplier), (width, y * height_multiplier))
+        draw.line(line, fill="blue")
+    
+    # Save the image with the grid
+    image.save(new_image_path)
+
 
 def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     """
@@ -637,20 +769,6 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     bg_width = int(font_size * 4.2)  # Adjust as necessary
     bg_height = int(font_size * 1.2)  # Adjust as necessary
 
-    # Function to draw text with a white rectangle background
-    def draw_label_with_background(
-        position, text, draw, font_size, bg_width, bg_height
-    ):
-        # Adjust the position based on the background size
-        text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)
-        # Draw the text background
-        draw.rectangle(
-            [position[0], position[1], position[0] + bg_width, position[1] + bg_height],
-            fill="white",
-        )
-        # Draw the text
-        draw.text(text_position, text, fill="black", font_size=font_size, anchor="mm")
-
     # Draw vertical lines and labels at every `grid_interval` pixels
     for x in range(grid_interval, width, grid_interval):
         line = ((x, 0), (x, height))
@@ -664,8 +782,8 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
                 f"{x_percent}%,{y_percent}%",
                 draw,
                 font_size,
-                bg_width,
-                bg_height,
+                bg_width=bg_width,
+                bg_height=bg_height,
             )
 
     # Draw horizontal lines - labels are already added with vertical lines
@@ -706,22 +824,54 @@ def search(text):
     return "Open program: " + text
 
 
+def capture_mini_screenshot_with_percentages(file_path: str, top_left: List[int], bottom_right: List[int], upscale: int):
+    """
+    Captures a mini screenshot based on percentages
+
+    Params:
+    top_left: [x, y] in percentages as a decimal value between 0 and 1. top left corner is [0, 0]
+    """
+
+    x1 = top_left[0] * monitor_size["width"]
+    y1 = top_left[1] * monitor_size["height"]
+    x2 = bottom_right[0] * monitor_size["width"]
+    y2 = bottom_right[1] * monitor_size["height"]
+
+    user_platform = platform.system()
+    if user_platform == "Linux":
+        screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+
+        screenshot = screenshot.resize(
+            (screenshot.width * upscale, screenshot.height * upscale), Image.LANCZOS
+        )  # upscale the image so it's easier to see and percentage marks more visible
+
+        screenshot.save(file_path)
+    elif user_platform == "Darwin":
+        width = x2 - x1
+        height = y2 - y1
+        # Use the screencapture utility to capture the screen with the cursor
+        rect = f"-R{x1},{y1},{width},{height}"
+        subprocess.run(["screencapture", "-C", rect, file_path])
+
 def capture_mini_screenshot_with_cursor(
     file_path=os.path.join("screenshots", "screenshot_mini.png"), x=0, y=0
 ):
+    """
+    Captures a mini screenshot centered around x y coord, ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
+    """
     user_platform = platform.system()
 
+    x = convert_percent_to_decimal(x)
+    y = convert_percent_to_decimal(y)
+
+    x = x * monitor_size["width"]  # convert x from 50 to 0.5 * monitor_width
+    y = y * monitor_size["height"]
+
+    # Define the coordinates for the rectangle
+    x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
+
     if user_platform == "Linux":
-        x = float(x[:-1])  # convert x from "50%" to 50.
-        y = float(y[:-1])
-
-        x = (x / 100) * monitor_size[
-            "width"
-        ]  # convert x from 50 to 0.5 * monitor_width
-        y = (y / 100) * monitor_size["height"]
-
         # Define the coordinates for the rectangle
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
         x2, y2 = int(x + ACCURATE_PIXEL_COUNT / 2), int(y + ACCURATE_PIXEL_COUNT / 2)
 
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
@@ -739,16 +889,6 @@ def capture_mini_screenshot_with_cursor(
             file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)
         )
     elif user_platform == "Darwin":
-        x = float(x[:-1])  # convert x from "50%" to 50.
-        y = float(y[:-1])
-
-        x = (x / 100) * monitor_size[
-            "width"
-        ]  # convert x from 50 to 0.5 * monitor_width
-        y = (y / 100) * monitor_size["height"]
-
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
-
         width = ACCURATE_PIXEL_COUNT
         height = ACCURATE_PIXEL_COUNT
         # Use the screencapture utility to capture the screen with the cursor

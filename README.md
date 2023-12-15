@@ -59,6 +59,7 @@ cd self-operating-computer
 ```
 python3 -m venv venv
 ```
+
 4. **Activate the virtual environment**:
 ```
 source venv/bin/activate
