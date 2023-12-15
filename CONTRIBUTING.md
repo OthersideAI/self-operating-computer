@@ -8,8 +8,25 @@ We appreciate your contributions!
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
+## Modifying and Running Code
+1. Make changes in `operate/main.py`
+2. Run `pip install .` again
+3. Run `operate` to see your changes
+
+## Testing Changes
+**After making significant changes, it's important to verify that SOC can still successfully perform a set of common test cases.**
+In the root directory of the project, run:
+```
+python3 evaluate.py
+```   
+This will automatically prompt `operate` to perform several simple objectives.   
+Upon completion of each objective, GPT-4v will give an evaluation and determine if the objective was successfully reached.   
+
+`evaluate.py` will print out if each test case `[PASSED]` or `[FAILED]`. In addition, a justification will be given on why the pass/fail was given.   
+
+It is recommended that a screenshot of the `evaluate.py` output is included in any PR which could impact the performance of SOC.
+
 ## Contribution Ideas
-- **Develop an Automated End-to-End Testing System**:  Build an automated testing framework that can be run before merging PRs to `main` to confirm no test cases broke. An example of such a test case would be "go to google docs and write a poem". This testing system should be flexible to add new test cases in the future and reduce the time spent on manually testing each PR. 
 - **Improve performance by finding optimal screenshot grid**: A primary element of the framework is that it overlays a percentage grid on the screenshot which GPT-4v uses to estimate click locations. If someone is able to find the optimal grid and some evaluation metrics to confirm it is an improvement on the current method then we will merge that PR. 
 - **Improve the `SUMMARY_PROMPT`**
 - **Improve Linux and Windows compatibility**: There are still some issues with Linux and Windows compatibility. PRs to fix the issues are encouraged. 
