@@ -44,6 +44,26 @@ https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
+### Option 1: Installation using .sh script
+
+1. **Clone the repo** to a directory on your computer:
+```
+git clone https://github.com/OthersideAI/self-operating-computer.git
+```
+2. **Cd into directory**:
+
+```
+cd self-operating-computer
+```
+
+3. **Run the installation script**: 
+
+```
+./run.sh
+```
+
+### Option 2: Traditional Installation
+
 1. **Clone the repo** to a directory on your computer:
 ```
 git clone https://github.com/OthersideAI/self-operating-computer.git
