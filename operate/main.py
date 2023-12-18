@@ -14,7 +14,7 @@ import platform
 import Xlib.display
 import Xlib.X
 import Xlib.Xutil  # not sure if Xutil is necessary
-
+import google.generativeai as genai
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
@@ -28,10 +28,6 @@ import sys
 load_dotenv()
 
 DEBUG = False
-
-client = OpenAI()
-client.api_key = os.getenv("OPENAI_API_KEY")
-client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
 
 monitor_size = {
     "width": 1920,
@@ -198,6 +194,12 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
     """
     Main function for the Self-Operating Computer
     """
+    if model == "gpt-4-vision-preview":
+        client = OpenAI()
+        client.api_key = os.getenv("OPENAI_API_KEY")
+        client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+    elif model == "gemini-pro-vision":
+        GOOGLE_API_KEY=os.getenv('GOOGLE_API_KEY')
     mic = None
     # Initialize WhisperMic if voice_mode is True if voice_mode is True
     if voice_mode:
@@ -358,6 +360,9 @@ def get_next_action(model, messages, objective, accurate_mode):
         return content
     elif model == "agent-1":
         return "coming soon"
+    elif model == "gemini-pro-vision":
+        content = get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode)
+        return content
 
     raise ModelNotRecognizedException(model)
 
@@ -376,7 +381,7 @@ def get_last_assistant_message(messages):
     return None  # Return None if no assistant message is found
 
 
-def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
+def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
     """
     Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
     """
@@ -394,31 +399,35 @@ def accurate_mode_double_check(pseudo_messages, prev_x, prev_y):
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
         accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
+        if model == "gpt-4-vision-preview":
+            accurate_mode_message = {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": accurate_vision_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
 
-        accurate_mode_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": accurate_vision_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ],
-        }
+            pseudo_messages.append(accurate_mode_message)
 
-        pseudo_messages.append(accurate_mode_message)
+            response = client.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=pseudo_messages,
+                presence_penalty=1,
+                frequency_penalty=1,
+                temperature=0.7,
+                max_tokens=300,
+            )
 
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=pseudo_messages,
-            presence_penalty=1,
-            frequency_penalty=1,
-            temperature=0.7,
-            max_tokens=300,
-        )
-
-        content = response.choices[0].message.content
-
+            content = response.choices[0].message.content
+        elif model == "gemini-pro-vision":
+            model = genai.GenerativeModel("gemini-pro-vision")
+            response = model.generate_content([accurate_vision_prompt, Image.open(new_screenshot_filename)])
+            content = response.text[1:]
+            print(content)
         return content
     except Exception as e:
         print(f"Error reprompting model for accurate_mode: {e}")
@@ -501,7 +510,75 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                     print(
                         f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
                     )
-                content = accurate_mode_double_check(pseudo_messages, prev_x, prev_y)
+                content = accurate_mode_double_check("gpt-4-vision-preview", pseudo_messages, prev_x, prev_y)
+                assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
+
+        return content
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed take action after looking at the screenshot"
+
+def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
+    """
+    Get the next action for Self-Operating Computer using Gemini Pro Vision
+    """
+    # sleep for a second
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        new_screenshot_filename = os.path.join(
+            "screenshots", "screenshot_with_grid.png"
+        )
+
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+        # sleep for a second
+        time.sleep(1)
+
+        with open(new_screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        previous_action = get_last_assistant_message(messages)
+
+        vision_prompt = format_vision_prompt(objective, previous_action)
+
+        model = genai.GenerativeModel("gemini-pro-vision")
+
+        response = model.generate_content([vision_prompt, Image.open(new_screenshot_filename)])
+
+        # create a copy of messages and save to pseudo_messages
+        pseudo_messages = messages.copy()
+        pseudo_messages.append(response.text)
+
+        messages.append(
+            {
+                "role": "user",
+                "content": "`screenshot.png`",
+            }
+        )
+        content = response.text[1:]
+        print(content)
+        if accurate_mode:
+            if content.startswith("CLICK"):
+                # Adjust pseudo_messages to include the accurate_mode_message
+
+                click_data = re.search(r"CLICK \{ (.+) \}", content).group(1)
+                click_data_json = json.loads(f"{{{click_data}}}")
+                prev_x = click_data_json["x"]
+                prev_y = click_data_json["y"]
+
+                if DEBUG:
+                    print(
+                        f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
+                    )
+                content = accurate_mode_double_check("gemini-pro-vision", pseudo_messages, prev_x, prev_y)
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
         return content
@@ -522,12 +599,18 @@ def parse_oai_response(response):
 
     elif response.startswith("TYPE"):
         # Extract the text to type
-        type_data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
+        try:
+            type_data = re.search(r'TYPE (.+)', response, re.DOTALL).group(1)
+        except:
+            type_data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
         return {"type": "TYPE", "data": type_data}
 
     elif response.startswith("SEARCH"):
         # Extract the search query
-        search_data = re.search(r'SEARCH "(.+)"', response).group(1)
+        try:
+            search_data = re.search(r'SEARCH "(.+)"', response).group(1)
+        except:
+            search_data = re.search(r'SEARCH (.+)', response).group(1)
         return {"type": "SEARCH", "data": search_data}
 
     return {"type": "UNKNOWN", "data": response}
