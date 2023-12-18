@@ -76,7 +76,8 @@ mv .example.env .env
 OPENAI_API_KEY='your-key-here'
 ```
 OR 
-**Add your Google AI Studio API key to your new .env file. If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account**:
+
+  **Add your Google AI Studio API key to your new .env file. If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account**:
 ```
 GOOGLE_API_KEY='your-key-here'
 ```
