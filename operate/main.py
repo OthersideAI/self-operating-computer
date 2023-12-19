@@ -32,9 +32,10 @@ DEBUG = False
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-client = OpenAI()
-client.api_key = OPENAI_API_KEY
-client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+if OPENAI_API_KEY:
+    client = OpenAI()
+    client.api_key = OPENAI_API_KEY
+    client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
 
 
 monitor_size = {
