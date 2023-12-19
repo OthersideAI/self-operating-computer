@@ -199,7 +199,7 @@ else:
     ANSI_BRIGHT_MAGENTA = ""
 
 
-def validate_mode(
+def validation(
     model,
     accurate_mode,
     voice_mode,
@@ -212,6 +212,14 @@ def validate_mode(
         print("To use voice mode, please add an OpenAI API key")
         sys.exit(1)
 
+    if model == "gpt-4-vision-preview" and not OPENAI_API_KEY:
+        print("To use `gpt-4-vision-preview` add an OpenAI API key")
+        sys.exit(1)
+
+    if model == "gemini-pro-vision" and not GOOGLE_API_KEY:
+        print("To use `gemini-pro-vision` add a Google API key")
+        sys.exit(1)
+
 
 def main(model, accurate_mode, terminal_prompt, voice_mode=False):
     """
@@ -220,7 +228,7 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
     mic = None
     # Initialize WhisperMic if voice_mode is True if voice_mode is True
 
-    validate_mode(model, accurate_mode, voice_mode)
+    validation(model, accurate_mode, voice_mode)
 
     if voice_mode:
         try:
