@@ -20,7 +20,7 @@
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4v** as the default model.
+- **Integration**: Currently integrated with **GPT-4v** as the default model, with extended support for Gemini Pro Vision.
 - **Future Plans**: Support for additional models.
 
 ## Current Challenges
@@ -74,6 +74,12 @@ mv .example.env .env
 7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
 ```
 OPENAI_API_KEY='your-key-here'
+```
+OR 
+
+  **Add your Google AI Studio API key to your new .env file. If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account**:
+```
+GOOGLE_API_KEY='your-key-here'
 ```
 8. **Run it**!
 ```
