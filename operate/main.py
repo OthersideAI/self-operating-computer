@@ -29,6 +29,8 @@ load_dotenv()
 
 DEBUG = False
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 monitor_size = {
     "width": 1920,
     "height": 1080,
@@ -190,18 +192,35 @@ else:
     ANSI_BRIGHT_MAGENTA = ""
 
 
+def validate_mode(
+    model,
+    accurate_mode,
+    voice_mode,
+):
+    if accurate_mode and model != "gpt-4-vision-preview":
+        print("To use accuracy mode, please use gpt-4-vision-preview")
+        sys.exit(1)
+
+    if voice_mode and not OPENAI_API_KEY:
+        print("To use voice mode, please add an OpenAI API key")
+        sys.exit(1)
+
+
 def main(model, accurate_mode, terminal_prompt, voice_mode=False):
     """
     Main function for the Self-Operating Computer
     """
     if model == "gpt-4-vision-preview":
         client = OpenAI()
-        client.api_key = os.getenv("OPENAI_API_KEY")
+        client.api_key = OPENAI_API_KEY
         client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
     elif model == "gemini-pro-vision":
-        GOOGLE_API_KEY=os.getenv('GOOGLE_API_KEY')
+        GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     mic = None
     # Initialize WhisperMic if voice_mode is True if voice_mode is True
+
+    validate_mode(model, accurate_mode, voice_mode)
+
     if voice_mode:
         try:
             from whisper_mic import WhisperMic
@@ -261,7 +280,8 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
             response = get_next_action(model, messages, objective, accurate_mode)
-            action = parse_oai_response(response)
+
+            action = parse_response(response)
             action_type = action.get("type")
             action_detail = action.get("data")
 
@@ -361,7 +381,9 @@ def get_next_action(model, messages, objective, accurate_mode):
     elif model == "agent-1":
         return "coming soon"
     elif model == "gemini-pro-vision":
-        content = get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode)
+        content = get_next_action_from_gemini_pro_vision(
+            messages, objective, accurate_mode
+        )
         return content
 
     raise ModelNotRecognizedException(model)
@@ -385,6 +407,7 @@ def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
     """
     Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
     """
+    print("[get_next_action_from_gemini_pro_vision] accurate_mode_double_check")
     try:
         screenshot_filename = os.path.join("screenshots", "screenshot_mini.png")
         capture_mini_screenshot_with_cursor(
@@ -425,7 +448,9 @@ def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
             content = response.choices[0].message.content
         elif model == "gemini-pro-vision":
             model = genai.GenerativeModel("gemini-pro-vision")
-            response = model.generate_content([accurate_vision_prompt, Image.open(new_screenshot_filename)])
+            response = model.generate_content(
+                [accurate_vision_prompt, Image.open(new_screenshot_filename)]
+            )
             content = response.text[1:]
             print(content)
         return content
@@ -510,7 +535,9 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
                     print(
                         f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
                     )
-                content = accurate_mode_double_check("gpt-4-vision-preview", pseudo_messages, prev_x, prev_y)
+                content = accurate_mode_double_check(
+                    "gpt-4-vision-preview", pseudo_messages, prev_x, prev_y
+                )
                 assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
         return content
@@ -519,10 +546,13 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
         print(f"Error parsing JSON: {e}")
         return "Failed take action after looking at the screenshot"
 
+
 def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
+    print("[get_next_action_from_gemini_pro_vision] ")
+    print("[get_next_action_from_gemini_pro_vision] messages", messages)
     # sleep for a second
     time.sleep(1)
     try:
@@ -550,12 +580,19 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
         vision_prompt = format_vision_prompt(objective, previous_action)
 
         model = genai.GenerativeModel("gemini-pro-vision")
+        print("[get_next_action_from_gemini_pro_vision]  model.generate_content")
 
-        response = model.generate_content([vision_prompt, Image.open(new_screenshot_filename)])
+        response = model.generate_content(
+            [vision_prompt, Image.open(new_screenshot_filename)]
+        )
 
         # create a copy of messages and save to pseudo_messages
         pseudo_messages = messages.copy()
         pseudo_messages.append(response.text)
+        print(
+            "[get_next_action_from_gemini_pro_vision] pseudo_messages.append(response.text)",
+            response.text,
+        )
 
         messages.append(
             {
@@ -564,22 +601,6 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
             }
         )
         content = response.text[1:]
-        print(content)
-        if accurate_mode:
-            if content.startswith("CLICK"):
-                # Adjust pseudo_messages to include the accurate_mode_message
-
-                click_data = re.search(r"CLICK \{ (.+) \}", content).group(1)
-                click_data_json = json.loads(f"{{{click_data}}}")
-                prev_x = click_data_json["x"]
-                prev_y = click_data_json["y"]
-
-                if DEBUG:
-                    print(
-                        f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
-                    )
-                content = accurate_mode_double_check("gemini-pro-vision", pseudo_messages, prev_x, prev_y)
-                assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
 
         return content
 
@@ -588,7 +609,8 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
         return "Failed take action after looking at the screenshot"
 
 
-def parse_oai_response(response):
+def parse_response(response):
+    print("[parse_response] response", response)
     if response == "DONE":
         return {"type": "DONE", "data": None}
     elif response.startswith("CLICK"):
@@ -600,7 +622,7 @@ def parse_oai_response(response):
     elif response.startswith("TYPE"):
         # Extract the text to type
         try:
-            type_data = re.search(r'TYPE (.+)', response, re.DOTALL).group(1)
+            type_data = re.search(r"TYPE (.+)", response, re.DOTALL).group(1)
         except:
             type_data = re.search(r'TYPE "(.+)"', response, re.DOTALL).group(1)
         return {"type": "TYPE", "data": type_data}
@@ -610,7 +632,7 @@ def parse_oai_response(response):
         try:
             search_data = re.search(r'SEARCH "(.+)"', response).group(1)
         except:
-            search_data = re.search(r'SEARCH (.+)', response).group(1)
+            search_data = re.search(r"SEARCH (.+)", response).group(1)
         return {"type": "SEARCH", "data": search_data}
 
     return {"type": "UNKNOWN", "data": response}
