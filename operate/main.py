@@ -431,38 +431,31 @@ def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
         accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
-        if model == "gpt-4-vision-preview":
-            accurate_mode_message = {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": accurate_vision_prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                    },
-                ],
-            }
 
-            pseudo_messages.append(accurate_mode_message)
+        accurate_mode_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": accurate_vision_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
 
-            response = client.chat.completions.create(
-                model="gpt-4-vision-preview",
-                messages=pseudo_messages,
-                presence_penalty=1,
-                frequency_penalty=1,
-                temperature=0.7,
-                max_tokens=300,
-            )
+        pseudo_messages.append(accurate_mode_message)
 
-            content = response.choices[0].message.content
-        elif model == "gemini-pro-vision":
-            model = genai.GenerativeModel("gemini-pro-vision")
-            response = model.generate_content(
-                [accurate_vision_prompt, Image.open(new_screenshot_filename)]
-            )
-            content = response.text[1:]
-            print(content)
-        return content
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=pseudo_messages,
+            presence_penalty=1,
+            frequency_penalty=1,
+            temperature=0.7,
+            max_tokens=300,
+        )
+
+        content = response.choices[0].message.content
+
     except Exception as e:
         print(f"Error reprompting model for accurate_mode: {e}")
         return "ERROR"
