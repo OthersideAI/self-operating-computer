@@ -553,7 +553,6 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
-    print("[get_next_action_from_gemini_pro_vision] messages", messages)
     # sleep for a second
     time.sleep(1)
     try:
@@ -581,7 +580,6 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
         vision_prompt = format_vision_prompt(objective, previous_action)
 
         model = genai.GenerativeModel("gemini-pro-vision")
-        print("[get_next_action_from_gemini_pro_vision]  model.generate_content")
 
         response = model.generate_content(
             [vision_prompt, Image.open(new_screenshot_filename)]
@@ -590,10 +588,6 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
         # create a copy of messages and save to pseudo_messages
         pseudo_messages = messages.copy()
         pseudo_messages.append(response.text)
-        print(
-            "[get_next_action_from_gemini_pro_vision] pseudo_messages.append(response.text)",
-            response.text,
-        )
 
         messages.append(
             {
@@ -611,7 +605,6 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
 
 
 def parse_response(response):
-    print("[parse_response] response", response)
     if response == "DONE":
         return {"type": "DONE", "data": None}
     elif response.startswith("CLICK"):
