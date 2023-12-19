@@ -90,7 +90,7 @@ operate
 ## Using `operate` Modes
 
 
-### `-m` Multimodal Models
+### Multimodal Models ===>  `-m`
 An additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. 
 
 **Add your Google AI Studio API key to your new .env file. ***If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [Authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR:
@@ -105,7 +105,7 @@ operate -m gemini-pro-vision
 
 **Add your Google AI Studio API key to your .env file.** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account:
 
-### `--Voice` Mode
+### Voice Mode ===> `--voice`
 - Install the additional `requirements-audio.txt`
 ```
 pip install -r requirements-audio.txt
