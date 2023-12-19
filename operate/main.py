@@ -30,6 +30,12 @@ load_dotenv()
 DEBUG = False
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+client = OpenAI()
+client.api_key = OPENAI_API_KEY
+client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+
 
 monitor_size = {
     "width": 1920,
@@ -210,12 +216,6 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
     """
     Main function for the Self-Operating Computer
     """
-    if model == "gpt-4-vision-preview":
-        client = OpenAI()
-        client.api_key = OPENAI_API_KEY
-        client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
-    elif model == "gemini-pro-vision":
-        GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     mic = None
     # Initialize WhisperMic if voice_mode is True if voice_mode is True
 
@@ -551,7 +551,6 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
-    print("[get_next_action_from_gemini_pro_vision] ")
     print("[get_next_action_from_gemini_pro_vision] messages", messages)
     # sleep for a second
     time.sleep(1)
