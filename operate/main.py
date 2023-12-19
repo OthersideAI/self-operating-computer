@@ -545,8 +545,9 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
         return content
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
-        return "Failed take action after looking at the screenshot"
+         return handle_exceptions(e)
+        # print(f"Error parsing JSON: {e}")
+        # return "Failed take action after looking at the screenshot"
 
 
 def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
@@ -631,7 +632,19 @@ def parse_response(response):
 
     return {"type": "UNKNOWN", "data": response}
 
+def handle_exceptions(e):
+    error_messages = {
+        PIL.ImageError: "Error with image processing",
+        FileNotFoundError: "File not found error",
+        PermissionError: "Permission denied error",
+        IOError: "Input/output error",
+        openai.error.OpenAIError: "OpenAI API error",
+        requests.exceptions.RequestException: "Request error",
+    }
 
+    error_msg = error_messages.get(type(e), "Unknown error occurred")
+    print(f"Error: {error_msg}: {e}")
+    return error_msg
 def summarize(messages, objective):
     try:
         screenshots_dir = "screenshots"
@@ -670,8 +683,7 @@ def summarize(messages, objective):
         return content
 
     except Exception as e:
-        print(f"Error in summarize: {e}")
-        return "Failed to summarize the workflow"
+         return handle_exceptions(e)
 
 
 def mouse_click(click_detail):
