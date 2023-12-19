@@ -309,7 +309,7 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
             )
-            summary = summarize(messages, objective)
+            summary = summarize(model, messages, objective)
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
             )
@@ -391,7 +391,7 @@ def get_next_action(model, messages, objective, accurate_mode):
         return "coming soon"
     elif model == "gemini-pro-vision":
         content = get_next_action_from_gemini_pro_vision(
-            messages, objective, accurate_mode
+            messages, objective
         )
         return content
 
@@ -549,7 +549,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
         return "Failed take action after looking at the screenshot"
 
 
-def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
+def get_next_action_from_gemini_pro_vision(messages, objective):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
@@ -571,9 +571,6 @@ def get_next_action_from_gemini_pro_vision(messages, objective, accurate_mode):
         add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
         # sleep for a second
         time.sleep(1)
-
-        with open(new_screenshot_filename, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
         previous_action = get_last_assistant_message(messages)
 
@@ -632,7 +629,7 @@ def parse_response(response):
     return {"type": "UNKNOWN", "data": response}
 
 
-def summarize(messages, objective):
+def summarize(model, messages, objective):
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
@@ -642,33 +639,40 @@ def summarize(messages, objective):
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
-        with open(screenshot_filename, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
         summary_prompt = format_summary_prompt(objective)
+        
+        if model == "gpt-4-vision-preview":
+            with open(screenshot_filename, "rb") as img_file:
+                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        summary_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": summary_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ],
-        }
-        # create a copy of messages and save to pseudo_messages
-        messages.append(summary_message)
+            summary_message = {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": summary_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
+            # create a copy of messages and save to pseudo_messages
+            messages.append(summary_message)
 
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=messages,
-            max_tokens=500,
-        )
+            response = client.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=messages,
+                max_tokens=500,
+            )
 
-        content = response.choices[0].message.content
+            content = response.choices[0].message.content
+        elif model == "gemini-pro-vision":
+            model = genai.GenerativeModel("gemini-pro-vision")
+            summary_message = model.generate_content(
+                [summary_prompt, Image.open(screenshot_filename)]
+            )
+            content = summary_message.text
         return content
-
+    
     except Exception as e:
         print(f"Error in summarize: {e}")
         return "Failed to summarize the workflow"
