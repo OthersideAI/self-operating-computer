@@ -105,7 +105,7 @@ operate -m gemini-pro-vision
 
 **Add your Google AI Studio API key to your .env file.** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account:
 
-### `--Voice`` Mode
+### `--Voice` Mode
 - Install the additional `requirements-audio.txt`
 ```
 pip install -r requirements-audio.txt
