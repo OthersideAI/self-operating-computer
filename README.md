@@ -103,6 +103,8 @@ operate -m gemini-pro-vision
 ```
 
 ### Voice Mode `--voice`
+The framework supports voice inputs for the objective. Try voice by following the instructions below. 
+
 - Install the additional `requirements-audio.txt`
 ```
 pip install -r requirements-audio.txt
