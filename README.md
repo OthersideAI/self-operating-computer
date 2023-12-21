@@ -20,7 +20,7 @@
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4v** as the default model.
+- **Integration**: Currently integrated with **GPT-4v** as the default model, with extended support for Gemini Pro Vision.
 - **Future Plans**: Support for additional models.
 
 ## Current Challenges
@@ -95,6 +95,7 @@ mv .example.env .env
 ```
 OPENAI_API_KEY='your-key-here'
 ```
+
 8. **Run it**!
 ```
 operate
@@ -108,17 +109,32 @@ operate
 
 ## Using `operate` Modes
 
-### Voice Mode
-- Install the additional `requirements-audio.txt`
+### Multimodal Models  `-m`
+An additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. 
+
+**Add your Google AI Studio API key to your .env file.** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR:
+```
+GOOGLE_API_KEY='your-key-here'
+```
+
+Start `operate` with the Gemini model
+```
+operate -m gemini-pro-vision
+```
+
+### Voice Mode `--voice`
+The framework supports voice inputs for the objective. Try voice by following the instructions below. 
+
+Install the additional `requirements-audio.txt`
 ```
 pip install -r requirements-audio.txt
 ```
 **Install device requirements**
-- For mac users:
+For mac users:
 ```
 brew install portaudio
 ```
-- For Linux users:
+For Linux users:
 ```
 sudo apt install portaudio19-dev python3-pyaudio
 ```
