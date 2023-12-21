@@ -32,6 +32,8 @@ It is recommended that a screenshot of the `evaluate.py` output is included in a
 - **Improve Linux and Windows compatibility**: There are still some issues with Linux and Windows compatibility. PRs to fix the issues are encouraged. 
 - **Adding New Multimodal Models**: Integration of new multimodal models is welcomed. If you have a specific model in mind that you believe would be a valuable addition, please feel free to integrate it and submit a PR.
 - **Iterate `--accurate` flag functionality**: Look at https://github.com/OthersideAI/self-operating-computer/pull/57 for previous iteration
+- **Enhanced Security**: A feature request to implement a _robust security feature_ that prompts users for _confirmation before executing potentially harmful actions_. This feature aims to _prevent unintended actions_ and _safeguard user data_ as mentioned here in this [OtherSide#25](https://github.com/OthersideAI/self-operating-computer/issues/25)
+
 
 ## Guidelines
 This will primarily be a [Software 2.0](https://karpathy.medium.com/software-2-0-a64152b37c35) project. For this reason: 
