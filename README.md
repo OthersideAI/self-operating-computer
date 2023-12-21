@@ -17,7 +17,6 @@
 -->
 
 
-
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
 - **Integration**: Currently integrated with **GPT-4v** as the default model, with extended support for Gemini Pro Vision.
@@ -44,25 +43,7 @@ https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
-### Option 1: Installation using .sh script
-
-1. **Clone the repo** to a directory on your computer:
-```
-git clone https://github.com/OthersideAI/self-operating-computer.git
-```
-2. **Cd into directory**:
-
-```
-cd self-operating-computer
-```
-
-3. **Run the installation script**: 
-
-```
-./run.sh
-```
-
-### Option 2: Traditional Installation
+### Option 1: Traditional Installation
 
 1. **Clone the repo** to a directory on your computer:
 ```
@@ -106,6 +87,26 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
+
+
+### Option 2: Installation using .sh script
+
+1. **Clone the repo** to a directory on your computer:
+```
+git clone https://github.com/OthersideAI/self-operating-computer.git
+```
+2. **Cd into directory**:
+
+```
+cd self-operating-computer
+```
+
+3. **Run the installation script**: 
+
+```
+./run.sh
+```
+
 
 ## Using `operate` Modes
 
