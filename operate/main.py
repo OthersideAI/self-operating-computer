@@ -8,6 +8,7 @@ import json
 import math
 import re
 import subprocess
+import requests
 import pyautogui
 import argparse
 import platform
@@ -15,6 +16,7 @@ import Xlib.display
 import Xlib.X
 import Xlib.Xutil  # not sure if Xutil is necessary
 import google.generativeai as genai
+
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
@@ -55,7 +57,7 @@ To operate the computer you have the four options below.
 3. SEARCH - Search for a program on Mac and open it
 4. DONE - When you completed the task respond with the exact following phrase content
 
-Here are the response formats below.
+Here are the response formats below. Note that you MUST respond in JSON format.
 
 1. CLICK
 Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
@@ -384,6 +386,7 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
 
 
 def get_next_action(model, messages, objective, accurate_mode):
+
     if model == "gpt-4-vision-preview":
         content = get_next_action_from_openai(messages, objective, accurate_mode)
         return content
@@ -393,6 +396,9 @@ def get_next_action(model, messages, objective, accurate_mode):
         content = get_next_action_from_gemini_pro_vision(
             messages, objective
         )
+        return content
+    elif model == "llava":
+        content = get_next_action_from_llava(messages, objective)
         return content
 
     raise ModelNotRecognizedException(model)
@@ -593,6 +599,77 @@ def get_next_action_from_gemini_pro_vision(messages, objective):
             }
         )
         content = response.text[1:]
+
+        return content
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed take action after looking at the screenshot"
+    
+
+def get_next_action_from_llava(messages, objective):
+    # sleep for a second
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        new_screenshot_filename = os.path.join(
+            "screenshots", "screenshot_with_grid.png"
+        )
+
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+        # sleep for a second
+        time.sleep(1)
+
+        with open(new_screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        previous_action = get_last_assistant_message(messages)
+
+        vision_prompt = format_vision_prompt(objective, previous_action)
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": vision_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+
+        # create a copy of messages and save to pseudo_messages
+        pseudo_messages = messages.copy()
+        #pseudo_messages.append(vision_message)
+        
+        response = requests.post(
+            "http://0.0.0.0:11434/api/generate",
+            json={
+                "model": "llava",
+                "prompt": vision_prompt,
+                "messages": pseudo_messages, 
+                "images": [img_base64],
+                "stream": False
+            },
+        )
+        
+        response.raise_for_status()
+
+        messages.append(
+            {
+                "role": "user",
+                "content": "`screenshot.png`",
+            }
+        )
+
+        content = json.loads(response.text)["response"]
 
         return content
 
@@ -921,12 +998,14 @@ def main_entry():
     parser = argparse.ArgumentParser(
         description="Run the self-operating-computer with a specified model."
     )
+
     parser.add_argument(
         "-m",
         "--model",
         help="Specify the model to use",
         required=False,
         default="gpt-4-vision-preview",
+        choices=['gpt-4-vision-preview', 'agent-1', 'gemini-pro-vision', 'llava']
     )
 
     # Add a voice flag
