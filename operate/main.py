@@ -226,7 +226,7 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
     Main function for the Self-Operating Computer
     """
     mic = None
-    # Initialize WhisperMic if voice_mode is True if voice_mode is True
+    # Initialize `WhisperMic`, if `voice_mode` is True 
 
     validation(model, accurate_mode, voice_mode)
 
