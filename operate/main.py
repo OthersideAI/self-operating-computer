@@ -19,8 +19,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.styles import Style as PromptStyle
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont, ImageGrab
-import matplotlib.font_manager as fm
+from PIL import Image, ImageDraw, ImageGrab
 from openai import OpenAI
 import sys
 
@@ -50,16 +49,29 @@ From looking at the screen and the objective your goal is to take the best next 
 
 To operate the computer you have the four options below.
 
-1. CLICK - Move mouse and click
+1. MOUSE - Move mouse, click, or scroll
 2. TYPE - Type on the keyboard
 3. SEARCH - Search for a program on Mac and open it
 4. DONE - When you completed the task respond with the exact following phrase content
 
 Here are the response formats below.
 
-1. CLICK
-Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
+1. MOUSE
+Response: MOUSE {{ "x": "percent", "y": "percent", "left-click": true or false, "vert-scroll": clicks, "description": "~description here~", "reason": "~reason here~" }}
+Explanation:
+- x, y: Percentages of the screen in the x and y directions that the cursor should move to.
+- left-click: true or false depending on if you need to left-click on a UI element after moving the cursor to x, y. This MUST be a JSON boolean literal (true|false), not a string
 Note that the percents work where the top left corner is "x": "0%" and "y": "0%" and the bottom right corner is "x": "100%" and "y": "100%"
+- vert-scroll: When vertical scrolling is required, you can give a positive value of mouse-wheel clicks to scroll up, or a negative value to scroll down. This MUST be an integer literal, not a string
+If no scrolling is required, simply set vert-scroll to 0. 
+- Description: Describe the action you're performing.
+- Reason: Justify why the action you're performing is necessary.
+
+Note that scrolling and clicking will be performed after the cursor moves to your given x and y percentages of the screen.
+In a MOUSE action where you need to scroll, set the X/Y percentages so that the mouse first hovers over the scrollable UI element.
+Scrolling can be done any time you need to get to any target UI element which isn't on the screen.
+Scrolling and clicking are mutually excluse. You shouldn't click in the same action as a scroll since you won't yet know what you'll click on.
+left-click should also be false when you just want to move the cursor to (X, Y) and confirm that it is on the UI element you're aiming for.
 
 2. TYPE
 Response: TYPE "value you want to type"
@@ -79,7 +91,7 @@ Objective: Open Spotify and play the beatles
 SEARCH Spotify
 __
 Objective: Find an image of a banana
-CLICK {{ "x": "50%", "y": "60%", "description": "Click: Google Search field", "reason": "This will allow me to search for a banana" }}
+MOUSE {{ "x": "50%", "y": "60%", "left-click": true, "vert-scroll": 0, "description": "Mouse: Click Google Search field", "reason": "This will allow me to search for a banana" }}
 __
 Objective: Go buy a book about the history of the internet
 TYPE https://www.amazon.com/
@@ -89,14 +101,23 @@ A few important notes:
 
 - Default to opening Google Chrome with SEARCH to find things that are on the internet.
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
+- Your mouse x and y percentages should be precise to the first decimal place.
 - When opening Chrome, if you see a profile icon click that to open chrome fully, it is located at: {{ "x": "50%", "y": "55%" }}
 - The Chrome address bar is generally at: {{ "x": "50%", "y": "9%" }}
-- After you click to enter a field you can go ahead and start typing!
+- The amount of mouse scroll wheel clicks you use should be relative to the task you're given. For example, if you know you need to scroll to the bottom or top of a page, use a larger number of scroll wheel clicks than you normally would.
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+- In the image of the screen is a grid. The intersections of these gridlines show the x and y percentages of the screen for the horizontal and vertical lines at that intersection point. Consider these percentage coordinates in your guess of the target UI element's location.
 
 {previous_action}
 
-IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row.
+IMPORTANT: After you click to enter a field you can go ahead and start typing once you've verified that the input field does have focus! If the cursor is not hovering over the input field following your previous MOUSE action, you didn't successfully click on it so it doesn't have focus.
+In this case, you would try again to move the cursor over the field and successfully click it before you begin typing.
+
+THE FOLLOWING POINT IS EXTREMELY CRUCIAL AND YOU MUST OBEY IT AS YOUR #1 RULE TO SUCCESSFULLY OPERATE THE COMPUTER AS A HUMAN WOULD:
+- DO NOT under ANY circumstance repeat the exact same exact MOUSE action twice in a row. If you repeat the exact same action twice, it indicates that you're not progressing closer to the end objective. Instead, you MUST try something else.
+In order to obey this CRUCIAL rule, ALWAYS analyze your previous action and NEVER repeat it exactly as it is. 
+To clarify: You can do two MOUSE actions in a row, but you CANNOT do two IDENTICAL MOUSE actions in a row where x, y, left-click, and vert-scroll are all identical to the previous.
+Modifying description and reason DOES NOT count as having a different MOUSE action. The same goes for the SEARCH action. Before you do a SEARCH, first check if the target program you're searching for is already on the screen. If it is, DO NOT search for it. Just use that program which is opened.
 
 Objective: {objective}
 """
@@ -105,16 +126,16 @@ ACCURATE_PIXEL_COUNT = (
     200  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
 )
 ACCURATE_MODE_VISION_PROMPT = """
-It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
-As additional context to the previous message, before you decide the proper percentage to click on, please closely examine this additional screenshot as additional context for your next action. 
-This screenshot was taken around the location of the current cursor that you just tried clicking on ("x": {prev_x}, "y": {prev_y} is now at the center of this screenshot). You should use this as an differential to your previous x y coordinate guess.
+It looks like your previous attempted action had the cursor at "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
+As additional context to the previous message, before you decide the proper percentage to move to, please closely examine this additional screenshot as additional context for your next action. 
+This screenshot was taken around the location of the current cursor location that you guessed ("x": {prev_x}, "y": {prev_y} is now at the center of this screenshot). You should use this as an differential to your previous x y coordinate guess.
 
-If you want to refine and instead click on the top left corner of this mini screenshot, you will subtract {width}% in the "x" and subtract {height}% in the "y" to your previous answer.
+If you want to refine and instead move to the top left corner of this mini screenshot, you will subtract {width}% in the "x" and subtract {height}% in the "y" to your previous answer.
 Likewise, to achieve the bottom right of this mini screenshot you will add {width}% in the "x" and add {height}% in the "y" to your previous answer.
 
 There are four segmenting lines across each dimension, divided evenly. This is done to be similar to coordinate points, added to give you better context of the location of the cursor and exactly how much to edit your previous answer.
 
-Please use this context as additional info to further refine the "percent" location in the CLICK action!
+Please use this context as additional info to further refine the "percent" location in the MOUSE action!
 """
 
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -325,8 +346,8 @@ def main(model, accurate_mode, terminal_prompt, voice_mode=False):
             function_response = search(action_detail)
         elif action_type == "TYPE":
             function_response = keyboard_type(action_detail)
-        elif action_type == "CLICK":
-            function_response = mouse_click(action_detail)
+        elif action_type == "MOUSE":
+            function_response = mouse_action(action_detail)
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}"
@@ -414,7 +435,7 @@ def get_last_assistant_message(messages):
 
 def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
     """
-    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
+    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of mouse location 
     """
     print("[get_next_action_from_gemini_pro_vision] accurate_mode_double_check")
     try:
@@ -480,7 +501,7 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
             "screenshots", "screenshot_with_grid.png"
         )
 
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 200)
         # sleep for a second
         time.sleep(1)
 
@@ -525,13 +546,13 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
         content = response.choices[0].message.content
 
         if accurate_mode:
-            if content.startswith("CLICK"):
+            if content.startswith("MOUSE"):
                 # Adjust pseudo_messages to include the accurate_mode_message
 
-                click_data = re.search(r"CLICK \{ (.+) \}", content).group(1)
-                click_data_json = json.loads(f"{{{click_data}}}")
-                prev_x = click_data_json["x"]
-                prev_y = click_data_json["y"]
+                mouse_data = re.search(r"MOUSE \{ (.+) \}", content).group(1)
+                mouse_data_json = json.loads(f"{{{mouse_data}}}")
+                prev_x = mouse_data_json["x"]
+                prev_y = mouse_data_json["y"]
 
                 if DEBUG:
                     print(
@@ -604,11 +625,11 @@ def get_next_action_from_gemini_pro_vision(messages, objective):
 def parse_response(response):
     if response == "DONE":
         return {"type": "DONE", "data": None}
-    elif response.startswith("CLICK"):
+    elif response.startswith("MOUSE"):
         # Adjust the regex to match the correct format
-        click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
-        click_data_json = json.loads(f"{{{click_data}}}")
-        return {"type": "CLICK", "data": click_data_json}
+        mouse_data = re.search(r"MOUSE \{ (.+) \}", response).group(1)
+        mouse_data_json = json.loads(f"{{{mouse_data}}}")
+        return {"type": "MOUSE", "data": mouse_data_json}
 
     elif response.startswith("TYPE"):
         # Extract the text to type
@@ -677,26 +698,45 @@ def summarize(model, messages, objective):
         print(f"Error in summarize: {e}")
         return "Failed to summarize the workflow"
 
-
-def mouse_click(click_detail):
+def mouse_action(mouse_detail):
     try:
-        x = convert_percent_to_decimal(click_detail["x"])
-        y = convert_percent_to_decimal(click_detail["y"])
-
-        if click_detail and isinstance(x, float) and isinstance(y, float):
-            click_at_percentage(x, y)
-            return click_detail["description"]
+        x = convert_percent_to_decimal(mouse_detail["x"])
+        y = convert_percent_to_decimal(mouse_detail["y"])
+        left_click = mouse_detail["left-click"]
+        v_scroll_clicks =  mouse_detail["vert-scroll"]
+        
+        # First move to x, y
+        if mouse_detail and isinstance(x, float) and isinstance(y, float):
+            x_pixel, y_pixel = move_cursor_to_percentage(x, y)
         else:
-            return "We failed to click"
+            raise ValueError("The mouse movement result couldn't be understood...")
+        
+        # Scroll if necessary
+        if isinstance(v_scroll_clicks, (int, float)): 
+            if v_scroll_clicks: # Don't call .scroll() if scroll-clicks is 0
+                pyautogui.scroll(v_scroll_clicks)
+        else:
+            raise ValueError("The mouse scroll result couldn't be understood...")
+        
+        # Finally, click if necessary
+        if isinstance(left_click, bool):
+            if left_click:
+                pyautogui.leftClick(x_pixel, y_pixel)
+        else:
+            raise ValueError("The mouse click result couldn't be understood...")
+
+        # If we made it this far, we have a sucessfull mouse action
+        return mouse_detail["description"]
 
     except Exception as e:
         print(f"Error parsing JSON: {e}")
         return "We failed to click"
 
 
-def click_at_percentage(
+def move_cursor_to_percentage(
     x_percentage, y_percentage, duration=0.2, circle_radius=50, circle_duration=0.5
 ):
+    '''Moves cursor to x and y percentages of screen. Returns the converted x and y pixels'''
     # Get the size of the primary monitor
     screen_width, screen_height = pyautogui.size()
 
@@ -715,9 +755,8 @@ def click_at_percentage(
         y = y_pixel + math.sin(angle) * circle_radius
         pyautogui.moveTo(x, y, duration=0.1)
 
-    # Finally, click
-    pyautogui.click(x_pixel, y_pixel)
-    return "Successfully clicked"
+    # Return pixel coordinates for any future click
+    return x_pixel, y_pixel
 
 
 def add_grid_to_image(original_image_path, new_image_path, grid_interval):
@@ -908,7 +947,7 @@ def extract_json_from_string(s):
 def convert_percent_to_decimal(percent_str):
     try:
         # Remove the '%' sign and convert to float
-        decimal_value = float(percent_str.strip("%"))
+        decimal_value = round(float(percent_str.strip("%")))
 
         # Convert to decimal (e.g., 20% -> 0.20)
         return decimal_value / 100
