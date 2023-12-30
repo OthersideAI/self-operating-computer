@@ -28,10 +28,10 @@ Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description 
 Note that the percents work where the top left corner is "x": "0%" and "y": "0%" and the bottom right corner is "x": "100%" and "y": "100%"
 
 2. TYPE
-Response: TYPE "value you want to type"
+Response: TYPE <value you want to type>
 
 2. SEARCH
-Response: SEARCH "app you want to search for on Mac"
+Response: SEARCH <app you want to search for on Mac>
 
 3. DONE
 Response: DONE
