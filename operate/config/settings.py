@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
+
 class Config:
     """
     Configuration class for managing settings.
@@ -15,7 +16,7 @@ class Config:
 
     def __init__(self):
         load_dotenv()
-        self.debug = True
+        self.debug = False
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.google_api_key = os.getenv("GOOGLE_API_KEY")
         self.monitor_size = {
