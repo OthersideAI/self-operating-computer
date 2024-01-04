@@ -3,7 +3,8 @@ Self-Operating Computer
 """
 import argparse
 from operate.utils.ansi_colors import ANSI_BRIGHT_MAGENTA
-from operate.dialogs.dialog import main 
+from operate.dialogs.dialog import main
+
 
 def main_entry():
     parser = argparse.ArgumentParser(
@@ -23,14 +24,6 @@ def main_entry():
         help="Use voice input mode",
         action="store_true",
     )
-
-    parser.add_argument(
-        "-accurate",
-        help="Activate Reflective Mouse Click Mode",
-        action="store_true",
-        required=False,
-    )
-
     # Allow for direct input of prompt
     parser.add_argument(
         "--prompt",
@@ -43,7 +36,6 @@ def main_entry():
         args = parser.parse_args()
         main(
             args.model,
-            accurate_mode=args.accurate,
             terminal_prompt=args.prompt,
             voice_mode=args.voice,
         )

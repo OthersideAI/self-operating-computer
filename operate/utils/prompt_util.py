@@ -1,5 +1,10 @@
 from prompt_toolkit.styles import Style as PromptStyle
-from operate.prompts.prompt import VISION_PROMPT, ACCURATE_PIXEL_COUNT, ACCURATE_MODE_VISION_PROMPT, SUMMARY_PROMPT
+from operate.prompts.prompt import (
+    VISION_PROMPT,
+    ACCURATE_PIXEL_COUNT,
+    ACCURATE_MODE_VISION_PROMPT,
+    SUMMARY_PROMPT,
+)
 from operate.config.settings import Config
 
 # Load settings

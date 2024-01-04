@@ -7,32 +7,37 @@ from PIL import Image
 import google.generativeai as genai
 from operate.config.settings import Config
 from operate.exceptions.exceptions import ModelNotRecognizedException
-from operate.utils.screenshot_util import capture_screen_with_cursor, add_grid_to_image, capture_mini_screenshot_with_cursor
+from operate.utils.screenshot_util import (
+    capture_screen_with_cursor,
+    add_grid_to_image,
+    capture_mini_screenshot_with_cursor,
+)
 from operate.utils.action_util import get_last_assistant_message
-from operate.utils.prompt_util import format_vision_prompt, format_accurate_mode_vision_prompt,format_summary_prompt
+from operate.utils.prompt_util import (
+    format_vision_prompt,
+    format_accurate_mode_vision_prompt,
+    format_summary_prompt,
+)
 
 # Load configuration
 config = Config()
 client = config.initialize_openai_client()
 
 
-def get_next_action(model, messages, objective, accurate_mode):
+def get_next_action(model, messages, objective):
     if model == "gpt-4-vision-preview":
-        content = get_next_action_from_openai(
-            messages, objective, accurate_mode)
+        content = get_next_action_from_openai(messages, objective)
         return content
     elif model == "agent-1":
         return "coming soon"
     elif model == "gemini-pro-vision":
-        content = get_next_action_from_gemini_pro_vision(
-            messages, objective
-        )
+        content = get_next_action_from_gemini_pro_vision(messages, objective)
         return content
 
     raise ModelNotRecognizedException(model)
 
 
-def get_next_action_from_openai(messages, objective, accurate_mode):
+def get_next_action_from_openai(messages, objective):
     """
     Get the next action for Self-Operating Computer
     """
@@ -95,24 +100,6 @@ def get_next_action_from_openai(messages, objective, accurate_mode):
 
         content = response.choices[0].message.content
 
-        if accurate_mode:
-            if content.startswith("CLICK"):
-                # Adjust pseudo_messages to include the accurate_mode_message
-
-                click_data = re.search(r"CLICK \{ (.+) \}", content).group(1)
-                click_data_json = json.loads(f"{{{click_data}}}")
-                prev_x = click_data_json["x"]
-                prev_y = click_data_json["y"]
-
-                if config.debug:
-                    print(
-                        f"Previous coords before accurate tuning: prev_x {prev_x} prev_y {prev_y}"
-                    )
-                content = accurate_mode_double_check(
-                    "gpt-4-vision-preview", pseudo_messages, prev_x, prev_y
-                )
-                assert content != "ERROR", "ERROR: accurate_mode_double_check failed"
-
         return content
 
     except Exception as e:
@@ -172,14 +159,13 @@ def get_next_action_from_gemini_pro_vision(messages, objective):
         return "Failed take action after looking at the screenshot"
 
 
+# This function is not used. `-accurate` mode was removed for now until a new PR fixes it.
 def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
     """
     Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
     """
-    print("[get_next_action_from_gemini_pro_vision] accurate_mode_double_check")
     try:
-        screenshot_filename = os.path.join(
-            "screenshots", "screenshot_mini.png")
+        screenshot_filename = os.path.join("screenshots", "screenshot_mini.png")
         capture_mini_screenshot_with_cursor(
             file_path=screenshot_filename, x=prev_x, y=prev_y
         )
@@ -191,8 +177,7 @@ def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
         with open(new_screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        accurate_vision_prompt = format_accurate_mode_vision_prompt(
-            prev_x, prev_y)
+        accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
 
         accurate_mode_message = {
             "role": "user",
@@ -234,7 +219,7 @@ def summarize(model, messages, objective):
         capture_screen_with_cursor(screenshot_filename)
 
         summary_prompt = format_summary_prompt(objective)
-        
+
         if model == "gpt-4-vision-preview":
             with open(screenshot_filename, "rb") as img_file:
                 img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -266,7 +251,7 @@ def summarize(model, messages, objective):
             )
             content = summary_message.text
         return content
-    
+
     except Exception as e:
         print(f"Error in summarize: {e}")
         return "Failed to summarize the workflow"
