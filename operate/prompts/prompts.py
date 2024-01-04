@@ -228,3 +228,25 @@ def format_accurate_mode_vision_prompt(prev_x, prev_y):
         prev_x=prev_x, prev_y=prev_y, width=width, height=height
     )
     return prompt
+
+
+def format_decision_prompt(objective, previous_action):
+    """
+    Format the vision prompt
+    """
+    if previous_action:
+        previous_action = f"Here was the previous action you took: {previous_action}"
+    else:
+        previous_action = ""
+    prompt = DECISION_PROMPT.format(
+        objective=objective, previous_action=previous_action
+    )
+    return prompt
+
+
+def format_label_prompt(objective):
+    """
+    Format the vision prompt
+    """
+    prompt = LABELED_IMAGE_PROMPT.format(objective=objective)
+    return prompt

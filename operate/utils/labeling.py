@@ -52,7 +52,7 @@ def is_overlapping(box1, box2):
     return True
 
 
-def process_image(base64_data, yolo_model):
+def add_labels(base64_data, yolo_model):
     image_bytes = base64.b64decode(base64_data)
     image_labeled = Image.open(io.BytesIO(image_bytes))  # Corrected this line
     image_debug = image_labeled.copy()  # Create a copy for the debug image
