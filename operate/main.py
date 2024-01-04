@@ -2,7 +2,7 @@
 Self-Operating Computer
 """
 import argparse
-from operate.utils.ansi_colors import ANSI_BRIGHT_MAGENTA
+from operate.utils.styles import ANSI_BRIGHT_MAGENTA
 from operate.dialogs.dialog import main
 
 

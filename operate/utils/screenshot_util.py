@@ -7,11 +7,12 @@ import Xlib.display
 import Xlib.X
 import Xlib.Xutil  # not sure if Xutil is necessary
 from operate.config.settings import Config
-from operate.prompts.prompt import ACCURATE_PIXEL_COUNT
+from operate.prompts.prompts import ACCURATE_PIXEL_COUNT
 
 # Load configuration
 config = Config()
 monitor_size = config.monitor_size
+
 
 def add_grid_to_image(original_image_path, new_image_path, grid_interval):
     """
@@ -46,17 +47,14 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
         position, text, draw, font_size, bg_width, bg_height
     ):
         # Adjust the position based on the background size
-        text_position = (position[0] + bg_width // 2,
-                         position[1] + bg_height // 2)
+        text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)
         # Draw the text background
         draw.rectangle(
-            [position[0], position[1], position[0] +
-                bg_width, position[1] + bg_height],
+            [position[0], position[1], position[0] + bg_width, position[1] + bg_height],
             fill="white",
         )
         # Draw the text
-        draw.text(text_position, text, fill="black",
-                  font_size=font_size, anchor="mm")
+        draw.text(text_position, text, fill="black", font_size=font_size, anchor="mm")
 
     # Draw vertical lines and labels at every `grid_interval` pixels
     for x in range(grid_interval, width, grid_interval):
@@ -107,10 +105,8 @@ def capture_mini_screenshot_with_cursor(
         y = (y / 100) * monitor_size["height"]
 
         # Define the coordinates for the rectangle
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT /
-                     2), int(y - ACCURATE_PIXEL_COUNT / 2)
-        x2, y2 = int(x + ACCURATE_PIXEL_COUNT /
-                     2), int(y + ACCURATE_PIXEL_COUNT / 2)
+        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
+        x2, y2 = int(x + ACCURATE_PIXEL_COUNT / 2), int(y + ACCURATE_PIXEL_COUNT / 2)
 
         screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
         screenshot = screenshot.resize(
@@ -135,8 +131,7 @@ def capture_mini_screenshot_with_cursor(
         ]  # convert x from 50 to 0.5 * monitor_width
         y = (y / 100) * monitor_size["height"]
 
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT /
-                     2), int(y - ACCURATE_PIXEL_COUNT / 2)
+        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
 
         width = ACCURATE_PIXEL_COUNT
         height = ACCURATE_PIXEL_COUNT
@@ -184,5 +179,4 @@ def capture_screen_with_cursor(file_path):
         # Use the screencapture utility to capture the screen with the cursor
         subprocess.run(["screencapture", "-C", file_path])
     else:
-        print(
-            f"The platform you're using ({user_platform}) is not currently supported")
+        print(f"The platform you're using ({user_platform}) is not currently supported")

@@ -13,7 +13,7 @@ from operate.utils.screenshot_util import (
     capture_mini_screenshot_with_cursor,
 )
 from operate.utils.action_util import get_last_assistant_message
-from operate.utils.prompt_util import (
+from operate.prompts.prompts import (
     format_vision_prompt,
     format_accurate_mode_vision_prompt,
     format_summary_prompt,

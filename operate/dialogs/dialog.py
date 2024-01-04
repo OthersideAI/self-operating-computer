@@ -3,17 +3,17 @@ import os
 import platform
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
-from operate.utils.prompt_util import style
 from operate.exceptions.exceptions import ModelNotRecognizedException
-from operate.prompts.prompt import USER_QUESTION
+from operate.prompts.prompts import USER_QUESTION
 from operate.config.settings import Config
-from operate.utils.ansi_colors import (
+from operate.utils.styles import (
     ANSI_GREEN,
     ANSI_RESET,
     ANSI_BLUE,
     ANSI_YELLOW,
     ANSI_RED,
     ANSI_BRIGHT_MAGENTA,
+    style,
 )
 from operate.utils.action_util import (
     keyboard_type,
