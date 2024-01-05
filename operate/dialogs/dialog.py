@@ -20,7 +20,7 @@ from operate.utils.action_util import (
     search,
     mouse_click,
 )
-from operate.actions.api_interactions import get_next_action, summarize
+from operate.actions.actions import get_next_action, summarize
 from operate.utils.utils import parse_response
 
 # Load configuration
