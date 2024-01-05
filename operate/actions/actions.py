@@ -26,18 +26,18 @@ client = config.initialize_openai_client()
 
 def get_next_action(model, messages, objective):
     if model == "gpt-4-vision-preview":
-        content = get_next_action_from_openai(messages, objective)
+        content = call_gpt_4_v(messages, objective)
         return content
     elif model == "agent-1":
         return "coming soon"
     elif model == "gemini-pro-vision":
-        content = get_next_action_from_gemini_pro_vision(messages, objective)
+        content = call_gemini_pro_vision(messages, objective)
         return content
 
     raise ModelNotRecognizedException(model)
 
 
-def get_next_action_from_openai(messages, objective):
+def call_gpt_4_v(messages, objective):
     """
     Get the next action for Self-Operating Computer
     """
@@ -107,7 +107,7 @@ def get_next_action_from_openai(messages, objective):
         return "Failed take action after looking at the screenshot"
 
 
-def get_next_action_from_gemini_pro_vision(messages, objective):
+def call_gemini_pro_vision(messages, objective):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
