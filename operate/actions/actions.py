@@ -7,6 +7,7 @@ import io
 import asyncio
 import aiohttp
 from PIL import Image
+from ultralytics import YOLO
 import google.generativeai as genai
 from operate.config.settings import Config
 from operate.exceptions.exceptions import ModelNotRecognizedException
@@ -38,22 +39,19 @@ config = Config()
 
 client = config.initialize_openai_client()
 
-# yolo_model = YOLO(
-#     "something/here"
-# )  # Load your tra
 
 yolo_model = None
 
 
-def get_next_action(model, messages, objective):
-    if model == "gpt-4-vision-preview":
-        content = call_gpt_4_v(messages, objective)
-        return content
+async def get_next_action(model, messages, objective):
+    if model == "gpt-4":
+        return call_gpt_4_v(messages, objective)
+    if model == "gpt-4-with-som":
+        return await call_gpt_4_v_labeled(messages, objective)
     elif model == "agent-1":
         return "coming soon"
     elif model == "gemini-pro-vision":
-        content = call_gemini_pro_vision(messages, objective)
-        return content
+        return call_gemini_pro_vision(messages, objective)
 
     raise ModelNotRecognizedException(model)
 

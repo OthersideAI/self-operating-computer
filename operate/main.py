@@ -15,7 +15,7 @@ def main_entry():
         "--model",
         help="Specify the model to use",
         required=False,
-        default="gpt-4-vision-preview",
+        default="gpt-4",
     )
 
     # Add a voice flag

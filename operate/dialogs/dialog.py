@@ -1,6 +1,7 @@
 import sys
 import os
 import platform
+import asyncio
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
 from operate.exceptions.exceptions import ModelNotRecognizedException
@@ -102,7 +103,7 @@ def main(model, terminal_prompt, voice_mode=False):
         if config.debug:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
-            response = get_next_action(model, messages, objective)
+            response = asyncio.run(get_next_action(model, messages, objective))
 
             action = parse_response(response)
             action_type = action.get("type")
