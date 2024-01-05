@@ -49,3 +49,4 @@ wcwidth==0.2.9
 zipp==3.17.0
 google-generativeai==0.3.0
 aiohttp==3.9.1
+ultralytics==8.0.227
