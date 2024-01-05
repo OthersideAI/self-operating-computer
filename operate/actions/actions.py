@@ -3,6 +3,9 @@ import time
 import json
 import base64
 import re
+import io
+import asyncio
+import aiohttp
 from PIL import Image
 import google.generativeai as genai
 from operate.config.settings import Config
@@ -17,11 +20,29 @@ from operate.prompts.prompts import (
     format_vision_prompt,
     format_accurate_mode_vision_prompt,
     format_summary_prompt,
+    format_decision_prompt,
+    format_label_prompt,
 )
+
+
+from operate.utils.labeling import (
+    add_labels,
+    parse_click_content,
+    get_click_position_in_percent,
+    get_label_coordinates,
+)
+
 
 # Load configuration
 config = Config()
+
 client = config.initialize_openai_client()
+
+# yolo_model = YOLO(
+#     "something/here"
+# )  # Load your tra
+
+yolo_model = None
 
 
 def get_next_action(model, messages, objective):
@@ -255,3 +276,133 @@ def summarize(model, messages, objective):
     except Exception as e:
         print(f"Error in summarize: {e}")
         return "Failed to summarize the workflow"
+
+
+async def call_gpt_4_v_labeled(messages, objective):
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        previous_action = get_last_assistant_message(messages)
+
+        img_base64_labeled, img_base64_original, label_coordinates = add_labels(
+            img_base64, yolo_model
+        )
+
+        decision_prompt = format_decision_prompt(objective, previous_action)
+        labeled_click_prompt = format_label_prompt(objective)
+
+        click_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": labeled_click_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{img_base64_labeled}"
+                    },
+                },
+            ],
+        }
+        decision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": decision_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{img_base64_original}"
+                    },
+                },
+            ],
+        }
+
+        click_messages = messages.copy()
+        click_messages.append(click_message)
+        decision_messages = messages.copy()
+        decision_messages.append(decision_message)
+
+        click_future = await fetch_openai_response_async(click_messages)
+        decision_future = await fetch_openai_response_async(decision_messages)
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        click_response, decision_response = loop.run_until_complete(
+            asyncio.gather(click_future, decision_future)
+        )
+
+        loop.close()
+
+        # Extracting the message content from the ChatCompletionMessage object
+        click_content = click_response.choices[0].message.content
+
+        decision_content = decision_response.choices[0].message.content
+
+        if not decision_content.startswith("CLICK"):
+            return decision_content
+
+        label_data = parse_click_content(click_content)
+        print("[app.py][click] label to click =>", label_data.get("label"))
+        print("[app.py][click] label_data", label_data)
+
+        if label_data and "label" in label_data:
+            coordinates = get_label_coordinates(label_data["label"], label_coordinates)
+            # print("[app.py][click] coordinates", coordinates)
+            image = Image.open(
+                io.BytesIO(base64.b64decode(img_base64))
+            )  # Load the image to get its size
+            image_size = image.size  # Get the size of the image (width, height)
+            click_position_percent = get_click_position_in_percent(
+                coordinates, image_size
+            )
+            if not click_position_percent:
+                raise Exception("Failed to get click position in percent")
+
+            x_percent = f"{click_position_percent[0]:.2f}%"
+            y_percent = f"{click_position_percent[1]:.2f}%"
+            click_action = f'CLICK {{ "x": "{x_percent}", "y": "{y_percent}", "description": "{label_data["decision"]}", "reason": "{label_data["reason"]}" }}'
+            print(
+                f"[app.py][click] returning click precentages: y - {y_percent}, x - {x_percent}"
+            )
+        else:
+            print("[app.py][click][error] no label found")
+            print("[app.py][click][error] label_data", label_data)
+            raise Exception("Failed to get click position in percent")
+
+        return click_action
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed take action after looking at the screenshot"
+
+
+async def fetch_openai_response_async(messages):
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {config.openai_api_key}",
+    }
+    data = {
+        "model": "gpt-4-vision-preview",
+        "messages": messages,
+        "frequency_penalty": 1,
+        "presence_penalty": 1,
+        "temperature": 0.7,
+        "max_tokens": 300,
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            url, headers=headers, data=json.dumps(data)
+        ) as response:
+            return await response.json()
