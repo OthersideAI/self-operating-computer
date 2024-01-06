@@ -6,6 +6,7 @@ import re
 import io
 import asyncio
 import aiohttp
+
 from PIL import Image
 from ultralytics import YOLO
 import google.generativeai as genai
@@ -329,22 +330,19 @@ async def call_gpt_4_v_labeled(messages, objective):
         decision_messages = messages.copy()
         decision_messages.append(decision_message)
 
-        click_future = await fetch_openai_response_async(click_messages)
-        decision_future = await fetch_openai_response_async(decision_messages)
+        click_future = fetch_openai_response_async(click_messages)
+        decision_future = fetch_openai_response_async(decision_messages)
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        click_response, decision_response = loop.run_until_complete(
-            asyncio.gather(click_future, decision_future)
+        click_response, decision_response = await asyncio.gather(
+            click_future, decision_future
         )
 
-        loop.close()
-
         # Extracting the message content from the ChatCompletionMessage object
-        click_content = click_response.choices[0].message.content
+        click_content = click_response.get("choices")[0].get("message").get("content")
 
-        decision_content = decision_response.choices[0].message.content
+        decision_content = (
+            decision_response.get("choices")[0].get("message").get("content")
+        )
 
         if not decision_content.startswith("CLICK"):
             return decision_content

@@ -1,5 +1,7 @@
 import json
 import re
+
+
 def convert_percent_to_decimal(percent_str):
     """
     Converts a percentage string to a decimal value.
@@ -26,7 +28,6 @@ def convert_percent_to_decimal(percent_str):
     except ValueError as e:
         print(f"Error converting percent to decimal: {e}")
         return None
-    
 
 
 def extract_json_from_string(s):
@@ -52,7 +53,8 @@ def extract_json_from_string(s):
     except Exception as e:
         print(f"Error parsing JSON: {e}")
         return None
-    
+
+
 def parse_response(response):
     """
     Parses the given response and returns a dictionary with the type and data.

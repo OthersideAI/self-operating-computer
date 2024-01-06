@@ -1,8 +1,10 @@
 import pyautogui
-import platform 
+import platform
 import time
 import math
+
 from operate.utils.utils import convert_percent_to_decimal
+
 
 def keyboard_type(text):
     """
@@ -19,6 +21,7 @@ def keyboard_type(text):
         pyautogui.write(char)
     pyautogui.press("enter")
     return "Type: " + text
+
 
 def search(text):
     """
@@ -48,6 +51,7 @@ def search(text):
 
     pyautogui.press("enter")
     return "Open program: " + text
+
 
 def click_at_percentage(
     x_percentage, y_percentage, duration=0.2, circle_radius=50, circle_duration=0.5
@@ -125,4 +129,3 @@ def get_last_assistant_message(messages):
             else:
                 return messages[index]
     return None  # Return None if no assistant message is found
-
