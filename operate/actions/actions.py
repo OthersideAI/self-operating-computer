@@ -40,7 +40,6 @@ config = Config()
 
 client = config.initialize_openai_client()
 
-
 yolo_model = None
 
 
