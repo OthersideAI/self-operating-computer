@@ -6,7 +6,7 @@ import math
 from operate.utils.misc import convert_percent_to_decimal
 
 
-def type(text):
+def keyboard_type(text):
     """
     Types the given text using the keyboard.
 

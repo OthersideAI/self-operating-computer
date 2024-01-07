@@ -17,7 +17,7 @@ from operate.utils.style import (
     style,
 )
 from operate.utils.os import (
-    type,
+    keyboard_type,
     search,
     click,
 )
@@ -139,7 +139,7 @@ def main(model, terminal_prompt, voice_mode=False):
         if action_type == "SEARCH":
             function_response = search(action_detail)
         elif action_type == "TYPE":
-            function_response = type(action_detail)
+            function_response = keyboard_type(action_detail)
         elif action_type == "CLICK":
             function_response = click(action_detail)
         else:
