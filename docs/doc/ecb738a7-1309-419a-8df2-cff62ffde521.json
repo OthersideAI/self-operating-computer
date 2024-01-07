@@ -1,0 +1,10 @@
+{
+    "summary": "This code defines a class for an exception that is raised when the model is not recognized. The class has two attributes: \"model\" and \"message\", both of which are set in the constructor. It also overrides the \"__str__()\" method to provide a custom string representation of the exception.",
+    "details": [
+        {
+            "comment": "This code defines a class for an exception that is raised when the model is not recognized. The class has two attributes: \"model\" and \"message\", both of which are set in the constructor. It also overrides the \"__str__()\" method to provide a custom string representation of the exception.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/operate/exceptions.py\":0-14",
+            "content": "class ModelNotRecognizedException(Exception):\n    \"\"\"Exception raised for unrecognized models.\n    Attributes:\n        model -- the unrecognized model\n        message -- explanation of the error\n    \"\"\"\n    def __init__(self, model, message=\"Model not recognized\"):\n        self.model = model\n        self.message = message\n        super().__init__(self.message)\n    def __str__(self):\n        return f\"{self.message} : {self.model} \""
+        }
+    ]
+}

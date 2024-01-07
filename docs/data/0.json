@@ -1,0 +1,543 @@
+{
+    "0": {
+        "file_id": 0,
+        "content": "/README.md",
+        "type": "filepath"
+    },
+    "1": {
+        "file_id": 0,
+        "content": "The Self-Operating Computer Framework is a multimodal model project that enhances computer operation similar to humans, focusing on improving mouse click predictions and API access. It is compatible with Mac OS, Windows, and Linux (with X server installed), and requires at least $5 in API credits for the gpt-4-vision-preview model.",
+        "type": "summary"
+    },
+    "2": {
+        "file_id": 0,
+        "content": "<h1 align=\"center\">Self-Operating Computer Framework</h1>\n<p align=\"center\">\n  <strong>A framework to enable multimodal models to operate a computer.</strong>\n</p>\n<p align=\"center\">\n  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. \n</p>\n<div align=\"center\">\n  <img src=\"https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png\" width=\"750\"  style=\"margin: 10px;\"/>\n</div>\n<!--\n:rotating_light: **OUTAGE NOTIFICATION: gpt-4-vision-preview**\n**This model is currently experiencing an outage so the self-operating computer may not work as expected.**\n-->\n## Key Features\n- **Compatibility**: Designed for various multimodal models.\n- **Integration**: Currently integrated with **GPT-4v** as the default model, with extended support for Gemini Pro Vision.\n- **Future Plans**: Support for additional models.\n## Current Challenges\n> **Note:** GPT-4V's error rate in est",
+        "type": "code",
+        "location": "/README.md:1-26"
+    },
+    "3": {
+        "file_id": 0,
+        "content": "\"Self-Operating Computer Framework, a framework for multimodal models to operate a computer like a human.\"",
+        "type": "comment"
+    },
+    "4": {
+        "file_id": 0,
+        "content": "imating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.\n## Ongoing Development\nAt [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.\n## Agent-1-Vision Model API Access\nWe will soon be offering API access to our Agent-1-Vision model.\nIf you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).\n### Additional Thoughts\nWe recognize that some operating system functions may be more efficiently executed with hotkeys such as entering the Browser Address bar using `command + L` rather than by simulating a mouse click at the correct XY location. We plan to make these improvements over time. However, it's important to note that many actions require the accurate selection of visual",
+        "type": "code",
+        "location": "/README.md:26-37"
+    },
+    "5": {
+        "file_id": 0,
+        "content": "This code is a brief overview of the \"self-operating-computer\" project, focusing on the development of the Agent-1-Vision multimodal model for improved mouse click location predictions. It also mentions the upcoming API access and the plans to improve hotkey-based functionality over time.",
+        "type": "comment"
+    },
+    "6": {
+        "file_id": 0,
+        "content": " elements on the screen, necessitating precise XY mouse click locations. A primary focus of this project is to refine the accuracy of determining these click locations. We believe this is essential for achieving a fully self-operating computer in the current technological landscape.\n## Demo\nhttps://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0\n## Quick Start Instructions\nBelow are instructions to set up the Self-Operating Computer Framework locally on your computer.\n### Option 1: Traditional Installation\n1. **Clone the repo** to a directory on your computer:\n```\ngit clone https://github.com/OthersideAI/self-operating-computer.git\n```\n2. **Cd into directory**:\n```\ncd self-operating-computer\n```\n3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).\n```\npython3 -m venv venv\n```\n4. **Activate the virtual environment**:\n```\nsource venv/bin/activate\n```\n5. **Install Project Requi",
+        "type": "code",
+        "location": "/README.md:37-67"
+    },
+    "7": {
+        "file_id": 0,
+        "content": "This code explains that the primary focus of the project is refining the accuracy of determining mouse click locations, which is essential for a fully self-operating computer. It also provides links to a demo and quick start instructions for setting up the Self-Operating Computer Framework locally on your computer.",
+        "type": "comment"
+    },
+    "8": {
+        "file_id": 0,
+        "content": "rements and Command-Line Interface: Instead of using `pip install .`, you can now install the project directly from PyPI with:**\n```\npip install self-operating-computer\n```\n6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**\n```\nmv .example.env .env\n``` \n7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:\n```\nOPENAI_API_KEY='your-key-here'\n```\n8. **Run it**!\n```\noperate\n```\n9. **Final Step**: As a last step, the Terminal app will ask for permission for \"Screen Recording\" and \"Accessibility\" in the \"Security & Privacy\" page of Mac's \"System Preferences\".\n<div align=\"center\">\n  <img src=\"https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png\" width=\"300\"  style=\"margin: 10px;\"/>\n  <img src=\"https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png\" width=\"300\"  style=\"margin: 10px;\"/>",
+        "type": "code",
+        "location": "/README.md:67-88"
+    },
+    "9": {
+        "file_id": 0,
+        "content": "Code snippet 1:\n```python\npip install self-operating-computer\n```\nInstall the project directly from PyPI.\n\nCode snippet 2:\n```bash\nmv .example.env .env\n```\nRename `.example.env` to `.env`.\n\nCode snippet 3:\n```bash\nOPERAI_API_KEY='your-key-here'\n```\nAdd your Open AI key in the new `.env` file.\n\nCode snippet 4:\n```bash\noperate\n```\nRun the program!\n\nCode snippet 5:\nFinal step, Mac users grant permission for \"Screen Recording\" and \"Accessibility\".",
+        "type": "comment"
+    },
+    "10": {
+        "file_id": 0,
+        "content": "</div>\n### Option 2: Installation using .sh script\n1. **Clone the repo** to a directory on your computer:\n```\ngit clone https://github.com/OthersideAI/self-operating-computer.git\n```\n2. **Cd into directory**:\n```\ncd self-operating-computer\n```\n3. **Run the installation script**: \n```\n./run.sh\n```\n## Using `operate` Modes\n### Multimodal Models  `-m`\nAn additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. \n**Add your Google AI Studio API key to your .env file.** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR:\n```\nGOOGLE_API_KEY='your-key-here'\n```\nStart `operate` with the Gemini model\n```\noperate -m gemini-pro-vision\n```",
+        "type": "code",
+        "location": "/README.md:89-124"
+    },
+    "11": {
+        "file_id": 0,
+        "content": "This code provides instructions for installing the Self Operating Computer Framework using a .sh script. It also explains how to add and use Google's `gemini-pro-vision` model within the framework.",
+        "type": "comment"
+    },
+    "12": {
+        "file_id": 0,
+        "content": "### Voice Mode `--voice`\nThe framework supports voice inputs for the objective. Try voice by following the instructions below. \nInstall the additional `requirements-audio.txt`\n```\npip install -r requirements-audio.txt\n```\n**Install device requirements**\nFor mac users:\n```\nbrew install portaudio\n```\nFor Linux users:\n```\nsudo apt install portaudio19-dev python3-pyaudio\n```\nRun with voice mode\n```\noperate --voice\n```\n## Contributions are Welcomed!:\nIf you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).\n## Feedback\nFor any input on improving this project, feel free to reach out to [Josh](https://twitter.com/josh_bickett) on Twitter. \n## Join Our Discord Community\nFor real-time discussions and community support, join our Discord server. \n- If you're already a member, join the discussion in [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).\n- If you're new, first [join our Discord Server",
+        "type": "code",
+        "location": "/README.md:126-159"
+    },
+    "13": {
+        "file_id": 0,
+        "content": "This code is providing instructions on how to enable voice mode in the self-operating-computer framework. The user must install additional audio requirements and device dependencies, then run the operate command with the --voice flag. Contributions are welcomed, and feedback or questions can be directed to Josh on Twitter. Joining the Discord community is also encouraged for real-time discussions and support.",
+        "type": "comment"
+    },
+    "14": {
+        "file_id": 0,
+        "content": "](https://discord.gg/YqaKtyBEzM) and then navigate to the [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).\n## Follow HyperWriteAI for More Updates\nStay updated with the latest developments:\n- Follow HyperWriteAI on [Twitter](https://twitter.com/HyperWriteAI).\n- Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).\n## Compatibility\n- This project is compatible with Mac OS, Windows, and Linux (with X server installed).\n## OpenAI Rate Limiting Note\nThe ```gpt-4-vision-preview``` model is required. To unlock access to this model, your account needs to spend at least \\$5 in API credits. Pre-paying for these credits will unlock access if you haven't already spent the minimum \\$5.   \nLearn more **[here](https://platform.openai.com/docs/guides/rate-limits?context=tier-one)**",
+        "type": "code",
+        "location": "/README.md:159-172"
+    },
+    "15": {
+        "file_id": 0,
+        "content": "Join the Discord server and visit #self-operating-computer channel. Follow HyperWriteAI for updates, compatible with Mac OS, Windows, and Linux (with X server installed). The gpt-4-vision-preview model requires at least $5 in API credits.",
+        "type": "comment"
+    },
+    "16": {
+        "file_id": 1,
+        "content": "/evaluate.py",
+        "type": "filepath"
+    },
+    "17": {
+        "file_id": 1,
+        "content": "The code uses GPT-4 Vision model to evaluate image adherence to guidelines, displays results with color-coded messages after setting up test cases and formatting prompts. It also checks the result of an objective, prints outcome (PASS or FAIL) along with passed/failed tests count, and resets colors for readability.",
+        "type": "summary"
+    },
+    "18": {
+        "file_id": 1,
+        "content": "import sys\nimport os\nimport subprocess\nimport platform\nimport base64\nimport json\nimport openai\nfrom dotenv import load_dotenv\n# \"Objective for `operate`\" : \"Guideline for passing this test case given to GPT-4v\"\nTEST_CASES = {\n    \"Go to Github.com\": \"The Github home page is visible.\",\n    \"Go to Youtube.com and play a video\": \"The YouTube video player is visible.\",\n}\nEVALUATION_PROMPT = \"\"\"\nYour job is to look at the given screenshot and determine if the following guideline is met in the image.\nYou must respond in the following format ONLY. Do not add anything else:\n{{ \"guideline_met\": (true|false), \"reason\": \"Explanation for why guideline was or wasn't met\" }}\nguideline_met must be set to a JSON boolean. True if the image meets the given guideline.\nreason must be a string containing a justification for your decision.\nGuideline: {guideline}\n\"\"\"\nSUMMARY_SCREENSHOT_PATH = os.path.join('screenshots', 'summary_screenshot.png')\n# Check if on a windows terminal that supports ANSI escape codes\ndef supports_ansi():\n    \"\"\"",
+        "type": "code",
+        "location": "/evaluate.py:1-31"
+    },
+    "19": {
+        "file_id": 1,
+        "content": "The code is importing necessary libraries and defining constants for the evaluation process. It appears to be setting up a test case dictionary and a function to determine if a given guideline is met in an image based on a screenshot.",
+        "type": "comment"
+    },
+    "20": {
+        "file_id": 1,
+        "content": "    Check if the terminal supports ANSI escape codes\n    \"\"\"\n    plat = platform.system()\n    supported_platform = plat != \"Windows\" or \"ANSICON\" in os.environ\n    is_a_tty = hasattr(sys.stdout, \"isatty\") and sys.stdout.isatty()\n    return supported_platform and is_a_tty\nif supports_ansi():\n    # Standard green text\n    ANSI_GREEN = \"\\033[32m\"\n    # Bright/bold green text\n    ANSI_BRIGHT_GREEN = \"\\033[92m\"\n    # Reset to default text color\n    ANSI_RESET = \"\\033[0m\"\n    # ANSI escape code for blue text\n    ANSI_BLUE = \"\\033[94m\"  # This is for bright blue\n    # Standard yellow text\n    ANSI_YELLOW = \"\\033[33m\"\n    ANSI_RED = \"\\033[31m\"\n    # Bright magenta text\n    ANSI_BRIGHT_MAGENTA = \"\\033[95m\"\nelse:\n    ANSI_GREEN = \"\"\n    ANSI_BRIGHT_GREEN = \"\"\n    ANSI_RESET = \"\"\n    ANSI_BLUE = \"\"\n    ANSI_YELLOW = \"\"\n    ANSI_RED = \"\"\n    ANSI_BRIGHT_MAGENTA = \"\"\ndef format_evaluation_prompt(guideline):\n    prompt = EVALUATION_PROMPT.format(guideline=guideline)\n    return prompt\ndef parse_eval_content(content):\n    try:\n        res = json.loads(content)",
+        "type": "code",
+        "location": "/evaluate.py:32-73"
+    },
+    "21": {
+        "file_id": 1,
+        "content": "This code checks if the terminal supports ANSI escape codes and sets corresponding colors based on the platform. If supported, it defines various colored text variables. Otherwise, it sets them to empty strings. The code also includes functions for formatting an evaluation prompt and parsing evaluation content.",
+        "type": "comment"
+    },
+    "22": {
+        "file_id": 1,
+        "content": "        print(res[\"reason\"])\n        return res[\"guideline_met\"]\n    except:\n        print(\"The model gave a bad evaluation response and it couldn't be parsed. Exiting...\")\n        exit(1)\ndef evaluate_summary_screenshot(guideline):\n    '''Load the summary screenshot and return True or False if it meets the given guideline.'''\n    with open(SUMMARY_SCREENSHOT_PATH, \"rb\") as img_file:\n        img_base64 = base64.b64encode(img_file.read()).decode(\"utf-8\")\n        eval_message = [{\n            \"role\": \"user\",\n            \"content\": [\n                {\"type\": \"text\", \"text\": format_evaluation_prompt(guideline)},\n                {\n                    \"type\": \"image_url\",\n                    \"image_url\": {\"url\": f\"data:image/jpeg;base64,{img_base64}\"},\n                },\n            ],\n        }]\n        response = openai.chat.completions.create(\n            model=\"gpt-4-vision-preview\",\n            messages=eval_message,\n            presence_penalty=1,\n            frequency_penalty=1,\n            temperature=0.7,\n            max_tokens=300,",
+        "type": "code",
+        "location": "/evaluate.py:75-105"
+    },
+    "23": {
+        "file_id": 1,
+        "content": "Code function: evaluate_summary_screenshot\nPurpose: Evaluate if the summary screenshot meets a given guideline\nActions: \n1. Loads the summary screenshot\n2. Encodes it in base64 format\n3. Creates an evaluation message with text and image\n4. Sends the message to OpenAI's GPT-4 Vision model for evaluation",
+        "type": "comment"
+    },
+    "24": {
+        "file_id": 1,
+        "content": "        )\n        eval_content = response.choices[0].message.content\n        return parse_eval_content(eval_content)\ndef run_test_case(objective, guideline):\n    '''Returns True if the result of the test with the given prompt meets the given guideline.'''\n    # Run `operate` with the test case prompt\n    subprocess.run(['operate', '--prompt', f'\"{objective}\"'], stdout=subprocess.DEVNULL)\n    try:\n        result = evaluate_summary_screenshot(guideline)\n    except(OSError):\n        print(\"Couldn't open the summary screenshot\")\n        return False\n    return result\ndef main():\n    load_dotenv()\n    openai.api_key = os.getenv(\"OPENAI_API_KEY\")\n    print(f\"{ANSI_BRIGHT_MAGENTA}[STARTING EVALUATION]{ANSI_RESET}\")\n    passed = 0; failed = 0\n    for objective, guideline in TEST_CASES.items():\n        print(f\"{ANSI_BLUE}[EVALUATING]{ANSI_RESET} '{objective}'\")\n        result = run_test_case(objective, guideline)\n        if result:\n            print(f\"{ANSI_GREEN}[PASSED]{ANSI_RESET} '{objective}'\")\n            passed += 1",
+        "type": "code",
+        "location": "/evaluate.py:106-140"
+    },
+    "25": {
+        "file_id": 1,
+        "content": "The code evaluates whether a test case meets its given guideline. It runs the \"operate\" function with the test case prompt and then calls the \"evaluate_summary_screenshot\" function to compare the result against the guideline. If the operation is successful, it prints a success message; otherwise, it prints an error message. The code loops through all the TEST_CASES, counts the number of passed and failed tests, and finally displays the results in color-coded messages.",
+        "type": "comment"
+    },
+    "26": {
+        "file_id": 1,
+        "content": "        else:\n            print(f\"{ANSI_RED}[FAILED]{ANSI_RESET} '{objective}'\")\n            failed += 1\n    print(\n        f\"{ANSI_BRIGHT_MAGENTA}[EVALUATION COMPLETE]{ANSI_RESET} {passed} tests passed, {failed} tests failed\"\n    )\nif __name__ == \"__main__\":\n    main()",
+        "type": "code",
+        "location": "/evaluate.py:141-150"
+    },
+    "27": {
+        "file_id": 1,
+        "content": "The code snippet checks the result of an objective and prints the outcome (PASS or FAIL) along with the count of passed and failed tests. It resets colors for readability.",
+        "type": "comment"
+    },
+    "28": {
+        "file_id": 2,
+        "content": "/requirements-audio.txt",
+        "type": "filepath"
+    },
+    "29": {
+        "file_id": 2,
+        "content": "This code likely refers to a specific type of microphone called \"whisper-mic,\" which is designed for capturing quiet or whispered audio.",
+        "type": "summary"
+    },
+    "30": {
+        "file_id": 2,
+        "content": "whisper-mic",
+        "type": "code",
+        "location": "/requirements-audio.txt:1-1"
+    },
+    "31": {
+        "file_id": 2,
+        "content": "This code likely refers to a specific type of microphone called \"whisper-mic,\" which is designed for capturing quiet or whispered audio.",
+        "type": "comment"
+    },
+    "32": {
+        "file_id": 3,
+        "content": "/requirements.txt",
+        "type": "filepath"
+    },
+    "33": {
+        "file_id": 3,
+        "content": "The project requires Python packages aiohttp 3.9.1 and ultralytics 8.0.227, listed in the requirements.txt format.",
+        "type": "summary"
+    },
+    "34": {
+        "file_id": 3,
+        "content": "annotated-types==0.6.0\nanyio==3.7.1\ncertifi==2023.7.22\ncharset-normalizer==3.3.2\ncolorama==0.4.6\ncontourpy==1.2.0\ncycler==0.12.1\ndistro==1.8.0\nEasyProcess==1.1\nentrypoint2==1.1\nexceptiongroup==1.1.3\nfonttools==4.44.0\nh11==0.14.0\nhttpcore==1.0.2\nhttpx==0.25.1\nidna==3.4\nimportlib-resources==6.1.1\nkiwisolver==1.4.5\nmatplotlib==3.8.1\nMouseInfo==0.1.3\nmss==9.0.1\nnumpy==1.26.1\nopenai==1.2.3\npackaging==23.2\nPillow==10.1.0\nprompt-toolkit==3.0.39\nPyAutoGUI==0.9.54\npydantic==2.4.2\npydantic_core==2.10.1\nPyGetWindow==0.0.9\nPyMsgBox==1.0.9\npyparsing==3.1.1\npyperclip==1.8.2\nPyRect==0.2.0\npyscreenshot==3.1\nPyScreeze==0.1.29\npython3-xlib==0.15\npython-dateutil==2.8.2\npython-dotenv==1.0.0\npytweening==1.0.7\nrequests==2.31.0\nrubicon-objc==0.4.7\nsix==1.16.0\nsniffio==1.3.0\ntqdm==4.66.1\ntyping_extensions==4.8.0\nurllib3==2.0.7\nwcwidth==0.2.9\nzipp==3.17.0\ngoogle-generativeai==0.3.0",
+        "type": "code",
+        "location": "/requirements.txt:1-50"
+    },
+    "35": {
+        "file_id": 3,
+        "content": "This is a list of Python package dependencies for a project, specified in requirements.txt format.",
+        "type": "comment"
+    },
+    "36": {
+        "file_id": 3,
+        "content": "aiohttp==3.9.1\nultralytics==8.0.227",
+        "type": "code",
+        "location": "/requirements.txt:51-52"
+    },
+    "37": {
+        "file_id": 3,
+        "content": "These lines specify the required Python libraries for the project: aiohttp 3.9.1 and ultralytics 8.0.227.",
+        "type": "comment"
+    },
+    "38": {
+        "file_id": 4,
+        "content": "/run.sh",
+        "type": "filepath"
+    },
+    "39": {
+        "file_id": 4,
+        "content": "This Bash script installs SOC on Linux, requires various packages, checks OS for software installation, handles errors, and configures .env file with OpenAI API key while prompting user input and managing permissions on Mac.",
+        "type": "summary"
+    },
+    "40": {
+        "file_id": 4,
+        "content": "#!/bin/bash\n#\n#           SOC Installer Script v0.0.1\n#   GitHub: https://github.com/OthersideAI/self-operating-computer\n#   Issues: https://github.com/OthersideAI/self-operating-computer/issues\n#   Requires: bash, curl/wget, python3, pip, git\n#\n#   Please open an issue if you notice any bugs.\n#\n#\n#   This script is create by centopw\n#\n#\nclear\necho -e \"\\e[0m\\c\"\nLOG_FILE=\"install_log.txt\"\n# shellcheck disable=SC2016\necho '\n $$$$$$\\   $$$$$$\\   $$$$$$\\  \n$$  __$$\\ $$  __$$\\ $$  __$$\\ \n$$ /  \\__|$$ /  $$ |$$ /  \\__|\n\\$$$$$$\\  $$ |  $$ |$$ |      \n \\____$$\\ $$ |  $$ |$$ |      \n$$\\   $$ |$$ |  $$ |$$ |  $$\\ \n\\$$$$$$  | $$$$$$  |\\$$$$$$  |\n \\______/  \\______/  \\______/ \n    Self-Operating-Computer\n--- Created by OthersideAI ---\n'\n# Function to log errors\nlog_error() {\n    echo \"Error at $(date): $1\" >> \"$LOG_FILE\"\n}\n# Function to check if a command exists\ncommand_exists() {\n    command -v \"$1\" &> /dev/null\n}\n# Function to install packages based on the operating system\ninstall_packages() {\n    if [ \"$os\" == \"Linux\" ]; then\n        # Use the appropriate package manager for Linux",
+        "type": "code",
+        "location": "/run.sh:1-48"
+    },
+    "41": {
+        "file_id": 4,
+        "content": "The code is a Bash script for installing the Self-Operating-Computer (SOC) on a Linux system. It starts by clearing the terminal and displaying a welcome message, then defines functions to log errors, check if commands exist, and install packages based on the operating system. The script requires bash, curl/wget, python3, pip, and git.",
+        "type": "comment"
+    },
+    "42": {
+        "file_id": 4,
+        "content": "        if command_exists apt-get; then\n            sudo apt-get install -y \"$1\" || { log_error \"Unable to install $1.\"; exit 1; }\n        elif command_exists yum; then\n            sudo yum install -y \"$1\" || { log_error \"Unable to install $1.\"; exit 1; }\n        else\n            log_error \"Unsupported package manager. Please install $1 manually.\"\n            exit 1\n        fi\n    elif [ \"$os\" == \"Darwin\" ]; then\n        # Use Homebrew for macOS\n        if command_exists brew; then\n            brew install \"$1\" || { log_error \"Unable to install $1.\"; exit 1; }\n        else\n            log_error \"Homebrew not found. Please install Homebrew and then $1 manually.\"\n            exit 1\n        fi\n    elif [ \"$os\" == \"MINGW64_NT-10.0\" ]; then\n        # Use Chocolatey for Windows\n        if command_exists choco; then\n            choco install \"$1\" -y || { log_error \"Unable to install $1.\"; exit 1; }\n        else\n            log_error \"Chocolatey not found. Please install Chocolatey and then $1 manually.\"\n            exit 1",
+        "type": "code",
+        "location": "/run.sh:49-71"
+    },
+    "43": {
+        "file_id": 4,
+        "content": "This code checks the operating system and package manager to install a specified software. If the required package manager is found, it installs the software using sudo commands. If not, it logs an error and exits. For macOS, it uses Homebrew if installed; otherwise, it logs an error and exits. For Windows (MINGW64_NT-10.0), it uses Chocolatey if installed; otherwise, it logs an error and exits.",
+        "type": "comment"
+    },
+    "44": {
+        "file_id": 4,
+        "content": "        fi\n    else\n        log_error \"Unsupported operating system. Please install $1 manually.\"\n        exit 1\n    fi\n}\n# Function to run a script and log errors\nrun_script() {\n    eval \"$1\" || { log_error \"Error running $1.\"; exit 1; }\n}\n# Check the operating system\nos=$(uname -s)\n# Check if Python is installed\nif ! command_exists python3; then\n    echo \"Python not found. Installing Python...\"\n    install_packages python3\nfi\n# Check if pip is installed\nif ! command_exists pip; then\n    echo \"pip not found. Installing pip...\"\n    install_packages python3-pip\nfi\n# Check if git is installed\nif ! command_exists git; then\n    echo \"Git not found. Installing Git...\"\n    install_packages git\nfi \n# Create a Python virtual environment\nrun_script \"python3 -m venv venv\"\n# Activate the virtual environment\nsource venv/bin/activate || { log_error \"Unable to activate the virtual environment.\"; exit 1; }\n# Install project requirements\nrun_script \"pip install -r requirements.txt\"\n# Install Project and Command-Line Interface\nrun_script \"pip install .\"",
+        "type": "code",
+        "location": "/run.sh:72-115"
+    },
+    "45": {
+        "file_id": 4,
+        "content": "This code checks the operating system and ensures Python, pip, and Git are installed. It creates a Python virtual environment and installs project requirements before installing the project itself.",
+        "type": "comment"
+    },
+    "46": {
+        "file_id": 4,
+        "content": "# Check if the .env file exists and the OPENAI_API_KEY is set in it\nif [ -f .env ] && grep -q \"OPENAI_API_KEY\" .env; then\n    echo \"OpenAI API key found in .env file. Skipping prompt...\"\nelse\n    # Prompt user for Open AI key\n    read -p \"Enter your OpenAI API key: \" openai_key\n    # Set the API key as an environment variable\n    export OPENAI_API_KEY=\"$openai_key\"\n    # Create a new .env file\n    touch .env\n    # Write the API key to the .env file\n    echo \"OPENAI_API_KEY='$openai_key'\" > .env\nfi\n# Notify the user about the last step\necho \"Final Step: As a last step, the Terminal app will ask for permission for 'Screen Recording' and 'Accessibility' in the 'Security & Privacy' page of Mac's 'System Preferences.'\"\necho \"Operating system: $os\"\nif [ \"$os\" == \"Darwin\" ]; then\n    echo \"Attempting to open Security & Privacy settings...\"\n    open /System/Library/PreferencePanes/Security.prefPane\n    read -p \"Have you granted the necessary permissions in the Security & Privacy settings? (y/n): \" confirm\n    if [ \"$confirm\" != \"y\" ]; then",
+        "type": "code",
+        "location": "/run.sh:117-143"
+    },
+    "47": {
+        "file_id": 4,
+        "content": "This code checks if the .env file exists and if it contains an OPENAI_API_KEY. If not, it prompts the user to enter their OpenAI API key, stores it in a new .env file as an environment variable, and then informs the user about the final step of granting permissions for 'Screen Recording' and 'Accessibility' in Mac's System Preferences.",
+        "type": "comment"
+    },
+    "48": {
+        "file_id": 4,
+        "content": "        echo \"Please grant the necessary permissions and then rerun the script.\"\n        exit 1\n    fi\nelse\n    echo \"Not a macOS system, skipping...\"\nfi\n# End of the script\necho \"Installation complete. Enjoy using the Self-Operating Computer Framework!\"\n# Run the framework\nrun_script \"operate\"",
+        "type": "code",
+        "location": "/run.sh:144-155"
+    },
+    "49": {
+        "file_id": 4,
+        "content": "The code checks if the system is macOS. If it's not, it skips some steps and informs that it's not a macOS system. If permissions are granted, it proceeds to install the framework and runs it with \"operate\" script.",
+        "type": "comment"
+    },
+    "50": {
+        "file_id": 5,
+        "content": "/setup.py",
+        "type": "filepath"
+    },
+    "51": {
+        "file_id": 5,
+        "content": "This code is using setuptools to create a setup script for the \"self-operating-computer\" package. It imports the necessary modules and reads requirements from \"requirements.txt\". It also reads project description from \"README.md\", sets up dependencies, and defines entry points for console scripts.",
+        "type": "summary"
+    },
+    "52": {
+        "file_id": 5,
+        "content": "from setuptools import setup, find_packages\n# Read the contents of your requirements.txt file\nwith open(\"requirements.txt\") as f:\n    required = f.read().splitlines()\n# Read the contents of your README.md file for the project description\nwith open(\"README.md\", \"r\", encoding=\"utf-8\") as readme_file:\n    long_description = readme_file.read()\nsetup(\n    name=\"self-operating-computer\",\n    version=\"1.1.1\",\n    packages=find_packages(),\n    install_requires=required,  # Add dependencies here\n    entry_points={\n        \"console_scripts\": [\n            \"operate=operate.main:main_entry\",\n        ],\n    },\n    long_description=long_description,  # Add project description here\n    long_description_content_type=\"text/markdown\",  # Specify Markdown format\n    # include any other necessary setup options here\n)",
+        "type": "code",
+        "location": "/setup.py:1-24"
+    },
+    "53": {
+        "file_id": 5,
+        "content": "This code is using setuptools to create a setup script for the \"self-operating-computer\" package. It imports the necessary modules and reads requirements from \"requirements.txt\". It also reads project description from \"README.md\", sets up dependencies, and defines entry points for console scripts.",
+        "type": "comment"
+    },
+    "54": {
+        "file_id": 6,
+        "content": "/operate/actions.py",
+        "type": "filepath"
+    },
+    "55": {
+        "file_id": 6,
+        "content": "A code that utilizes AI prompts, computer vision, and OpenAI's chat completions API for generating content, including screenshots, messages, and base64 encoding images. The function captures screenshots, formats prompts, fetches asynchronous responses, extracts data, handles exceptions, and returns errors or missing labels.",
+        "type": "summary"
+    },
+    "56": {
+        "file_id": 6,
+        "content": "import os\nimport time\nimport json\nimport base64\nimport re\nimport io\nimport asyncio\nimport aiohttp\nfrom PIL import Image\nfrom ultralytics import YOLO\nimport google.generativeai as genai\nfrom operate.settings import Config\nfrom operate.exceptions import ModelNotRecognizedException\nfrom operate.utils.screenshot import (\n    capture_screen_with_cursor,\n    add_grid_to_image,\n    capture_mini_screenshot_with_cursor,\n)\nfrom operate.utils.os import get_last_assistant_message\nfrom operate.prompts import (\n    format_vision_prompt,\n    format_accurate_mode_vision_prompt,\n    format_summary_prompt,\n    format_decision_prompt,\n    format_label_prompt,\n)\nfrom operate.utils.label import (\n    add_labels,\n    parse_click_content,\n    get_click_position_in_percent,\n    get_label_coordinates,\n)\nfrom operate.utils.style import (\n    ANSI_GREEN,\n    ANSI_RED,\n    ANSI_RESET,\n)\n# Load configuration\nconfig = Config()\nclient = config.initialize_openai_client()\nyolo_model = YOLO(\"./operate/model/weights/best.pt\")  # Load your trained model\nasync def get_next_action(model, messages, objective):",
+        "type": "code",
+        "location": "/operate/actions.py:1-51"
+    },
+    "57": {
+        "file_id": 6,
+        "content": "Code imports various libraries and defines a function get_next_action that takes in model, messages, and objective as parameters. The code also loads a pre-trained YOLO model and initializes an OpenAI client using the configuration.",
+        "type": "comment"
+    },
+    "58": {
+        "file_id": 6,
+        "content": "    if model == \"gpt-4\":\n        return call_gpt_4_v(messages, objective)\n    if model == \"gpt-4-with-som\":\n        return await call_gpt_4_v_labeled(messages, objective)\n    elif model == \"agent-1\":\n        return \"coming soon\"\n    elif model == \"gemini-pro-vision\":\n        return call_gemini_pro_vision(messages, objective)\n    raise ModelNotRecognizedException(model)\ndef call_gpt_4_v(messages, objective):\n    \"\"\"\n    Get the next action for Self-Operating Computer\n    \"\"\"\n    # sleep for a second\n    time.sleep(1)\n    try:\n        screenshots_dir = \"screenshots\"\n        if not os.path.exists(screenshots_dir):\n            os.makedirs(screenshots_dir)\n        screenshot_filename = os.path.join(screenshots_dir, \"screenshot.png\")\n        # Call the function to capture the screen with the cursor\n        capture_screen_with_cursor(screenshot_filename)\n        new_screenshot_filename = os.path.join(\n            \"screenshots\", \"screenshot_with_grid.png\"\n        )\n        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)",
+        "type": "code",
+        "location": "/operate/actions.py:52-83"
+    },
+    "59": {
+        "file_id": 6,
+        "content": "This code checks the model parameter and calls different functions based on its value. For example, if the model is \"gpt-4\", it calls the `call_gpt_4_v` function with messages and objective parameters. It also captures a screenshot of the computer screen with the cursor.",
+        "type": "comment"
+    },
+    "60": {
+        "file_id": 6,
+        "content": "        # sleep for a second\n        time.sleep(1)\n        with open(new_screenshot_filename, \"rb\") as img_file:\n            img_base64 = base64.b64encode(img_file.read()).decode(\"utf-8\")\n        previous_action = get_last_assistant_message(messages)\n        vision_prompt = format_vision_prompt(objective, previous_action)\n        vision_message = {\n            \"role\": \"user\",\n            \"content\": [\n                {\"type\": \"text\", \"text\": vision_prompt},\n                {\n                    \"type\": \"image_url\",\n                    \"image_url\": {\"url\": f\"data:image/jpeg;base64,{img_base64}\"},\n                },\n            ],\n        }\n        # create a copy of messages and save to pseudo_messages\n        pseudo_messages = messages.copy()\n        pseudo_messages.append(vision_message)\n        response = client.chat.completions.create(\n            model=\"gpt-4-vision-preview\",\n            messages=pseudo_messages,\n            presence_penalty=1,\n            frequency_penalty=1,\n            temperature=0.7,\n            max_tokens=300,",
+        "type": "code",
+        "location": "/operate/actions.py:84-115"
+    },
+    "61": {
+        "file_id": 6,
+        "content": "Sleeps for 1 second, reads screenshot file, encodes image in base64, formats vision prompt with previous action, creates a vision message with the prompt and image, makes a copy of messages list, appends vision message to copied list, and then calls the OpenAI API with the updated messages list.",
+        "type": "comment"
+    },
+    "62": {
+        "file_id": 6,
+        "content": "        )\n        messages.append(\n            {\n                \"role\": \"user\",\n                \"content\": \"`screenshot.png`\",\n            }\n        )\n        content = response.choices[0].message.content\n        return content\n    except Exception as e:\n        print(f\"Error parsing JSON: {e}\")\n        return \"Failed take action after looking at the screenshot\"\ndef call_gemini_pro_vision(messages, objective):\n    \"\"\"\n    Get the next action for Self-Operating Computer using Gemini Pro Vision\n    \"\"\"\n    # sleep for a second\n    time.sleep(1)\n    try:\n        screenshots_dir = \"screenshots\"\n        if not os.path.exists(screenshots_dir):\n            os.makedirs(screenshots_dir)\n        screenshot_filename = os.path.join(screenshots_dir, \"screenshot.png\")\n        # Call the function to capture the screen with the cursor\n        capture_screen_with_cursor(screenshot_filename)\n        new_screenshot_filename = os.path.join(\n            \"screenshots\", \"screenshot_with_grid.png\"\n        )\n        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)",
+        "type": "code",
+        "location": "/operate/actions.py:116-153"
+    },
+    "63": {
+        "file_id": 6,
+        "content": "The code is capturing a screenshot with the cursor and adding a grid overlay to the image. It then appends a message containing the filename to the messages list and returns the content of the first response choice's message. If an exception occurs during JSON parsing, it will print an error message and return a failure message.",
+        "type": "comment"
+    },
+    "64": {
+        "file_id": 6,
+        "content": "        # sleep for a second\n        time.sleep(1)\n        previous_action = get_last_assistant_message(messages)\n        vision_prompt = format_vision_prompt(objective, previous_action)\n        model = genai.GenerativeModel(\"gemini-pro-vision\")\n        response = model.generate_content(\n            [vision_prompt, Image.open(new_screenshot_filename)]\n        )\n        # create a copy of messages and save to pseudo_messages\n        pseudo_messages = messages.copy()\n        pseudo_messages.append(response.text)\n        messages.append(\n            {\n                \"role\": \"user\",\n                \"content\": \"`screenshot.png`\",\n            }\n        )\n        content = response.text[1:]\n        return content\n    except Exception as e:\n        print(f\"Error parsing JSON: {e}\")\n        return \"Failed take action after looking at the screenshot\"\n# This function is not used. `-accurate` mode was removed for now until a new PR fixes it.\ndef accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):\n    \"\"\"\n",
+        "type": "code",
+        "location": "/operate/actions.py:154-189"
+    },
+    "65": {
+        "file_id": 6,
+        "content": "The code is making a computer vision model generate an action based on the screenshot, and then append the response to the messages list. If there's an exception while parsing JSON, it prints the error message and returns a failure message. The `accurate_mode_double_check` function is currently not used.",
+        "type": "comment"
+    },
+    "66": {
+        "file_id": 6,
+        "content": "    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location\n    \"\"\"\n    try:\n        screenshot_filename = os.path.join(\"screenshots\", \"screenshot_mini.png\")\n        capture_mini_screenshot_with_cursor(\n            file_path=screenshot_filename, x=prev_x, y=prev_y\n        )\n        new_screenshot_filename = os.path.join(\n            \"screenshots\", \"screenshot_mini_with_grid.png\"\n        )\n        with open(new_screenshot_filename, \"rb\") as img_file:\n            img_base64 = base64.b64encode(img_file.read()).decode(\"utf-8\")\n        accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)\n        accurate_mode_message = {\n            \"role\": \"user\",\n            \"content\": [\n                {\"type\": \"text\", \"text\": accurate_vision_prompt},\n                {\n                    \"type\": \"image_url\",\n                    \"image_url\": {\"url\": f\"data:image/jpeg;base64,{img_base64}\"},\n                },\n            ],\n        }",
+        "type": "code",
+        "location": "/operate/actions.py:189-215"
+    },
+    "67": {
+        "file_id": 6,
+        "content": "This code takes a mini screenshot centered around the cursor and adds it to an AI prompt with text instructions. The image is encoded in base64 format and included in the prompt for further fine-tuning of clicked location.",
+        "type": "comment"
+    },
+    "68": {
+        "file_id": 6,
+        "content": "        pseudo_messages.append(accurate_mode_message)\n        response = client.chat.completions.create(\n            model=\"gpt-4-vision-preview\",\n            messages=pseudo_messages,\n            presence_penalty=1,\n            frequency_penalty=1,\n            temperature=0.7,\n            max_tokens=300,\n        )\n        content = response.choices[0].message.content\n    except Exception as e:\n        print(f\"Error reprompting model for accurate_mode: {e}\")\n        return \"ERROR\"\ndef summarize(model, messages, objective):\n    try:\n        screenshots_dir = \"screenshots\"\n        if not os.path.exists(screenshots_dir):\n            os.makedirs(screenshots_dir)\n        screenshot_filename = os.path.join(screenshots_dir, \"summary_screenshot.png\")\n        # Call the function to capture the screen with the cursor\n        capture_screen_with_cursor(screenshot_filename)\n        summary_prompt = format_summary_prompt(objective)\n        if model == \"gpt-4-vision-preview\":\n            with open(screenshot_filename, \"rb\") as img_file:",
+        "type": "code",
+        "location": "/operate/actions.py:217-248"
+    },
+    "69": {
+        "file_id": 6,
+        "content": "Code snippet creates a prompt for the GPT-4 vision model using screenshots and text messages, then calls the \"capture_screen_with_cursor\" function.",
+        "type": "comment"
+    },
+    "70": {
+        "file_id": 6,
+        "content": "                img_base64 = base64.b64encode(img_file.read()).decode(\"utf-8\")\n            summary_message = {\n                \"role\": \"user\",\n                \"content\": [\n                    {\"type\": \"text\", \"text\": summary_prompt},\n                    {\n                        \"type\": \"image_url\",\n                        \"image_url\": {\"url\": f\"data:image/jpeg;base64,{img_base64}\"},\n                    },\n                ],\n            }\n            # create a copy of messages and save to pseudo_messages\n            messages.append(summary_message)\n            response = client.chat.completions.create(\n                model=\"gpt-4-vision-preview\",\n                messages=messages,\n                max_tokens=500,\n            )\n            content = response.choices[0].message.content\n        elif model == \"gemini-pro-vision\":\n            model = genai.GenerativeModel(\"gemini-pro-vision\")\n            summary_message = model.generate_content(\n                [summary_prompt, Image.open(screenshot_filename)]\n            )",
+        "type": "code",
+        "location": "/operate/actions.py:249-275"
+    },
+    "71": {
+        "file_id": 6,
+        "content": "The code is preparing input for a generative AI model. It encodes an image in base64 and combines it with a text prompt to create a summary message, then passes this message along with the chosen AI model (either gpt-4-vision-preview or gemini-pro-vision) to generate content from the summary.",
+        "type": "comment"
+    },
+    "72": {
+        "file_id": 6,
+        "content": "            content = summary_message.text\n        return content\n    except Exception as e:\n        print(f\"Error in summarize: {e}\")\n        return \"Failed to summarize the workflow\"\nasync def call_gpt_4_v_labeled(messages, objective):\n    time.sleep(1)\n    try:\n        screenshots_dir = \"screenshots\"\n        if not os.path.exists(screenshots_dir):\n            os.makedirs(screenshots_dir)\n        screenshot_filename = os.path.join(screenshots_dir, \"screenshot.png\")\n        # Call the function to capture the screen with the cursor\n        capture_screen_with_cursor(screenshot_filename)\n        with open(screenshot_filename, \"rb\") as img_file:\n            img_base64 = base64.b64encode(img_file.read()).decode(\"utf-8\")\n        previous_action = get_last_assistant_message(messages)\n        img_base64_labeled, img_base64_original, label_coordinates = add_labels(\n            img_base64, yolo_model\n        )\n        decision_prompt = format_decision_prompt(objective, previous_action)\n        labeled_click_prompt = format_label_prompt(objective)",
+        "type": "code",
+        "location": "/operate/actions.py:276-305"
+    },
+    "73": {
+        "file_id": 6,
+        "content": "This function calls GPT-4 with a labeled image and a prompt for decision making. It first captures a screenshot of the current desktop with the cursor, encodes it in base64 format, and adds labels to the image using the YOLO model. Then, it formats prompts for the user's decision and the GPT-4 labeling task.",
+        "type": "comment"
+    },
+    "74": {
+        "file_id": 6,
+        "content": "        click_message = {\n            \"role\": \"user\",\n            \"content\": [\n                {\"type\": \"text\", \"text\": labeled_click_prompt},\n                {\n                    \"type\": \"image_url\",\n                    \"image_url\": {\n                        \"url\": f\"data:image/jpeg;base64,{img_base64_labeled}\"\n                    },\n                },\n            ],\n        }\n        decision_message = {\n            \"role\": \"user\",\n            \"content\": [\n                {\"type\": \"text\", \"text\": decision_prompt},\n                {\n                    \"type\": \"image_url\",\n                    \"image_url\": {\n                        \"url\": f\"data:image/jpeg;base64,{img_base64_original}\"\n                    },\n                },\n            ],\n        }\n        click_messages = messages.copy()\n        click_messages.append(click_message)\n        decision_messages = messages.copy()\n        decision_messages.append(decision_message)\n        click_future = fetch_openai_response_async(click_messages)\n        decision_future = fetch_openai_response_async(decision_messages)",
+        "type": "code",
+        "location": "/operate/actions.py:307-338"
+    },
+    "75": {
+        "file_id": 6,
+        "content": "Creates user messages with labeled click prompt and decision prompt, appends to message lists, and fetches OpenAI response asynchronously.",
+        "type": "comment"
+    },
+    "76": {
+        "file_id": 6,
+        "content": "        click_response, decision_response = await asyncio.gather(\n            click_future, decision_future\n        )\n        # Extracting the message content from the ChatCompletionMessage object\n        click_content = click_response.get(\"choices\")[0].get(\"message\").get(\"content\")\n        decision_content = (\n            decision_response.get(\"choices\")[0].get(\"message\").get(\"content\")\n        )\n        if not decision_content.startswith(\"CLICK\"):\n            return decision_content\n        label_data = parse_click_content(click_content)\n        if label_data and \"label\" in label_data:\n            coordinates = get_label_coordinates(label_data[\"label\"], label_coordinates)\n            image = Image.open(\n                io.BytesIO(base64.b64decode(img_base64))\n            )  # Load the image to get its size\n            image_size = image.size  # Get the size of the image (width, height)\n            click_position_percent = get_click_position_in_percent(\n                coordinates, image_size\n            )",
+        "type": "code",
+        "location": "/operate/actions.py:340-364"
+    },
+    "77": {
+        "file_id": 6,
+        "content": "This code fetches two responses from an API, extracts the message content, checks if it starts with \"CLICK\", gets label data and its coordinates, opens the image, retrieves its size, and calculates the click position in percent.",
+        "type": "comment"
+    },
+    "78": {
+        "file_id": 6,
+        "content": "            if not click_position_percent:\n                print(\n                    f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Failed to get click position in percent. Trying another method {ANSI_RESET}\"\n                )\n                return call_gpt_4_v(messages, objective)\n            x_percent = f\"{click_position_percent[0]:.2f}%\"\n            y_percent = f\"{click_position_percent[1]:.2f}%\"\n            click_action = f'CLICK {{ \"x\": \"{x_percent}\", \"y\": \"{y_percent}\", \"description\": \"{label_data[\"decision\"]}\", \"reason\": \"{label_data[\"reason\"]}\" }}'\n        else:\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] No label found. Trying another method {ANSI_RESET}\"\n            )\n            return call_gpt_4_v(messages, objective)\n        return click_action\n    except Exception as e:\n        print(\n            f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}\"\n        )\n        return call_gpt_4_v(messages, objective)",
+        "type": "code",
+        "location": "/operate/actions.py:365-387"
+    },
+    "79": {
+        "file_id": 6,
+        "content": "The code tries to perform a click action based on label data. If the click position percent or label is not found, it prints an error message and calls another method. It also handles exceptions and returns to try another method.",
+        "type": "comment"
+    },
+    "80": {
+        "file_id": 6,
+        "content": "async def fetch_openai_response_async(messages):\n    url = \"https://api.openai.com/v1/chat/completions\"\n    headers = {\n        \"Content-Type\": \"application/json\",\n        \"Authorization\": f\"Bearer {config.openai_api_key}\",\n    }\n    data = {\n        \"model\": \"gpt-4-vision-preview\",\n        \"messages\": messages,\n        \"frequency_penalty\": 1,\n        \"presence_penalty\": 1,\n        \"temperature\": 0.7,\n        \"max_tokens\": 300,\n    }\n    async with aiohttp.ClientSession() as session:\n        async with session.post(\n            url, headers=headers, data=json.dumps(data)\n        ) as response:\n            return await response.json()",
+        "type": "code",
+        "location": "/operate/actions.py:390-409"
+    },
+    "81": {
+        "file_id": 6,
+        "content": "This function makes an asynchronous API call to OpenAI's chat completions endpoint to fetch a response based on the provided messages.",
+        "type": "comment"
+    },
+    "82": {
+        "file_id": 7,
+        "content": "/operate/dialog.py",
+        "type": "filepath"
+    },
+    "83": {
+        "file_id": 7,
+        "content": "Both comments discuss code that handles user input and executes corresponding actions, with Comment A focusing on a Self-Operating Computer setup and error handling, while Comment B focuses on input parameter checks for dialog operations.",
+        "type": "summary"
+    },
+    "84": {
+        "file_id": 7,
+        "content": "import sys\nimport os\nimport platform\nimport asyncio\nfrom prompt_toolkit.shortcuts import message_dialog\nfrom prompt_toolkit import prompt\nfrom operate.exceptions import ModelNotRecognizedException\nfrom operate.prompts import USER_QUESTION\nfrom operate.settings import Config\nfrom operate.utils.style import (\n    ANSI_GREEN,\n    ANSI_RESET,\n    ANSI_BLUE,\n    ANSI_YELLOW,\n    ANSI_RED,\n    ANSI_BRIGHT_MAGENTA,\n    style,\n)\nfrom operate.utils.os import (\n    keyboard_type,\n    search,\n    click,\n)\nfrom operate.actions import get_next_action, summarize\nfrom operate.utils.misc import parse_response\n# Load configuration\nconfig = Config()\ndef main(model, terminal_prompt, voice_mode=False):\n    \"\"\"\n    Main function for the Self-Operating Computer.\n    Parameters:\n    - model: The model used for generating responses.\n    - terminal_prompt: A string representing the prompt provided in the terminal.\n    - voice_mode: A boolean indicating whether to enable voice mode.\n    Returns:\n    None\n    \"\"\"\n    mic = None\n    # Initialize `WhisperMic`, if `voice_mode` is True",
+        "type": "code",
+        "location": "/operate/dialog.py:1-44"
+    },
+    "85": {
+        "file_id": 7,
+        "content": "This code appears to be part of a Self-Operating Computer, which uses a model for generating responses. The main function takes in the model, terminal prompt, and voice mode as parameters. It initializes `WhisperMic` if voice mode is enabled.",
+        "type": "comment"
+    },
+    "86": {
+        "file_id": 7,
+        "content": "    validation(model, voice_mode)\n    if voice_mode:\n        try:\n            from whisper_mic import WhisperMic\n            # Initialize WhisperMic if import is successful\n            mic = WhisperMic()\n        except ImportError:\n            print(\n                \"Voice mode requires the 'whisper_mic' module. Please install it using 'pip install -r requirements-audio.txt'\"\n            )\n            sys.exit(1)\n    # Skip message dialog if prompt was given directly\n    if not terminal_prompt:\n        message_dialog(\n            title=\"Self-Operating Computer\",\n            text=\"Ask a computer to do anything.\",\n            style=style,\n        ).run()\n    else:\n        print(\"Running direct prompt...\")\n    print(\"SYSTEM\", platform.system())\n    # Clear the console\n    if platform.system() == \"Windows\":\n        os.system(\"cls\")\n    else:\n        print(\"\\033c\", end=\"\")\n    if terminal_prompt:  # Skip objective prompt if it was given as an argument\n        objective = terminal_prompt\n    elif voice_mode:\n        print(",
+        "type": "code",
+        "location": "/operate/dialog.py:46-80"
+    },
+    "87": {
+        "file_id": 7,
+        "content": "Checks if voice mode is enabled, then tries to import and initialize the WhisperMic module. If the module is missing, it prints an error message and exits. Displays a message dialog unless the prompt was given directly via terminal. Skips objective prompt if provided as an argument or prompts for input through the WhisperMic in voice mode. Clears the console on all operating systems except Windows where it uses \"cls\" command.",
+        "type": "comment"
+    },
+    "88": {
+        "file_id": 7,
+        "content": "            f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Listening for your command... (speak now)\"\n        )\n        try:\n            objective = mic.listen()\n        except Exception as e:\n            print(f\"{ANSI_RED}Error in capturing voice input: {e}{ANSI_RESET}\")\n            return  # Exit if voice input fails\n    else:\n        print(f\"{ANSI_GREEN}[Self-Operating Computer]\\n{ANSI_RESET}{USER_QUESTION}\")\n        print(f\"{ANSI_YELLOW}[User]{ANSI_RESET}\")\n        objective = prompt(style=style)\n    assistant_message = {\"role\": \"assistant\", \"content\": USER_QUESTION}\n    user_message = {\n        \"role\": \"user\",\n        \"content\": f\"Objective: {objective}\",\n    }\n    messages = [assistant_message, user_message]\n    loop_count = 0\n    while True:\n        if config.debug:\n            print(\"[loop] messages before next action:\\n\\n\\n\", messages[1:])\n        try:\n            response = asyncio.run(get_next_action(model, messages, objective))\n            action = parse_response(response)\n            action_type = action.get(\"type\")",
+        "type": "code",
+        "location": "/operate/dialog.py:81-109"
+    },
+    "89": {
+        "file_id": 7,
+        "content": "The code is capturing voice input from the microphone and storing it in the \"objective\" variable. If an error occurs while capturing voice input, it will print an error message and exit. Otherwise, it prints a message from the self-operating computer and the user's question, then stores the objective as the user's message content. It then enters a loop where it waits for the next action by calling a function \"get_next_action\" with the current messages and objective. If an error occurs while waiting for the next action, it will print an error message.",
+        "type": "comment"
+    },
+    "90": {
+        "file_id": 7,
+        "content": "            action_detail = action.get(\"data\")\n        except ModelNotRecognizedException as e:\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}\"\n            )\n            break\n        except Exception as e:\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}\"\n            )\n            break\n        if action_type == \"DONE\":\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}\"\n            )\n            summary = summarize(model, messages, objective)\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\\n{ANSI_RESET}{summary}\"\n            )\n            break\n        if action_type != \"UNKNOWN\":\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} {ANSI_RESET}{action_detail}\"\n            )\n        function_response = \"\"\n        if action_type == \"SEARCH\":",
+        "type": "code",
+        "location": "/operate/dialog.py:110-139"
+    },
+    "91": {
+        "file_id": 7,
+        "content": "The code is handling exceptions for a ModelNotRecognizedException and any other exception that occurs during the execution. It then checks if the action_type is \"DONE\", if so, it prints a completion message, summarizes the model, and exits. If the action_type is not unknown, it prints an act message along with the action type and detail, and initializes an empty function_response variable if the action type is \"SEARCH\".",
+        "type": "comment"
+    },
+    "92": {
+        "file_id": 7,
+        "content": "            function_response = search(action_detail)\n        elif action_type == \"TYPE\":\n            function_response = keyboard_type(action_detail)\n        elif action_type == \"CLICK\":\n            function_response = click(action_detail)\n        else:\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}\"\n            )\n            print(\n                f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\\n{ANSI_RESET}{response}\"\n            )\n            break\n        print(\n            f\"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {ANSI_RESET}{function_response}\"\n        )\n        message = {\n            \"role\": \"assistant\",\n            \"content\": function_response,\n        }\n        messages.append(message)\n        loop_count += 1\n        if loop_count > 15:\n            break\ndef validation(model, voice_mode):\n    \"\"\"\n    Validate the input parameters for the dialog operation.",
+        "type": "code",
+        "location": "/operate/dialog.py:140-171"
+    },
+    "93": {
+        "file_id": 7,
+        "content": "This code block checks the action type and performs the corresponding action. If the action type is not recognized, it prints an error message and breaks the loop. It also logs the act completion and updates the messages list for further processing.",
+        "type": "comment"
+    },
+    "94": {
+        "file_id": 7,
+        "content": "    Args:\n        model (str): The model to be used for the dialog operation.\n        voice_mode (bool): Flag indicating whether to use voice mode.\n    Raises:\n        SystemExit: If the input parameters are invalid.\n    \"\"\"\n    if voice_mode and not config.openai_api_key:\n        print(\"To use voice mode, please add an OpenAI API key\")\n        sys.exit(1)\n    if model == \"gpt-4-vision-preview\" and not config.openai_api_key:\n        print(\"To use `gpt-4-vision-preview` add an OpenAI API key\")\n        sys.exit(1)\n    if model == \"gemini-pro-vision\" and not config.google_api_key:\n        print(\"To use `gemini-pro-vision` add a Google API key\")\n        sys.exit(1)",
+        "type": "code",
+        "location": "/operate/dialog.py:173-192"
+    },
+    "95": {
+        "file_id": 7,
+        "content": "This code checks the input parameters for dialog operation and raises SystemExit if the input parameters are invalid. It also prints a message indicating which API key is missing based on the chosen model.",
+        "type": "comment"
+    },
+    "96": {
+        "file_id": 8,
+        "content": "/operate/exceptions.py",
+        "type": "filepath"
+    },
+    "97": {
+        "file_id": 8,
+        "content": "This code defines a class for an exception that is raised when the model is not recognized. The class has two attributes: \"model\" and \"message\", both of which are set in the constructor. It also overrides the \"__str__()\" method to provide a custom string representation of the exception.",
+        "type": "summary"
+    },
+    "98": {
+        "file_id": 8,
+        "content": "class ModelNotRecognizedException(Exception):\n    \"\"\"Exception raised for unrecognized models.\n    Attributes:\n        model -- the unrecognized model\n        message -- explanation of the error\n    \"\"\"\n    def __init__(self, model, message=\"Model not recognized\"):\n        self.model = model\n        self.message = message\n        super().__init__(self.message)\n    def __str__(self):\n        return f\"{self.message} : {self.model} \"",
+        "type": "code",
+        "location": "/operate/exceptions.py:1-15"
+    },
+    "99": {
+        "file_id": 8,
+        "content": "This code defines a class for an exception that is raised when the model is not recognized. The class has two attributes: \"model\" and \"message\", both of which are set in the constructor. It also overrides the \"__str__()\" method to provide a custom string representation of the exception.",
+        "type": "comment"
+    }
+}
