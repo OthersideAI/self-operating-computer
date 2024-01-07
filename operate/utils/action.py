@@ -3,7 +3,7 @@ import platform
 import time
 import math
 
-from operate.utils.utils import convert_percent_to_decimal
+from operate.utils.misc import convert_percent_to_decimal
 
 
 def keyboard_type(text):

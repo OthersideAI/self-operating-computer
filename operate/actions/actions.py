@@ -12,12 +12,12 @@ from ultralytics import YOLO
 import google.generativeai as genai
 from operate.config.settings import Config
 from operate.exceptions.exceptions import ModelNotRecognizedException
-from operate.utils.screenshot_util import (
+from operate.utils.screenshot import (
     capture_screen_with_cursor,
     add_grid_to_image,
     capture_mini_screenshot_with_cursor,
 )
-from operate.utils.action_util import get_last_assistant_message
+from operate.utils.action import get_last_assistant_message
 from operate.prompts.prompts import (
     format_vision_prompt,
     format_accurate_mode_vision_prompt,
@@ -27,7 +27,7 @@ from operate.prompts.prompts import (
 )
 
 
-from operate.utils.labeling import (
+from operate.utils.label import (
     add_labels,
     parse_click_content,
     get_click_position_in_percent,

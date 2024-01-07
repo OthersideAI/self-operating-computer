@@ -7,7 +7,7 @@ from prompt_toolkit import prompt
 from operate.exceptions.exceptions import ModelNotRecognizedException
 from operate.prompts.prompts import USER_QUESTION
 from operate.config.settings import Config
-from operate.utils.styles import (
+from operate.utils.style import (
     ANSI_GREEN,
     ANSI_RESET,
     ANSI_BLUE,
@@ -16,13 +16,13 @@ from operate.utils.styles import (
     ANSI_BRIGHT_MAGENTA,
     style,
 )
-from operate.utils.action_util import (
+from operate.utils.action import (
     keyboard_type,
     search,
     mouse_click,
 )
 from operate.actions.actions import get_next_action, summarize
-from operate.utils.utils import parse_response
+from operate.utils.misc import parse_response
 
 # Load configuration
 config = Config()
