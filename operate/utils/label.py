@@ -112,12 +112,10 @@ def add_labels(base64_data, yolo_model):
                     label_coordinates[label] = (x1, y1, x2, y2)
 
                     counter += 1
-                # else:
-                # print("[app.py][process_image] skipping overlapping box")
 
     # Save the image
     timestamp = time.strftime("%Y%m%d-%H%M%S")
-    print("[app.py][process_image] image", f"img_{timestamp}_labeled.png")
+
     output_path = os.path.join(detections_dir, f"img_{timestamp}_labeled.png")
     output_path_debug = os.path.join(detections_dir, f"img_{timestamp}_debug.png")
     output_path_original = os.path.join(detections_dir, f"img_{timestamp}_original.png")
@@ -157,9 +155,6 @@ def parse_click_content(message_content):
         # Convert JSON string to dictionary
         return json.loads(message_content.strip())
     except json.JSONDecodeError as e:
-        print(
-            f"[app.py][parse_click_content] failed on message_content: {message_content}\nError: {str(e)}"
-        )
         return {"error": "Invalid JSON format"}
 
     return {"error": "Invalid response format"}

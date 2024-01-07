@@ -33,6 +33,11 @@ from operate.utils.label import (
     get_click_position_in_percent,
     get_label_coordinates,
 )
+from operate.utils.style import (
+    ANSI_GREEN,
+    ANSI_RED,
+    ANSI_RESET,
+)
 
 
 # Load configuration
@@ -347,12 +352,9 @@ async def call_gpt_4_v_labeled(messages, objective):
             return decision_content
 
         label_data = parse_click_content(click_content)
-        print("[app.py][click] label to click =>", label_data.get("label"))
-        print("[app.py][click] label_data", label_data)
 
         if label_data and "label" in label_data:
             coordinates = get_label_coordinates(label_data["label"], label_coordinates)
-            # print("[app.py][click] coordinates", coordinates)
             image = Image.open(
                 io.BytesIO(base64.b64decode(img_base64))
             )  # Load the image to get its size
@@ -361,24 +363,28 @@ async def call_gpt_4_v_labeled(messages, objective):
                 coordinates, image_size
             )
             if not click_position_percent:
-                raise Exception("Failed to get click position in percent")
+                print(
+                    f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Failed to get click position in percent. Trying another method {ANSI_RESET}"
+                )
+                return call_gpt_4_v(messages, objective)
 
             x_percent = f"{click_position_percent[0]:.2f}%"
             y_percent = f"{click_position_percent[1]:.2f}%"
             click_action = f'CLICK {{ "x": "{x_percent}", "y": "{y_percent}", "description": "{label_data["decision"]}", "reason": "{label_data["reason"]}" }}'
-            print(
-                f"[app.py][click] returning click precentages: y - {y_percent}, x - {x_percent}"
-            )
+
         else:
-            print("[app.py][click][error] no label found")
-            print("[app.py][click][error] label_data", label_data)
-            raise Exception("Failed to get click position in percent")
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] No label found. Trying another method {ANSI_RESET}"
+            )
+            return call_gpt_4_v(messages, objective)
 
         return click_action
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
-        return "Failed take action after looking at the screenshot"
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}"
+        )
+        return call_gpt_4_v(messages, objective)
 
 
 async def fetch_openai_response_async(messages):
