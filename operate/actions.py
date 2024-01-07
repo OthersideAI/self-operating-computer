@@ -17,7 +17,7 @@ from operate.utils.screenshot import (
     add_grid_to_image,
     capture_mini_screenshot_with_cursor,
 )
-from operate.utils.operate import get_last_assistant_message
+from operate.utils.os import get_last_assistant_message
 from operate.prompts import (
     format_vision_prompt,
     format_accurate_mode_vision_prompt,

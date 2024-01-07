@@ -6,7 +6,7 @@ import math
 from operate.utils.misc import convert_percent_to_decimal
 
 
-def keyboard_type(text):
+def type(text):
     """
     Types the given text using the keyboard.
 
@@ -53,6 +53,31 @@ def search(text):
     return "Open program: " + text
 
 
+def click(click_detail):
+    """
+    Perform a mouse click at the specified coordinates.
+
+    Args:
+        click_detail (dict): A dictionary containing the coordinates of the click.
+
+    Returns:
+        str: The description of the click if successful, otherwise "We failed to click".
+    """
+    try:
+        x = convert_percent_to_decimal(click_detail["x"])
+        y = convert_percent_to_decimal(click_detail["y"])
+
+        if click_detail and isinstance(x, float) and isinstance(y, float):
+            click_at_percentage(x, y)
+            return click_detail["description"]
+        else:
+            return "We failed to click"
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "We failed to click"
+
+
 def click_at_percentage(
     x_percentage, y_percentage, duration=0.2, circle_radius=50, circle_duration=0.5
 ):
@@ -90,31 +115,6 @@ def click_at_percentage(
     # Finally, click
     pyautogui.click(x_pixel, y_pixel)
     return "Successfully clicked"
-
-
-def mouse_click(click_detail):
-    """
-    Perform a mouse click at the specified coordinates.
-
-    Args:
-        click_detail (dict): A dictionary containing the coordinates of the click.
-
-    Returns:
-        str: The description of the click if successful, otherwise "We failed to click".
-    """
-    try:
-        x = convert_percent_to_decimal(click_detail["x"])
-        y = convert_percent_to_decimal(click_detail["y"])
-
-        if click_detail and isinstance(x, float) and isinstance(y, float):
-            click_at_percentage(x, y)
-            return click_detail["description"]
-        else:
-            return "We failed to click"
-
-    except Exception as e:
-        print(f"Error parsing JSON: {e}")
-        return "We failed to click"
 
 
 def get_last_assistant_message(messages):

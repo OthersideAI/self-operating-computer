@@ -16,10 +16,10 @@ from operate.utils.style import (
     ANSI_BRIGHT_MAGENTA,
     style,
 )
-from operate.utils.operate import (
-    keyboard_type,
+from operate.utils.os import (
+    type,
     search,
-    mouse_click,
+    click,
 )
 from operate.actions import get_next_action, summarize
 from operate.utils.misc import parse_response
@@ -139,9 +139,9 @@ def main(model, terminal_prompt, voice_mode=False):
         if action_type == "SEARCH":
             function_response = search(action_detail)
         elif action_type == "TYPE":
-            function_response = keyboard_type(action_detail)
+            function_response = type(action_detail)
         elif action_type == "CLICK":
-            function_response = mouse_click(action_detail)
+            function_response = click(action_detail)
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}"
