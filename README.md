@@ -123,6 +123,19 @@ Start `operate` with the Gemini model
 operate -m gemini-pro-vision
 ```
 
+### Set-of-Mark Prompting `-m gpt-4-with-som`
+The Self-Operating Computer Framework now supports Set-of-Mark (SoM) Prompting with the `gpt-4-with-som` command. This new visual prompting method enhances the visual grounding capabilities of large multimodal models.
+
+Learn more about SoM Prompting in the detailed arXiv paper: [here](https://arxiv.org/abs/2310.11441).
+
+For this initial version, a simple YOLOv8 model is trained for button detection, and the `best.pt` file is included under `model/weights/`. Users are encouraged to swap in their `best.pt` file to evaluate performance improvements. If your model outperforms the existing one, please contribute by creating a pull request (PR).
+
+Start `operate` with the SoM model
+
+```
+operate -m gpt-4-with-som
+```
+
 ### Voice Mode `--voice`
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
 
