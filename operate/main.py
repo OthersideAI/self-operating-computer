@@ -3,7 +3,7 @@ Self-Operating Computer
 """
 import argparse
 from operate.utils.style import ANSI_BRIGHT_MAGENTA
-from operate.dialogs.dialog import main
+from operate.dialog import main
 
 
 def main_entry():

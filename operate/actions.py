@@ -10,15 +10,15 @@ import aiohttp
 from PIL import Image
 from ultralytics import YOLO
 import google.generativeai as genai
-from operate.config.settings import Config
-from operate.exceptions.exceptions import ModelNotRecognizedException
+from operate.settings import Config
+from operate.exceptions import ModelNotRecognizedException
 from operate.utils.screenshot import (
     capture_screen_with_cursor,
     add_grid_to_image,
     capture_mini_screenshot_with_cursor,
 )
 from operate.utils.action import get_last_assistant_message
-from operate.prompts.prompts import (
+from operate.prompts import (
     format_vision_prompt,
     format_accurate_mode_vision_prompt,
     format_summary_prompt,

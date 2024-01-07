@@ -4,9 +4,9 @@ import platform
 import asyncio
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
-from operate.exceptions.exceptions import ModelNotRecognizedException
-from operate.prompts.prompts import USER_QUESTION
-from operate.config.settings import Config
+from operate.exceptions import ModelNotRecognizedException
+from operate.prompts import USER_QUESTION
+from operate.settings import Config
 from operate.utils.style import (
     ANSI_GREEN,
     ANSI_RESET,
@@ -21,7 +21,7 @@ from operate.utils.action import (
     search,
     mouse_click,
 )
-from operate.actions.actions import get_next_action, summarize
+from operate.actions import get_next_action, summarize
 from operate.utils.misc import parse_response
 
 # Load configuration

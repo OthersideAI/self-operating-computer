@@ -1,4 +1,4 @@
-from operate.config.settings import Config
+from operate.settings import Config
 
 config = Config()
 monitor_size = config.monitor_size

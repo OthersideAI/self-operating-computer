@@ -6,8 +6,8 @@ from PIL import Image, ImageDraw, ImageGrab
 import Xlib.display
 import Xlib.X
 import Xlib.Xutil  # not sure if Xutil is necessary
-from operate.config.settings import Config
-from operate.prompts.prompts import ACCURATE_PIXEL_COUNT
+from operate.settings import Config
+from operate.prompts import ACCURATE_PIXEL_COUNT
 
 # Load configuration
 config = Config()
