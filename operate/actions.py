@@ -40,7 +40,8 @@ config = Config()
 
 client = config.initialize_openai_client()
 
-yolo_model = None
+
+yolo_model = YOLO("./model/weights/best.pt")  # Load your trained model
 
 
 async def get_next_action(model, messages, objective):
