@@ -16,7 +16,7 @@ from operate.utils.style import (
     ANSI_BRIGHT_MAGENTA,
     style,
 )
-from operate.utils.action import (
+from operate.utils.operate import (
     keyboard_type,
     search,
     mouse_click,
