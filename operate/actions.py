@@ -6,6 +6,7 @@ import re
 import io
 import asyncio
 import aiohttp
+import requests
 
 from PIL import Image
 from ultralytics import YOLO
@@ -408,7 +409,7 @@ async def call_gpt_4_v_labeled(messages, objective):
         return call_gpt_4_v(messages, objective)
 
 
-async def fetch_agent_1_response(session_id, objective, base64_image):
+def fetch_agent_1_response(session_id, objective, base64_image):
     print("[call_agent_1][fetch_agent_1_response]")
     url = "http://127.0.0.1:5000/agent/v1/action"
     api_token = os.environ.get("AGENT_API_KEY")
@@ -422,12 +423,9 @@ async def fetch_agent_1_response(session_id, objective, base64_image):
         "image": f"data:image/jpeg;base64,{base64_image}",
     }
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            url, headers=headers, data=json.dumps(data)
-        ) as response:
-            print("[call_agent_1][fetch_agent_1_response] response", response.json())
-            return await response.json()
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    print("[call_agent_1][fetch_agent_1_response] response", response.json())
+    return response.json()
 
 
 async def fetch_openai_response_async(messages):
