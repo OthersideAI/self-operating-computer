@@ -99,11 +99,15 @@ def main(model, terminal_prompt, voice_mode=False):
 
     loop_count = 0
 
+    session_id = None
+
     while True:
         if config.debug:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
-            response = asyncio.run(get_next_action(model, messages, objective))
+            response = asyncio.run(
+                get_next_action(model, messages, objective, session_id)
+            )
 
             action = parse_response(response)
             action_type = action.get("type")

@@ -48,21 +48,38 @@ client = config.initialize_openai_client()
 yolo_model = YOLO("./operate/model/weights/best.pt")  # Load your trained model
 
 
-async def get_next_action(model, messages, objective):
+async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4":
         return call_gpt_4_v(messages, objective)
     if model == "gpt-4-with-som":
         return await call_gpt_4_v_labeled(messages, objective)
     elif model == "agent-1":
-        return call_agent_1(messages, objective)
+        return call_agent_1(session_id, objective)
     elif model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective)
 
     raise ModelNotRecognizedException(model)
 
 
-def call_agent_1(messages, objective):
-    return "coming soon"
+def call_agent_1(session_id, objective):
+    print("[call_agent_1]")
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        with open(screenshot_filename, "rb") as img_file:
+            base64_image = base64.b64encode(img_file.read()).decode("utf-8")
+
+        response = fetch_agent_1_response(session_id, objective, base64_image)
+        print("[call_agent_1] response", response)
+
+        return response
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed take action after looking at the screenshot"
 
 
 def call_gpt_4_v(messages, objective):
@@ -384,11 +401,33 @@ async def call_gpt_4_v_labeled(messages, objective):
 
         return click_action
 
-    except Exception as e:
+    except:
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}"
         )
         return call_gpt_4_v(messages, objective)
+
+
+async def fetch_agent_1_response(session_id, objective, base64_image):
+    print("[call_agent_1][fetch_agent_1_response]")
+    url = "http://127.0.0.1:5000/agent/v1/action"
+    api_token = os.environ.get("AGENT_API_KEY")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_token}",
+    }
+    data = {
+        "session_id": session_id,
+        "objective": objective,
+        "image": f"data:image/jpeg;base64,{base64_image}",
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            url, headers=headers, data=json.dumps(data)
+        ) as response:
+            print("[call_agent_1][fetch_agent_1_response] response", response.json())
+            return await response.json()
 
 
 async def fetch_openai_response_async(messages):
