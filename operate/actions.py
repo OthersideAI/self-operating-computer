@@ -71,15 +71,19 @@ def call_agent_1(session_id, objective):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+
+        capture_screen_with_cursor(screenshot_filename)
+
         with open(screenshot_filename, "rb") as img_file:
             base64_image = base64.b64encode(img_file.read()).decode("utf-8")
 
+        print("[call_agent_1] about to fetch_agent_1_response")
         response = fetch_agent_1_response(session_id, objective, base64_image)
         print("[call_agent_1] response", response)
 
         return response
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
+        print(f"Error: {e}")
         return "Failed take action after looking at the screenshot"
 
 
@@ -149,7 +153,7 @@ def call_gpt_4_v(messages, objective):
         return content
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
+        print(f"Error: {e}")
         return "Failed take action after looking at the screenshot"
 
 
@@ -201,7 +205,7 @@ def call_gemini_pro_vision(messages, objective):
         return content
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
+        print(f"Error: {e}")
         return "Failed take action after looking at the screenshot"
 
 
@@ -424,8 +428,8 @@ def fetch_agent_1_response(session_id, objective, base64_image):
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(data))
-    print("[call_agent_1][fetch_agent_1_response] response", response.json())
-    return response.json()
+    print("[call_agent_1][fetch_agent_1_response] response", response.text)
+    return response.text
 
 
 async def fetch_openai_response_async(messages):
