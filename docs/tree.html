@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="github-markdown.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .directory:hover {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        :target {
+            background-color: yellow;
+        }
+
+        .folded::before {
+            content: '\25B6';
+            margin-right: 8px;
+            /* Add space between marker and text */
+        }
+
+        .expanded::before {
+            content: '\25BC';
+            margin-right: 8px;
+            /* Add space between marker and text */
+        }
+    </style>
+    <script>
+        function toggleVisibility(element) {
+            let mclass = element.getAttribute("class");
+            if (mclass == "expanded") {
+                element.setAttribute('class', 'folded');
+            } else {
+                element.setAttribute('class', 'expanded');
+            }
+            const siblings = element.parentNode.children;
+            for (const sibling of siblings) {
+                if (sibling !== element) {
+                    sibling.style.display = (sibling.style.display === 'none') ? 'block' : 'none';
+                }
+            }
+        }
+    </script>
+    <style>
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+
+        @media (max-width: 767px) {
+            .markdown-body {
+                padding: 15px;
+            }
+
+            .partial-repository-url {
+                display: none;
+            }
+        }
+
+        ul {
+            list-style: none;
+        }
+    </style>
+</head>
+
+<body>
+    <article class="markdown-body">
+        <h2>Project Structure<span hierarchy="0" class="partial-repository-url"> of: OthersideAI/self-operating-computer</span><div style="float: right;"><a href="index.html"><i class="bi bi-search"></i></a></div></h2>
+<ul>
+<li><span hierarchy="0" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/"><code>self-operating-computer</code></strong> <em>Self-Operating Computer Framework: Multi-modal AI automation tools.</em></span><ul>
+<li><a href="index.html?q=/README.md" id="/README.md"><code>README.md</code></a> <em>Self-Operating Computer Framework: Enhancing multimodal models for mouse click predictions and API access.</em></li>
+<li><a href="index.html?q=/evaluate.py" id="/evaluate.py"><code>evaluate.py</code></a> <em>Evaluate image adherence with GPT-4 Vision and color-coded messages.</em></li>
+<li><span hierarchy="1" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/operate/"><code>operate</code></strong> <em>Operating system and tools for self-automation.</em></span><ul>
+<li><a href="index.html?q=/operate/actions.py" id="/operate/actions.py"><code>actions.py</code></a> <em>Generate content with AI prompts and OpenAI API.</em></li>
+<li><a href="index.html?q=/operate/dialog.py" id="/operate/dialog.py"><code>dialog.py</code></a> <em>Dialog system with error handling and input checks</em></li>
+<li><a href="index.html?q=/operate/exceptions.py" id="/operate/exceptions.py"><code>exceptions.py</code></a> <em>Exception class for unrecognized model</em></li>
+<li><a href="index.html?q=/operate/main.py" id="/operate/main.py"><code>main.py</code></a> <em>Self-Operating Computer Main Entry Point</em></li>
+<li><a href="index.html?q=/operate/prompts.py" id="/operate/prompts.py"><code>prompts.py</code></a> <em>AI-assisted Chrome, Docs, Sheets prompts with contextual options.</em></li>
+<li><a href="index.html?q=/operate/settings.py" id="/operate/settings.py"><code>settings.py</code></a> <em>Manages settings, loads .env, initializes OpenAI client.</em></li>
+<li><span hierarchy="2" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/operate/utils/"><code>utils</code></strong> <em>Utility functions and tools for various tasks.</em></span><ul>
+<li><a href="index.html?q=/operate/utils/label.py" id="/operate/utils/label.py"><code>label.py</code></a> <em>Image data handling and encoding utilities.</em></li>
+<li><a href="index.html?q=/operate/utils/misc.py" id="/operate/utils/misc.py"><code>misc.py</code></a> <em>Converts percentages, extracts JSON and classifies responses.</em></li>
+<li><a href="index.html?q=/operate/utils/os.py" id="/operate/utils/os.py"><code>os.py</code></a> <em>OS Utilities: Search, Input, Click, Move. Last Assistant Message.</em></li>
+<li><a href="index.html?q=/operate/utils/screenshot.py" id="/operate/utils/screenshot.py"><code>screenshot.py</code></a> <em>Screenshot capture and grid addition with PIL.</em></li>
+<li><a href="index.html?q=/operate/utils/style.py" id="/operate/utils/style.py"><code>style.py</code></a> <em>Style utility with PromptStyle and ANSI check</em></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="index.html?q=/requirements-audio.txt" id="/requirements-audio.txt"><code>requirements-audio.txt</code></a> <em>Capture quiet or whispered audio with Whisper-Mic.</em></li>
+<li><a href="index.html?q=/requirements.txt" id="/requirements.txt"><code>requirements.txt</code></a> <em>Python packages: aiohttp 3.9.1, ultralytics 8.0.227</em></li>
+<li><a href="index.html?q=/run.sh" id="/run.sh"><code>run.sh</code></a> <em>Install Linux, configure .env with OpenAI key.</em></li>
+<li><a href="index.html?q=/setup.py" id="/setup.py"><code>setup.py</code></a> <em>Setup script for self-operating-computer package using setuptools.</em></li>
+</ul>
+</li>
+</ul>
+    </article>
+    <script type="text/javascript">
+        function getQueryParams() {
+            var search = window.location.search.substring(1); // Remove leading '?'
+            var queryParams = {};
+            search.split('&').forEach(function (pair) {
+                var parts = pair.split('=');
+                var key = decodeURIComponent(parts[0]);
+                var value = decodeURIComponent(parts[1]);
+                queryParams[key] = value;
+            });
+            return queryParams;
+        }
+
+        const queryParams = getQueryParams(window.location.search);
+        const show_full = queryParams.full == "true";
+        if (!show_full) {
+            const spans = document.querySelectorAll('span');
+            for (let span of spans) {
+                if (span.getAttribute("hierarchy") == '0') { continue }
+
+                toggleVisibility(span);
+            }
+        }
+    </script>
+</body>
+
+</html>
