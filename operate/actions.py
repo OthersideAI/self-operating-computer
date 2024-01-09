@@ -54,11 +54,15 @@ async def get_next_action(model, messages, objective):
     if model == "gpt-4-with-som":
         return await call_gpt_4_v_labeled(messages, objective)
     elif model == "agent-1":
-        return "coming soon"
+        return call_agent_1(messages, objective)
     elif model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective)
 
     raise ModelNotRecognizedException(model)
+
+
+def call_agent_1(messages, objective):
+    return "coming soon"
 
 
 def call_gpt_4_v(messages, objective):
