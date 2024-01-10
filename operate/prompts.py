@@ -107,10 +107,10 @@ Response: CLICK
 2. TYPE
 Response: TYPE "value you want to type"
 
-2. SEARCH
+3. SEARCH
 Response: SEARCH "app you want to search for on Mac"
 
-3. DONE
+4. DONE
 Response: DONE
 
 Here are examples of how to respond.
