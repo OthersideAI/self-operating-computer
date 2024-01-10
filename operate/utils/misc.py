@@ -77,7 +77,7 @@ def parse_response(response):
     """
     if response == "DONE":
         return {"type": "DONE", "data": None}
-    elif response.startswith("CLICK"):
+    elif response.strip().startswith("CLICK"):
         # Adjust the regex to match the correct format
         click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
         click_data_json = json.loads(f"{{{click_data}}}")

@@ -26,19 +26,19 @@ TYPE - Type on the keyboard
 SEARCH - Search for a program on Mac and open it
 DONE - When you completed the task respond with the exact following phrase content
 
-Here are the response formats below. Note that you MUST respond in JSON format.
+Here are the response formats below.
 
-1. CLICK
+CLICK
 Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
 Note that the percents work where the top left corner is "x": "0%" and "y": "0%" and the bottom right corner is "x": "100%" and "y": "100%"
 
-2. TYPE
+TYPE
 Response: TYPE <value you want to type>
 
-3. SEARCH
+SEARCH
 Response: SEARCH <app you want to search for on Mac>
 
-4. DONE
+DONE
 Response: DONE
 
 Here are examples of how to respond.
