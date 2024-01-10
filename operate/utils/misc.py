@@ -75,9 +75,11 @@ def parse_response(response):
               If the response starts with "SEARCH", the type is "SEARCH" and the data is the search query.
               If the response doesn't match any of the above patterns, the type is "UNKNOWN" and the data is the original response.
     """
+    response = response.strip()
+    
     if response == "DONE":
         return {"type": "DONE", "data": None}
-    elif response.strip().startswith("CLICK"):
+    elif response.startswith("CLICK"):
         # Adjust the regex to match the correct format
         click_data = re.search(r"CLICK \{ (.+) \}", response).group(1)
         click_data_json = json.loads(f"{{{click_data}}}")
