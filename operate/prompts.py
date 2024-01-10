@@ -35,10 +35,10 @@ Note that the percents work where the top left corner is "x": "0%" and "y": "0%"
 2. TYPE
 Response: TYPE <value you want to type>
 
-2. SEARCH
+3. SEARCH
 Response: SEARCH <app you want to search for on Mac>
 
-3. DONE
+4. DONE
 Response: DONE
 
 Here are examples of how to respond.
