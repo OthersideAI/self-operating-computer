@@ -21,12 +21,12 @@ From looking at the screen and the objective your goal is to take the best next 
 
 To operate the computer you have the four options below.
 
-1. CLICK - Move mouse and click
-2. TYPE - Type on the keyboard
-3. SEARCH - Search for a program on Mac and open it
-4. DONE - When you completed the task respond with the exact following phrase content
+CLICK - Move mouse and click
+TYPE - Type on the keyboard
+SEARCH - Search for a program on Mac and open it
+DONE - When you completed the task respond with the exact following phrase content
 
-Here are the response formats below.
+Here are the response formats below. Note that you MUST respond in JSON format.
 
 1. CLICK
 Response: CLICK {{ "x": "percent", "y": "percent", "description": "~description here~", "reason": "~reason here~" }} 
@@ -35,10 +35,10 @@ Note that the percents work where the top left corner is "x": "0%" and "y": "0%"
 2. TYPE
 Response: TYPE <value you want to type>
 
-2. SEARCH
+3. SEARCH
 Response: SEARCH <app you want to search for on Mac>
 
-3. DONE
+4. DONE
 Response: DONE
 
 Here are examples of how to respond.

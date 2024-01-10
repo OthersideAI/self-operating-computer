@@ -6,6 +6,7 @@ import re
 import io
 import asyncio
 import aiohttp
+import requests
 
 from PIL import Image
 from ultralytics import YOLO
@@ -57,6 +58,9 @@ async def get_next_action(model, messages, objective):
         return "coming soon"
     elif model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective)
+    elif model == "llava":
+        content = call_llava(messages, objective)
+        return content
 
     raise ModelNotRecognizedException(model)
 
@@ -175,6 +179,76 @@ def call_gemini_pro_vision(messages, objective):
             }
         )
         content = response.text[1:]
+
+        return content
+
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "Failed take action after looking at the screenshot"
+
+def call_llava(messages, objective):
+    # sleep for a second
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        new_screenshot_filename = os.path.join(
+            "screenshots", "screenshot_with_grid.png"
+        )
+
+        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
+        # sleep for a second
+        time.sleep(1)
+
+        with open(new_screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        previous_action = get_last_assistant_message(messages)
+
+        vision_prompt = format_vision_prompt(objective, previous_action)
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": vision_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+
+        # create a copy of messages and save to pseudo_messages
+        pseudo_messages = messages.copy()
+        #pseudo_messages.append(vision_message)
+
+        response = requests.post(
+            "http://0.0.0.0:11434/api/generate",
+            json={
+                "model": "llava",
+                "prompt": vision_prompt,
+                "messages": pseudo_messages, 
+                "images": [img_base64],
+                "stream": False
+            },
+        )
+
+        response.raise_for_status()
+
+        messages.append(
+            {
+                "role": "user",
+                "content": "`screenshot.png`",
+            }
+        )
+
+        content = json.loads(response.text)["response"]
 
         return content
 
