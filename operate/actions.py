@@ -258,7 +258,7 @@ def summarize(model, messages, objective):
                     },
                 ],
             }
-            # create a copy of messages and save to pseudo_messages
+            
             messages.append(summary_message)
 
             response = client.chat.completions.create(
