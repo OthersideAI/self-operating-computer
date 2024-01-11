@@ -17,12 +17,12 @@ from operate.utils.style import (
     style,
 )
 from operate.utils.os import (
-    keyboard_type,
+    keyboard,
     search,
     click,
 )
 from operate.actions import get_next_action, summarize
-from operate.utils.misc import parse_response
+from operate.utils.misc import parse_operation
 
 # Load configuration
 config = Config()
@@ -105,13 +105,9 @@ def main(model, terminal_prompt, voice_mode=False):
         if config.debug:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
-            response = asyncio.run(
+            operations = asyncio.run(
                 get_next_action(model, messages, objective, session_id)
             )
-
-            action = parse_response(response)
-            action_type = action.get("type")
-            action_detail = action.get("data")
 
         except ModelNotRecognizedException as e:
             print(
@@ -124,7 +120,23 @@ def main(model, terminal_prompt, voice_mode=False):
             )
             break
 
-        if action_type == "DONE":
+        stop = execute_operations(operations, messages, model, objective)
+        if stop:
+            break
+
+        loop_count += 1
+        if loop_count > 15:
+            break
+
+
+def execute_operations(operations, messages, model, objective):
+    for operate in operations:
+        o = parse_operation(operate)
+        operation_type = o.get("type")
+        operation_detail = o.get("data")
+        function_response = ""
+
+        if operation_type == "DONE":
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
             )
@@ -132,31 +144,30 @@ def main(model, terminal_prompt, voice_mode=False):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
             )
-            break
+            return True
 
-        if action_type != "UNKNOWN":
+        if operation_type != "UNKNOWN":
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} {ANSI_RESET}{action_detail}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operation_type} {ANSI_RESET}{operation_detail}"
             )
 
-        function_response = ""
-        if action_type == "SEARCH":
-            function_response = search(action_detail)
-        elif action_type == "TYPE":
-            function_response = keyboard_type(action_detail)
-        elif action_type == "CLICK":
-            function_response = click(action_detail)
+        if operation_type == "SEARCH":
+            function_response = search(operation_detail)
+        elif operation_type == "TYPE":
+            function_response = keyboard(operation_detail)
+        elif operation_type == "CLICK":
+            function_response = click(operation_detail)
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}"
             )
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{response}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{operate}"
             )
             break
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {action_type} COMPLETE {ANSI_RESET}{function_response}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operation_type} COMPLETE {ANSI_RESET}{function_response}"
         )
 
         message = {
@@ -164,10 +175,6 @@ def main(model, terminal_prompt, voice_mode=False):
             "content": function_response,
         }
         messages.append(message)
-
-        loop_count += 1
-        if loop_count > 15:
-            break
 
 
 def validation(model, voice_mode):

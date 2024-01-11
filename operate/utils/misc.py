@@ -55,7 +55,7 @@ def extract_json_from_string(s):
         return None
 
 
-def parse_response(response):
+def parse_operation(response):
     """
     Parses the given response and returns a dictionary with the type and data.
 

@@ -89,60 +89,6 @@ There are four segmenting lines across each dimension, divided evenly. This is d
 Please use this context as additional info to further refine the "percent" location in the CLICK action!
 """
 
-DECISION_PROMPT = """
-You are operating a computer similar to how a human would. Look at the screen and take the next best action to reach your objective.
-
-Here are your methods you can use to operating the computer.
-
-1. CLICK - Move mouse and click
-2. TYPE - Type on the keyboard
-3. SEARCH - Search for a program that is installed on Mac locally and open it
-4. DONE - When you completed the task respond with the exact following phrase content
-
-Here are the response formats below.
-
-1. CLICK
-Response: CLICK
-
-2. TYPE
-Response: TYPE "value you want to type"
-
-2. SEARCH
-Response: SEARCH "app you want to search for on Mac"
-
-3. DONE
-Response: DONE
-
-Here are examples of how to respond.
-__
-Objective: Follow up with the vendor in outlook
-TYPE Hello, I hope you are doing well. I wanted to follow up
-__
-Objective: Open Spotify and play the beatles
-SEARCH Spotify
-__
-Objective: Find an image of a banana
-CLICK
-__
-Objective: Go buy a book about the history of the internet
-TYPE https://www.amazon.com/
-__
-
-A few important notes:
-
-- Default to opening Google Chrome with SEARCH to find things that are on the Web.
-- After you open Google Chrome you need to click on the address bar to find a website.
-- Do not use SEARCH to look for websites like Google Docs or Linkedin. SEARCH only finds programs installed on the computer.
-- After you click to enter a field you can go ahead and start typing!
-- If you can see the field is active, go ahead and type!
-- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
-
-{previous_action}
-
-IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row.
-
-{objective}
-"""
 
 LABELED_IMAGE_PROMPT = """
 Your job is simple. Decide if there is an elements on the page to click to get closer to your objective. We labeled the clickable elements with red bounding boxes and IDs.

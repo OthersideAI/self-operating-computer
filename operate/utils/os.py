@@ -6,7 +6,7 @@ import math
 from operate.utils.misc import convert_percent_to_decimal
 
 
-def keyboard_type(text):
+def keyboard(text):
     """
     Types the given text using the keyboard.
 
@@ -51,6 +51,20 @@ def search(text):
 
     pyautogui.press("enter")
     return "Open program: " + text
+
+
+def hotkey(hotkey):
+    print("[hotkey] ", hotkey)
+    keys = hotkey.split("+")
+    print("[hotkey] keys", keys)
+    for key in keys:
+        print("[hotkey] keydown", key)
+        pyautogui.keyDown(key)
+    time.sleep(0.1)
+    for key in keys:
+        print("[hotkey] keyup", key)
+        pyautogui.keyUp(key)
+    return True
 
 
 def click(click_detail):
