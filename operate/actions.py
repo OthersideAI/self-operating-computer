@@ -55,7 +55,7 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4-with-som":
         return await [call_gpt_4_v_labeled(messages, objective)]
     elif model == "agent-1":
-        return call_agent_1(session_id, objective)
+        return [call_agent_1(session_id, objective)]
     elif model == "gemini-pro-vision":
         return [call_gemini_pro_vision(messages, objective)]
 
