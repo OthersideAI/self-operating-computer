@@ -164,7 +164,7 @@ def execute_operations(operations, messages, model, objective):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{operate}"
             )
-            break
+            return True
 
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operation_type} COMPLETE {ANSI_RESET}{function_response}"

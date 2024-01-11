@@ -50,10 +50,12 @@ yolo_model = YOLO("./operate/model/weights/best.pt")  # Load your trained model
 
 
 async def get_next_action(model, messages, objective, session_id):
+    print("[get_next_action]")
     if model == "gpt-4":
         return [call_gpt_4_v(messages, objective)]
     if model == "gpt-4-with-som":
-        return await [call_gpt_4_v_labeled(messages, objective)]
+        action = await call_gpt_4_v_labeled(messages, objective)
+        return [action]
     elif model == "agent-1":
         return [call_agent_1(session_id, objective)]
     elif model == "gemini-pro-vision":
