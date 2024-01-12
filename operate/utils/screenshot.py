@@ -7,7 +7,6 @@ import Xlib.display
 import Xlib.X
 import Xlib.Xutil  # not sure if Xutil is necessary
 from operate.settings import Config
-from operate.prompts import ACCURATE_PIXEL_COUNT
 
 # Load configuration
 config = Config()
@@ -80,73 +79,6 @@ def add_grid_to_image(original_image_path, new_image_path, grid_interval):
 
     # Save the image with the grid
     image.save(new_image_path)
-
-
-def capture_mini_screenshot_with_cursor(
-    file_path=os.path.join("screenshots", "screenshot_mini.png"), x=0, y=0
-):
-    """
-    Capture a mini screenshot with the cursor at the specified coordinates.
-
-    Args:
-        file_path (str, optional): The file path to save the screenshot. Defaults to "screenshots/screenshot_mini.png".
-        x (int or str, optional): The x-coordinate of the cursor position. Can be specified as an integer or a percentage string. Defaults to 0.
-        y (int or str, optional): The y-coordinate of the cursor position. Can be specified as an integer or a percentage string. Defaults to 0.
-    """
-    user_platform = platform.system()
-
-    if user_platform == "Linux":
-        x = float(x[:-1])  # convert x from "50%" to 50.
-        y = float(y[:-1])
-
-        x = (x / 100) * monitor_size[
-            "width"
-        ]  # convert x from 50 to 0.5 * monitor_width
-        y = (y / 100) * monitor_size["height"]
-
-        # Define the coordinates for the rectangle
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
-        x2, y2 = int(x + ACCURATE_PIXEL_COUNT / 2), int(y + ACCURATE_PIXEL_COUNT / 2)
-
-        screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
-        screenshot = screenshot.resize(
-            (screenshot.width * 2, screenshot.height * 2), Image.LANCZOS
-        )  # upscale the image so it's easier to see and percentage marks more visible
-        screenshot.save(file_path)
-
-        screenshots_dir = "screenshots"
-        grid_screenshot_filename = os.path.join(
-            screenshots_dir, "screenshot_mini_with_grid.png"
-        )
-
-        add_grid_to_image(
-            file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)
-        )
-    elif user_platform == "Darwin":
-        x = float(x[:-1])  # convert x from "50%" to 50.
-        y = float(y[:-1])
-
-        x = (x / 100) * monitor_size[
-            "width"
-        ]  # convert x from 50 to 0.5 * monitor_width
-        y = (y / 100) * monitor_size["height"]
-
-        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)
-
-        width = ACCURATE_PIXEL_COUNT
-        height = ACCURATE_PIXEL_COUNT
-        # Use the screencapture utility to capture the screen with the cursor
-        rect = f"-R{x1},{y1},{width},{height}"
-        subprocess.run(["screencapture", "-C", rect, file_path])
-
-        screenshots_dir = "screenshots"
-        grid_screenshot_filename = os.path.join(
-            screenshots_dir, "screenshot_mini_with_grid.png"
-        )
-
-        add_grid_to_image(
-            file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)
-        )
 
 
 def capture_screen_with_cursor(file_path):

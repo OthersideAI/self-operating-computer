@@ -126,20 +126,14 @@ def main(model, terminal_prompt, voice_mode=False):
             break
 
 
-def execute_operations(operation, messages, model, objective):
-    print("[execute_operations_new] operations before", operation)
-    print("[execute_operations_new] type(operations) before", type(operation))
-    try:
-        operation = json.loads(operation)
+def execute_operations(operations, messages, model, objective):
+    print("[execute_operations_new] operations before", operations)
+    print("[execute_operations_new] type(operations) before", type(operations))
 
-        print("[execute_operations_new] type(operations) after", type(operation))
-    except Exception as e:
-        print("[execute_operations_new] error", e)
-
-    for operate in operation:
+    for operate in operations:
         # wait one second
         time.sleep(3)
-        print("[execute_operations_new] operation", operation)
+        print("[execute_operations_new] operation", operations)
         operation_type = operate.get("operation")
         # print
         print("[execute_operations_new] operation_type", operation_type)

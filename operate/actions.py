@@ -17,7 +17,6 @@ from operate.exceptions import ModelNotRecognizedException
 from operate.utils.screenshot import (
     capture_screen_with_cursor,
     add_grid_to_image,
-    capture_mini_screenshot_with_cursor,
 )
 from operate.utils.os import get_last_assistant_message
 from operate.prompts import (
@@ -57,7 +56,7 @@ async def get_next_action(model, messages, objective, session_id):
         operation = await call_gpt_4_v_labeled(messages, objective)
         return [operation]
     elif model == "agent-1":
-        operation = call_agent_1(session_id, objective)
+        operation, session_id = call_agent_1(session_id, objective)
         return operation
     elif model == "gemini-pro-vision":
         return [call_gemini_pro_vision(messages, objective)]
@@ -81,10 +80,12 @@ def call_agent_1(session_id, objective):
             base64_image = base64.b64encode(img_file.read()).decode("utf-8")
 
         print("[call_agent_1] about to fetch_agent_1_response")
-        response = fetch_agent_1_response(session_id, objective, base64_image)
+        response, session_id = fetch_agent_1_response(
+            session_id, objective, base64_image
+        )
         print("[call_agent_1] response", response)
 
-        return response
+        return response, session_id
     except Exception as e:
         print(f"Error: {e}")
         return "Failed take action after looking at the screenshot"
@@ -382,8 +383,17 @@ def fetch_agent_1_response(session_id, objective, base64_image):
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
 
-    return response.text
+    print("[call_agent_1][fetch_agent_1_response] A response_dict", response_dict)
+    print(
+        "[call_agent_1][fetch_agent_1_response] A type(response_dict",
+        type(response_dict),
+    )
+    operations = response_dict.get("operations")
+    session_id = response_dict.get("session_id")
+
+    return operations, session_id
 
 
 async def fetch_openai_response_async(messages):
