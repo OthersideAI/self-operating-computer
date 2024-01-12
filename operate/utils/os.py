@@ -100,17 +100,3 @@ def click_at_percentage(
     # Finally, click
     pyautogui.click(x_pixel, y_pixel)
     return "Successfully clicked"
-
-
-def get_last_assistant_message(messages):
-    """
-    Retrieve the last message from the assistant in the messages array.
-    If the last assistant message is the first message in the array, return None.
-    """
-    for index in reversed(range(len(messages))):
-        if messages[index]["role"] == "assistant":
-            if index == 0:  # Check if the assistant message is the first in the array
-                return None
-            else:
-                return messages[index]
-    return None  # Return None if no assistant message is found

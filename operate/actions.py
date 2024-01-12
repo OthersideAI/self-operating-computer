@@ -17,7 +17,6 @@ from operate.exceptions import ModelNotRecognizedException
 from operate.utils.screenshot import (
     capture_screen_with_cursor,
 )
-from operate.utils.os import get_last_assistant_message
 from operate.prompts import (
     format_vision_prompt,
     format_summary_prompt,
@@ -399,3 +398,17 @@ async def fetch_openai_response_async(messages):
             url, headers=headers, data=json.dumps(data)
         ) as response:
             return await response.json()
+
+
+def get_last_assistant_message(messages):
+    """
+    Retrieve the last message from the assistant in the messages array.
+    If the last assistant message is the first message in the array, return None.
+    """
+    for index in reversed(range(len(messages))):
+        if messages[index]["role"] == "assistant":
+            if index == 0:  # Check if the assistant message is the first in the array
+                return None
+            else:
+                return messages[index]
+    return None  # Return None if no assistant message is found

@@ -3,22 +3,6 @@ import re
 
 
 def convert_percent_to_decimal(percent):
-    """
-    Converts a percentage string to a decimal value.
-
-    Args:
-        percent_str (str): The percentage string to be converted.
-
-    Returns:
-        float: The decimal value equivalent to the percentage.
-
-    Raises:
-        ValueError: If the input string cannot be converted to a float.
-
-    Example:
-        >>> convert_percent_to_decimal("20%")
-        0.2
-    """
     try:
         # Remove the '%' sign and convert to float
         decimal_value = float(percent)
@@ -31,25 +15,6 @@ def convert_percent_to_decimal(percent):
 
 
 def parse_operations(response):
-    """
-    Parses the given response and returns a dictionary with the type and data.
-
-    Args:
-        response (str): The response to parse.
-
-    Returns:
-        dict: A dictionary with the type and data extracted from the response.
-              The dictionary has the following structure:
-              {
-                  "type": <response_type>,
-                  "data": <response_data>
-              }
-              If the response is "DONE", the type is "DONE" and the data is None.
-              If the response starts with "CLICK", the type is "CLICK" and the data is a JSON object.
-              If the response starts with "TYPE", the type is "TYPE" and the data is the text to type.
-              If the response starts with "SEARCH", the type is "SEARCH" and the data is the search query.
-              If the response doesn't match any of the above patterns, the type is "UNKNOWN" and the data is the original response.
-    """
     if response == "DONE":
         return {"type": "DONE", "data": None}
     elif response.startswith("CLICK"):
