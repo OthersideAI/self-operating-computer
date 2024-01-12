@@ -16,7 +16,6 @@ from operate.settings import Config
 from operate.exceptions import ModelNotRecognizedException
 from operate.utils.screenshot import (
     capture_screen_with_cursor,
-    add_grid_to_image,
 )
 from operate.utils.os import get_last_assistant_message
 from operate.prompts import (
@@ -171,12 +170,6 @@ def call_gemini_pro_vision(messages, objective):
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
-
-        new_screenshot_filename = os.path.join(
-            "screenshots", "screenshot_with_grid.png"
-        )
-
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
         # sleep for a second
         time.sleep(1)
 
@@ -187,7 +180,7 @@ def call_gemini_pro_vision(messages, objective):
         model = genai.GenerativeModel("gemini-pro-vision")
 
         response = model.generate_content(
-            [vision_prompt, Image.open(new_screenshot_filename)]
+            [vision_prompt, Image.open(screenshot_filename)]
         )
 
         # create a copy of messages and save to pseudo_messages
