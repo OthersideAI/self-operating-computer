@@ -2,6 +2,7 @@ import os
 import time
 import json
 import base64
+
 import re
 import io
 import asyncio
@@ -21,7 +22,6 @@ from operate.utils.screenshot import (
 from operate.utils.os import get_last_assistant_message
 from operate.prompts import (
     format_vision_prompt,
-    format_accurate_mode_vision_prompt,
     format_summary_prompt,
     format_decision_prompt,
     format_label_prompt,
@@ -210,55 +210,6 @@ def call_gemini_pro_vision(messages, objective):
     except Exception as e:
         print(f"Error: {e}")
         return "Failed take action after looking at the screenshot"
-
-
-# This function is not used. `-accurate` mode was removed for now until a new PR fixes it.
-def accurate_mode_double_check(model, pseudo_messages, prev_x, prev_y):
-    """
-    Reprompt OAI with additional screenshot of a mini screenshot centered around the cursor for further finetuning of clicked location
-    """
-    try:
-        screenshot_filename = os.path.join("screenshots", "screenshot_mini.png")
-        capture_mini_screenshot_with_cursor(
-            file_path=screenshot_filename, x=prev_x, y=prev_y
-        )
-
-        new_screenshot_filename = os.path.join(
-            "screenshots", "screenshot_mini_with_grid.png"
-        )
-
-        with open(new_screenshot_filename, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-        accurate_vision_prompt = format_accurate_mode_vision_prompt(prev_x, prev_y)
-
-        accurate_mode_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": accurate_vision_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ],
-        }
-
-        pseudo_messages.append(accurate_mode_message)
-
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=pseudo_messages,
-            presence_penalty=1,
-            frequency_penalty=1,
-            temperature=0.7,
-            max_tokens=300,
-        )
-
-        content = response.choices[0].message.content
-
-    except Exception as e:
-        print(f"Error reprompting model for accurate_mode: {e}")
-        return "ERROR"
 
 
 def summarize(model, messages, objective):

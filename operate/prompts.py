@@ -6,10 +6,6 @@ monitor_size = config.monitor_size
 # General user Prompts
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
-# constants for the vision prompt
-ACCURATE_PIXEL_COUNT = (
-    200  # mini_screenshot is ACCURATE_PIXEL_COUNT x ACCURATE_PIXEL_COUNT big
-)
 
 # -------------------------
 # VISION PROMPT
@@ -70,23 +66,6 @@ A few important notes:
 IMPORTANT: Avoid repeating actions such as doing the same CLICK event twice in a row.
 
 Objective: {objective}
-"""
-
-
-# ----------------------------------
-# ACCURATE MODE VISION PROMPT
-# ----------------------------------
-ACCURATE_MODE_VISION_PROMPT = """
-It looks like your previous attempted action was clicking on "x": {prev_x}, "y": {prev_y}. This has now been moved to the center of this screenshot.
-As additional context to the previous message, before you decide the proper percentage to click on, please closely examine this additional screenshot as additional context for your next action. 
-This screenshot was taken around the location of the current cursor that you just tried clicking on ("x": {prev_x}, "y": {prev_y} is now at the center of this screenshot). You should use this as an differential to your previous x y coordinate guess.
-
-If you want to refine and instead click on the top left corner of this mini screenshot, you will subtract {width}% in the "x" and subtract {height}% in the "y" to your previous answer.
-Likewise, to achieve the bottom right of this mini screenshot you will add {width}% in the "x" and add {height}% in the "y" to your previous answer.
-
-There are four segmenting lines across each dimension, divided evenly. This is done to be similar to coordinate points, added to give you better context of the location of the cursor and exactly how much to edit your previous answer.
-
-Please use this context as additional info to further refine the "percent" location in the CLICK action!
 """
 
 
@@ -203,18 +182,6 @@ def format_vision_prompt(objective, previous_action):
     else:
         previous_action = ""
     prompt = VISION_PROMPT.format(objective=objective, previous_action=previous_action)
-    return prompt
-
-
-def format_accurate_mode_vision_prompt(prev_x, prev_y):
-    """
-    Format the accurate mode vision prompt
-    """
-    width = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["width"]) * 100
-    height = ((ACCURATE_PIXEL_COUNT / 2) / monitor_size["height"]) * 100
-    prompt = ACCURATE_MODE_VISION_PROMPT.format(
-        prev_x=prev_x, prev_y=prev_y, width=width, height=height
-    )
     return prompt
 
 
