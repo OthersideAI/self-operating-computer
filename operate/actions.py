@@ -57,6 +57,8 @@ async def get_next_action(model, messages, objective, session_id):
         return [operation], None
     elif model == "agent-1":
         operation, session_id = call_agent_1(session_id, objective)
+        print("[get_next_action] returning operation", operation)
+        print("[get_next_action] returning session_id", session_id)
         return operation, session_id
     elif model == "gemini-pro-vision":
         return [call_gemini_pro_vision(messages, objective)], None
@@ -384,12 +386,6 @@ def fetch_agent_1_response(session_id, objective, base64_image):
 
     response = requests.post(url, headers=headers, data=json.dumps(data))
     response_dict = response.json()
-
-    print("[call_agent_1][fetch_agent_1_response] A response_dict", response_dict)
-    print(
-        "[call_agent_1][fetch_agent_1_response] A type(response_dict",
-        type(response_dict),
-    )
     operations = response_dict.get("operations")
     session_id = response_dict.get("session_id")
 

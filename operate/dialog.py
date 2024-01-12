@@ -99,12 +99,12 @@ def main(model, terminal_prompt, voice_mode=False):
     session_id = None
 
     while True:
-        if config.debug:
-            print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
             operations, session_id = asyncio.run(
                 get_next_action(model, messages, objective, session_id)
             )
+            print("[loop] asyncio.run get_next_action got operations", operations)
+            print("[loop] asyncio.run get_next_action got session_id", session_id)
 
         except ModelNotRecognizedException as e:
             print(
@@ -127,8 +127,7 @@ def main(model, terminal_prompt, voice_mode=False):
 
 
 def execute_operations(operations, messages, model, objective):
-    print("[execute_operations_new] operations before", operations)
-    print("[execute_operations_new] type(operations) before", type(operations))
+    print("[execute_operations_new] operations", operations)
 
     for operate in operations:
         # wait one second
