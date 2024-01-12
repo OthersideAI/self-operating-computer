@@ -47,8 +47,10 @@ def mouse(click_detail):
         str: The description of the click if successful, otherwise "We failed to click".
     """
     try:
-        x = convert_percent_to_decimal(click_detail["x"])
-        y = convert_percent_to_decimal(click_detail["y"])
+        print("[mouse]")
+        print("[mouse] click_detail", click_detail)
+        x = convert_percent_to_decimal(click_detail.get("x"))
+        y = convert_percent_to_decimal(click_detail.get("y"))
 
         if click_detail and isinstance(x, float) and isinstance(y, float):
             click_at_percentage(x, y)
@@ -57,7 +59,7 @@ def mouse(click_detail):
             return "We failed to click"
 
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
+        print(f"[mouse] error {e}")
         return "We failed to click"
 
 

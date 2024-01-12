@@ -2,7 +2,7 @@ import json
 import re
 
 
-def convert_percent_to_decimal(percent_str):
+def convert_percent_to_decimal(percent):
     """
     Converts a percentage string to a decimal value.
 
@@ -21,37 +21,12 @@ def convert_percent_to_decimal(percent_str):
     """
     try:
         # Remove the '%' sign and convert to float
-        decimal_value = float(percent_str.strip("%"))
+        decimal_value = float(percent)
 
         # Convert to decimal (e.g., 20% -> 0.20)
-        return decimal_value / 100
+        return decimal_value
     except ValueError as e:
-        print(f"Error converting percent to decimal: {e}")
-        return None
-
-
-def extract_json_from_string(s):
-    """
-    Extracts a JSON structure from a string and returns it as a dictionary.
-
-    Args:
-        s (str): The input string.
-
-    Returns:
-        dict: The extracted JSON structure as a dictionary, or None if no JSON structure is found or if there is an error parsing the JSON.
-
-    """
-    try:
-        # Find the start of the JSON structure
-        json_start = s.find("{")
-        if json_start == -1:
-            return None
-
-        # Extract the JSON part and convert it to a dictionary
-        json_str = s[json_start:]
-        return json.loads(json_str)
-    except Exception as e:
-        print(f"Error parsing JSON: {e}")
+        print(f"[convert_percent_to_decimal] error: {e}")
         return None
 
 
