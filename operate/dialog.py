@@ -1,5 +1,4 @@
 import sys
-import json
 import os
 import platform
 import time
@@ -12,14 +11,13 @@ from operate.settings import Config
 from operate.utils.style import (
     ANSI_GREEN,
     ANSI_RESET,
-    ANSI_BLUE,
     ANSI_YELLOW,
     ANSI_RED,
     ANSI_BRIGHT_MAGENTA,
     style,
 )
-from operate.utils.os import keyboard, search, mouse, press
-from operate.actions import get_next_action, summarize
+from operate.utils.os import keyboard, mouse, press
+from operate.actions import get_next_action
 
 # Load configuration
 config = Config()
@@ -58,7 +56,7 @@ def main(model, terminal_prompt, voice_mode=False):
     if not terminal_prompt:
         message_dialog(
             title="Self-Operating Computer",
-            text="Ask a computer to do anything.",
+            text="Ask a computer to do anything! This is an experimental framework to enable multimodal models to operate computers",
             style=style,
         ).run()
     else:
@@ -126,11 +124,11 @@ def execute_operations(operations):
     for operate in operations:
         # wait one second
         time.sleep(1)
-        print("[execute_operations_new] operate", operate)
+        print("[execute_operations] operate", operate)
         operate_type = operate.get("operation").lower()
 
         # print
-        print("[execute_operations_new] operation_type", operate_type)
+        print("[execute_operations] operation_type", operate_type)
         # function_response = ""
 
         if operate_type == "press" or operate_type == "hotkey":
