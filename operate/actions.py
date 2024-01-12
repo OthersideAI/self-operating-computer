@@ -24,6 +24,7 @@ from operate.prompts import (
     format_summary_prompt,
     format_decision_prompt,
     format_label_prompt,
+    get_user_first_message_prompt,
 )
 
 
@@ -51,7 +52,7 @@ yolo_model = YOLO("./operate/model/weights/best.pt")  # Load your trained model
 async def get_next_action(model, messages, objective, session_id):
     print("[get_next_action]")
     if model == "gpt-4":
-        return [call_gpt_4_v(messages, objective)], None
+        return call_gpt_4_v(messages), None
     if model == "gpt-4-with-som":
         operation = await call_gpt_4_v_labeled(messages, objective)
         return [operation], None
@@ -93,12 +94,12 @@ def call_agent_1(session_id, objective):
         return "Failed take action after looking at the screenshot"
 
 
-def call_gpt_4_v(messages, objective):
+def call_gpt_4_v(messages):
     """
     Get the next action for Self-Operating Computer
     """
-    # sleep for a second
-    time.sleep(1)
+    print("[call_gpt_4_v]")
+
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
@@ -111,50 +112,47 @@ def call_gpt_4_v(messages, objective):
         new_screenshot_filename = os.path.join(
             "screenshots", "screenshot_with_grid.png"
         )
+        print("[call_gpt_4_v] new_screenshot_filename", new_screenshot_filename)
 
         add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
-        # sleep for a second
-        time.sleep(1)
 
         with open(new_screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        previous_action = get_last_assistant_message(messages)
+        user_prompt = get_user_first_message_prompt()
 
-        vision_prompt = format_vision_prompt(objective, previous_action)
+        print("[call_gpt_4_v] user_message", user_prompt)
 
         vision_message = {
             "role": "user",
             "content": [
-                {"type": "text", "text": vision_prompt},
+                {"type": "text", "text": user_prompt},
                 {
                     "type": "image_url",
                     "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
                 },
             ],
         }
-
-        # create a copy of messages and save to pseudo_messages
-        pseudo_messages = messages.copy()
-        pseudo_messages.append(vision_message)
+        messages.append(vision_message)
 
         response = client.chat.completions.create(
             model="gpt-4-vision-preview",
-            messages=pseudo_messages,
+            messages=messages,
             presence_penalty=1,
             frequency_penalty=1,
             temperature=0.7,
             max_tokens=300,
         )
-
-        messages.append(
-            {
-                "role": "user",
-                "content": "`screenshot.png`",
-            }
-        )
+        print("[call_gpt_4_v] response", response)
 
         content = response.choices[0].message.content
+
+        if content.startswith("```json"):
+            content = content[len("```json") :]  # Remove starting ```json
+            if content.endswith("```"):
+                content = content[: -len("```")]  # Remove ending
+
+        content = json.loads(content)
 
         return content
 
@@ -349,7 +347,7 @@ async def call_gpt_4_v_labeled(messages, objective):
                 print(
                     f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Failed to get click position in percent. Trying another method {ANSI_RESET}"
                 )
-                return call_gpt_4_v(messages, objective)
+                return call_gpt_4_v(messages)
 
             x_percent = f"{click_position_percent[0]:.2f}%"
             y_percent = f"{click_position_percent[1]:.2f}%"
@@ -359,7 +357,7 @@ async def call_gpt_4_v_labeled(messages, objective):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] No label found. Trying another method {ANSI_RESET}"
             )
-            return call_gpt_4_v(messages, objective)
+            return call_gpt_4_v(messages)
 
         return click_action
 
@@ -367,12 +365,12 @@ async def call_gpt_4_v_labeled(messages, objective):
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}"
         )
-        return call_gpt_4_v(messages, objective)
+        return call_gpt_4_v(messages)
 
 
 def fetch_agent_1_response(session_id, objective, base64_image):
     print("[call_agent_1][fetch_agent_1_response]")
-    url = "http://127.0.0.1:5000/agent/v1/action"
+    url = "http://127.0.0.1:5000/agent/v2/action"
     api_token = os.environ.get("AGENT_API_KEY")
     headers = {
         "Content-Type": "application/json",

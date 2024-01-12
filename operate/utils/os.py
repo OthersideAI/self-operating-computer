@@ -82,7 +82,7 @@ def mouse(click_detail):
 
         if click_detail and isinstance(x, float) and isinstance(y, float):
             click_at_percentage(x, y)
-            return click_detail["description"]
+            return "we clicked successfully"
         else:
             return "We failed to click"
 

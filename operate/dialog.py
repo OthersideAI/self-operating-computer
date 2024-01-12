@@ -7,7 +7,7 @@ import asyncio
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
-from operate.prompts import USER_QUESTION
+from operate.prompts import USER_QUESTION, get_system_prompt
 from operate.settings import Config
 from operate.utils.style import (
     ANSI_GREEN,
@@ -87,12 +87,9 @@ def main(model, terminal_prompt, voice_mode=False):
         print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
         objective = prompt(style=style)
 
-    assistant_message = {"role": "assistant", "content": USER_QUESTION}
-    user_message = {
-        "role": "user",
-        "content": f"Objective: {objective}",
-    }
-    messages = [assistant_message, user_message]
+    system_prompt = get_system_prompt(objective)
+    system_message = {"role": "system", "content": system_prompt}
+    messages = [system_message]
 
     loop_count = 0
 
