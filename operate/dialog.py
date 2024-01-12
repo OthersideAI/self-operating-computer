@@ -20,7 +20,6 @@ from operate.utils.style import (
 )
 from operate.utils.os import keyboard, search, mouse, press
 from operate.actions import get_next_action, summarize
-from operate.utils.misc import parse_operation
 
 # Load configuration
 config = Config()
@@ -118,64 +117,16 @@ def main(model, terminal_prompt, voice_mode=False):
             )
             break
 
-        stop = execute_operations_new(operations, messages, model, objective)
+        stop = execute_operations(operations, messages, model, objective)
         if stop:
             break
 
         loop_count += 1
-        if loop_count > 15:
+        if loop_count > 3:
             break
 
 
-# def execute_operations(operations, messages, model, objective):
-#     for operate in operations:
-#         o = parse_operation(operate)
-#         operation_type = o.get("type")
-#         operation_detail = o.get("data")
-#         function_response = ""
-
-#         if operation_type == "DONE":
-#             print(
-#                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
-#             )
-#             summary = summarize(model, messages, objective)
-#             print(
-#                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
-#             )
-#             return True
-
-#         if operation_type != "UNKNOWN":
-#             print(
-#                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operation_type} {ANSI_RESET}{operation_detail}"
-#             )
-
-#         if operation_type == "SEARCH":
-#             function_response = search(operation_detail)
-#         elif operation_type == "TYPE":
-#             function_response = keyboard(operation_detail)
-#         elif operation_type == "CLICK":
-#             function_response = click(operation_detail)
-#         else:
-#             print(
-#                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] something went wrong :({ANSI_RESET}"
-#             )
-#             print(
-#                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{operate}"
-#             )
-#             return True
-
-#         print(
-#             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operation_type} COMPLETE {ANSI_RESET}{function_response}"
-#         )
-
-#         message = {
-#             "role": "assistant",
-#             "content": function_response,
-#         }
-#         messages.append(message)
-
-
-def execute_operations_new(operation, messages, model, objective):
+def execute_operations(operation, messages, model, objective):
     print("[execute_operations_new] operations before", operation)
     print("[execute_operations_new] type(operations) before", type(operation))
     try:
@@ -187,7 +138,7 @@ def execute_operations_new(operation, messages, model, objective):
 
     for operate in operation:
         # wait one second
-        time.sleep(5)
+        time.sleep(3)
         print("[execute_operations_new] operation", operation)
         operation_type = operate.get("operation")
         # print
@@ -223,7 +174,7 @@ def execute_operations_new(operation, messages, model, objective):
         #     "content": function_response,
         # }
         # messages.append(message)
-    return True
+    return False
 
 
 def validation(model, voice_mode):
