@@ -6,7 +6,7 @@ import math
 from operate.utils.misc import convert_percent_to_decimal
 
 
-def keyboard(text):
+def keyboard(content):
     """
     Types the given text using the keyboard.
 
@@ -16,11 +16,11 @@ def keyboard(text):
     Returns:
         str: A message indicating the typed text.
     """
-    text = text.replace("\\n", "\n")
-    for char in text:
+    content = content.replace("\\n", "\n")
+    for char in content:
         pyautogui.write(char)
-    pyautogui.press("enter")
-    return "Type: " + text
+    # pyautogui.press("enter")
+    return "Type: " + content
 
 
 def search(text):
@@ -53,9 +53,8 @@ def search(text):
     return "Open program: " + text
 
 
-def hotkey(hotkey):
-    print("[hotkey] ", hotkey)
-    keys = hotkey.split("+")
+def press(keys):
+    print("[hotkey] ")
     print("[hotkey] keys", keys)
     for key in keys:
         print("[hotkey] keydown", key)
@@ -67,7 +66,7 @@ def hotkey(hotkey):
     return True
 
 
-def click(click_detail):
+def mouse(click_detail):
     """
     Perform a mouse click at the specified coordinates.
 

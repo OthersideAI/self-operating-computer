@@ -54,10 +54,11 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4":
         return [call_gpt_4_v(messages, objective)]
     if model == "gpt-4-with-som":
-        action = await call_gpt_4_v_labeled(messages, objective)
-        return [action]
+        operation = await call_gpt_4_v_labeled(messages, objective)
+        return [operation]
     elif model == "agent-1":
-        return [call_agent_1(session_id, objective)]
+        operation = call_agent_1(session_id, objective)
+        return operation
     elif model == "gemini-pro-vision":
         return [call_gemini_pro_vision(messages, objective)]
 
@@ -430,7 +431,7 @@ def fetch_agent_1_response(session_id, objective, base64_image):
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(data))
-    print("[call_agent_1][fetch_agent_1_response] response", response.text)
+
     return response.text
 
 
