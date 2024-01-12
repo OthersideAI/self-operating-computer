@@ -131,7 +131,7 @@ def execute_operations(operations, messages, model, objective):
 
     for operate in operations:
         # wait one second
-        time.sleep(3)
+        time.sleep(1)
         print("[execute_operations_new] operation", operations)
         operation_type = operate.get("operation")
         # print
