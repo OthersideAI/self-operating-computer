@@ -19,7 +19,7 @@ def keyboard(content):
     content = content.replace("\\n", "\n")
     for char in content:
         pyautogui.write(char)
-    # pyautogui.press("enter")
+
     return "Type: " + content
 
 

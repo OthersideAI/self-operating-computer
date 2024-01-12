@@ -109,14 +109,7 @@ def call_gpt_4_v(messages):
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
-        new_screenshot_filename = os.path.join(
-            "screenshots", "screenshot_with_grid.png"
-        )
-        print("[call_gpt_4_v] new_screenshot_filename", new_screenshot_filename)
-
-        add_grid_to_image(screenshot_filename, new_screenshot_filename, 500)
-
-        with open(new_screenshot_filename, "rb") as img_file:
+        with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
         user_prompt = get_user_first_message_prompt()
