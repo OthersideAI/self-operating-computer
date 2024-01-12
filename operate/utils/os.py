@@ -23,36 +23,6 @@ def keyboard(content):
     return "Type: " + content
 
 
-def search(text):
-    """
-    Searches for a program or file by typing the given text in the search bar and pressing Enter.
-
-    Args:
-        text (str): The text to be searched.
-
-    Returns:
-        str: A message indicating that the program or file has been opened.
-    """
-    if platform.system() == "Windows":
-        pyautogui.press("win")
-    elif platform.system() == "Linux":
-        pyautogui.press("win")
-    else:
-        # Press and release Command and Space separately
-        pyautogui.keyDown("command")
-        pyautogui.press("space")
-        pyautogui.keyUp("command")
-
-    time.sleep(1)
-
-    # Now type the text
-    for char in text:
-        pyautogui.write(char)
-
-    pyautogui.press("enter")
-    return "Open program: " + text
-
-
 def press(keys):
     print("[hotkey] ")
     print("[hotkey] keys", keys)

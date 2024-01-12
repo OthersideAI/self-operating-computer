@@ -100,8 +100,7 @@ def main(model, terminal_prompt, voice_mode=False):
             operations, session_id = asyncio.run(
                 get_next_action(model, messages, objective, session_id)
             )
-            print("[loop] asyncio.run get_next_action got operations", operations)
-            print("[loop] asyncio.run get_next_action got session_id", session_id)
+            print("[loop] operations", operations)
 
         except ModelNotRecognizedException as e:
             print(
@@ -114,7 +113,7 @@ def main(model, terminal_prompt, voice_mode=False):
             )
             break
 
-        stop = execute_operations(operations, messages, model, objective)
+        stop = execute_operations(operations)
         if stop:
             break
 
@@ -123,25 +122,24 @@ def main(model, terminal_prompt, voice_mode=False):
             break
 
 
-def execute_operations(operations, messages, model, objective):
-    print("[execute_operations_new] operations", operations)
-
+def execute_operations(operations):
     for operate in operations:
         # wait one second
         time.sleep(1)
-        print("[execute_operations_new] operation", operations)
-        operation_type = operate.get("operation")
+        print("[execute_operations_new] operate", operate)
+        operate_type = operate.get("operation").lower()
+
         # print
-        print("[execute_operations_new] operation_type", operation_type)
+        print("[execute_operations_new] operation_type", operate_type)
         # function_response = ""
 
-        if operation_type == "press":
+        if operate_type == "press" or operate_type == "hotkey":
             keys = operate.get("keys")
             function_response = press(keys)
-        elif operation_type == "write":
+        elif operate_type == "write":
             content = operate.get("content")
             function_response = keyboard(content)
-        elif operation_type == "mouse":
+        elif operate_type == "mouse":
             x = operate.get("x")
             y = operate.get("y")
             click_detail = {"x": x, "y": y}
@@ -156,7 +154,7 @@ def execute_operations(operations, messages, model, objective):
             return True
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operation_type} COMPLETE {ANSI_RESET}{function_response}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operate_type} COMPLETE {ANSI_RESET}{function_response}"
         )
 
         # message = {

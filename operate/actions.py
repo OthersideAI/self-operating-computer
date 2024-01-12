@@ -143,7 +143,6 @@ def call_gpt_4_v(messages):
             temperature=0.7,
             max_tokens=300,
         )
-        print("[call_gpt_4_v] response", response)
 
         content = response.choices[0].message.content
 
@@ -151,6 +150,10 @@ def call_gpt_4_v(messages):
             content = content[len("```json") :]  # Remove starting ```json
             if content.endswith("```"):
                 content = content[: -len("```")]  # Remove ending
+
+        assistant_message = {"role": "assistant", "content": content}
+        print("[call_gpt_4_v] message.append(assistant_message)", assistant_message)
+        messages.append(assistant_message)
 
         content = json.loads(content)
 
