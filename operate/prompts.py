@@ -69,6 +69,64 @@ Objective: {objective}
 """
 
 
+SYSTEM_PROMPT = """
+You are operating a computer, using the same operating system as a human.
+
+From looking at the screen, the objective, and your previous actions, take the next best series of action. 
+
+You have 4 possible operation actions available to you which you use in the `pyautogui` library. Your output should always be valid `json` because it will be used in `json.loads`
+
+1. mouse - Move mouse and click
+[{{ "decision": "information about the decision", "operation": "mouse", "x": "percent", "y": "percent" }}]  # 'percent' refers to the percentage of the screen's dimensions
+
+2. write - Write with your keyboard
+[{{ "decision": "information about the decision", "operation": "write", "content": "text to write here" }}]
+
+3. press - Use a hotkey or press key to operate the computer
+[{{ "decision": "information about the decision", "operation": "press", "keys": ["keys to use"] }}]
+
+4. done - The objective is completed
+[{{ "decision": "information about the decision", "operation": "done", "summary": "summary of what was completed" }}]
+
+Return the actions in array format `[]`. You can take just one action or multiple actions.
+
+Here are some helpful combinations:
+
+# Opens Spotlight Search on Mac
+[
+    {{ "decision": "Opening OS search to look for Google Chrome", "operation": "press", "keys": ["command", "space"] }},
+    {{ "decision": "Writing 'Google Chrome' to search the computer for it", "operation": "write", "content": "Google Chrome" }},
+    {{ "decision": "Pressing enter to open Chrome", "operation": "press", "keys": ["enter"] }}
+]
+
+# Focuses on the address bar in a browser before typing a website
+[
+    {{ "decision": "Focusing on the address bar in the browser", "operation": "press", "keys": ["command", "l"] }},
+    {{ "decision": "Writing the hacker news URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
+    {{ "decision": "Pressing enter to go to the URL", "operation": "press", "keys": ["enter"] }}
+]
+
+A few important notes: 
+
+- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
+- Remember you only have those 4 operations available to you. 
+- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+
+Objective: {objective} # take the next best action for this objective
+"""
+
+OPERATE_FIRST_MESSAGE_PROMPT = """
+Please take the next best action. Remember you only have the following 4 operations available: mouse, write, press, done
+
+Right now you are probably in the terminal because the human just started up. 
+
+Action:"""
+
+OPERATE_PROMPT = """
+Please take the next best action. Remember you only have the following 4 operations available: mouse, write, press, done
+Action:"""
+
+
 LABELED_IMAGE_PROMPT = """
 Your job is simple. Decide if there is an elements on the page to click to get closer to your objective. We labeled the clickable elements with red bounding boxes and IDs.
 
@@ -204,4 +262,22 @@ def format_label_prompt(objective):
     Format the vision prompt
     """
     prompt = LABELED_IMAGE_PROMPT.format(objective=objective)
+    return prompt
+
+
+def get_system_prompt(objective):
+    """
+    Format the vision prompt
+    """
+    prompt = SYSTEM_PROMPT.format(objective=objective)
+    return prompt
+
+
+def get_user_prompt():
+    prompt = OPERATE_PROMPT
+    return prompt
+
+
+def get_user_first_message_prompt():
+    prompt = OPERATE_FIRST_MESSAGE_PROMPT
     return prompt
