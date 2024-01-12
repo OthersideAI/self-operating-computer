@@ -51,15 +51,15 @@ yolo_model = YOLO("./operate/model/weights/best.pt")  # Load your trained model
 async def get_next_action(model, messages, objective, session_id):
     print("[get_next_action]")
     if model == "gpt-4":
-        return [call_gpt_4_v(messages, objective)]
+        return [call_gpt_4_v(messages, objective)], None
     if model == "gpt-4-with-som":
         operation = await call_gpt_4_v_labeled(messages, objective)
-        return [operation]
+        return [operation], None
     elif model == "agent-1":
         operation, session_id = call_agent_1(session_id, objective)
-        return operation
+        return operation, session_id
     elif model == "gemini-pro-vision":
-        return [call_gemini_pro_vision(messages, objective)]
+        return [call_gemini_pro_vision(messages, objective)], None
 
     raise ModelNotRecognizedException(model)
 

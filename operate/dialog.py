@@ -102,7 +102,7 @@ def main(model, terminal_prompt, voice_mode=False):
         if config.debug:
             print("[loop] messages before next action:\n\n\n", messages[1:])
         try:
-            operations = asyncio.run(
+            operations, session_id = asyncio.run(
                 get_next_action(model, messages, objective, session_id)
             )
 
