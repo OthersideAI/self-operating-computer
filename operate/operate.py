@@ -14,6 +14,7 @@ from operate.utils.style import (
     ANSI_YELLOW,
     ANSI_RED,
     ANSI_BRIGHT_MAGENTA,
+    ANSI_BLUE,
     style,
 )
 from operate.utils.os import OperatingSystem
