@@ -142,6 +142,16 @@ def operate(operations):
             y = operation.get("y")
             click_detail = {"x": x, "y": y}
             function_response = operating_system.mouse(click_detail)
+        elif operate_type == "done":
+            summary = operation.get("summmary")
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
+            )
+            print(
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+            )
+            return True
+
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"
