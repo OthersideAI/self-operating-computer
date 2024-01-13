@@ -17,12 +17,13 @@ from operate.exceptions import ModelNotRecognizedException
 from operate.utils.screenshot import (
     capture_screen_with_cursor,
 )
-from operate.prompts import (
+from operate.models.prompts import (
     format_vision_prompt,
     format_summary_prompt,
     format_decision_prompt,
     format_label_prompt,
     get_user_first_message_prompt,
+    get_user_prompt,
 )
 
 
@@ -44,7 +45,7 @@ config = Config()
 
 client = config.initialize_openai_client()
 
-yolo_model = YOLO("./operate/model/weights/best.pt")  # Load your trained model
+yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
 
 
 async def get_next_action(model, messages, objective, session_id):
@@ -110,7 +111,10 @@ def call_gpt_4_v(messages):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        user_prompt = get_user_first_message_prompt()
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
 
         print("[call_gpt_4_v] user_message", user_prompt)
 
