@@ -15,33 +15,33 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you which you use in the `pyautogui` library. Your output should always be valid `json` because it will be used in `json.loads`
 
 1. mouse - Move mouse and click
-[{{ "decision": "information about the decision", "thought": "a thought", "operation": "mouse", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
+[{{ "thought": "write a thought here", "operation": "mouse", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
 
 2. write - Write with your keyboard
-[{{ "decision": "information about the decision", "thought": "a thought", "operation": "write", "content": "text to write here" }}]
+[{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
 
 3. press - Use a hotkey or press key to operate the computer
-[{{ "decision": "information about the decision", "thought": "a thought", "operation": "press", "keys": ["keys to use"] }}]
+[{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
 
 4. done - The objective is completed
-[{{ "decision": "information about the decision", "thought": "a thought", "operation": "done", "summary": "summary of what was completed" }}]
+[{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
 
 Here are some helpful combinations:
 
-# Opens Spotlight Search on Mac (leaving ... for conciseness in examples)
+# Opens Spotlight Search on Mac 
 [
-    {{ "decision": "Opening OS search to look for Google Chrome", "thought": "It appears I am in terminal, this is the right next step", "operation": "press", "keys": ["command", "space"] }},
-    {{ "decision": "...", "thought": "...", "operation": "write", "content": "Google Chrome" }},
-    {{ "decision": "...", "thought": "...", "operation": "press", "keys": ["enter"] }}
+    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["command", "space"] }},
+    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
+    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
 ]
 
-# Focuses on the address bar in a browser before typing a website (leaving ... for conciseness in examples)
+# Focuses on the address bar in a browser before typing a website
 [
-    {{ "decision": "Focusing on the address bar in the browser", "thought": "I can see the browser is open already so this should be safe to try", "operation": "press", "keys": ["command", "l"] }},
-    {{ "decision": "...", "thought": "...", "operation": "write", "content": "https://news.ycombinator.com/" }},
-    {{ "decision": "...", "thought": "...", "operation": "press", "keys": ["enter"] }}
+    {{ "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["command", "l"] }},
+    {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
+    {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
 
 A few important notes: 

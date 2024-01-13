@@ -132,7 +132,7 @@ def call_gpt_4_v(messages):
             presence_penalty=1,
             frequency_penalty=1,
             temperature=0.7,
-            max_tokens=300,
+            max_tokens=1000,
         )
 
         content = response.choices[0].message.content
@@ -143,7 +143,7 @@ def call_gpt_4_v(messages):
                 content = content[: -len("```")]  # Remove ending
 
         assistant_message = {"role": "assistant", "content": content}
-        print("[call_gpt_4_v] message.append(assistant_message)", assistant_message)
+        print("[call_gpt_4_v] content", content)
         messages.append(assistant_message)
 
         content = json.loads(content)
