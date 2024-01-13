@@ -42,6 +42,7 @@ from operate.utils.style import (
 
 # Load configuration
 config = Config()
+VERBOSE = config.verbose
 
 client = config.initialize_openai_client()
 
@@ -49,7 +50,8 @@ yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
 
 
 async def get_next_action(model, messages, objective, session_id):
-    print("[get_next_action]")
+    if VERBOSE:
+        print("[Self Operating Computer][get_next_action]")
     if model == "gpt-4":
         return call_gpt_4_v(messages), None
     if model == "gpt-4-with-som":
@@ -57,8 +59,6 @@ async def get_next_action(model, messages, objective, session_id):
         return [operation], None
     elif model == "agent-1":
         operation, session_id = call_agent_1(session_id, objective)
-        print("[get_next_action] returning operation", operation)
-        print("[get_next_action] returning session_id", session_id)
         return operation, session_id
     elif model == "gemini-pro-vision":
         return [call_gemini_pro_vision(messages, objective)], None
@@ -97,7 +97,8 @@ def call_gpt_4_v(messages):
     """
     Get the next action for Self-Operating Computer
     """
-    print("[call_gpt_4_v]")
+    if VERBOSE:
+        print("[Self Operating Computer][get_next_action][call_gpt_4_v]")
     time.sleep(1)
     try:
         screenshots_dir = "screenshots"
@@ -116,7 +117,11 @@ def call_gpt_4_v(messages):
         else:
             user_prompt = get_user_prompt()
 
-        print("[call_gpt_4_v] user_message", user_prompt)
+        if VERBOSE:
+            print(
+                "[Self Operating Computer][get_next_action][call_gpt_4_v] user_prompt",
+                user_prompt,
+            )
 
         vision_message = {
             "role": "user",
@@ -147,7 +152,11 @@ def call_gpt_4_v(messages):
                 content = content[: -len("```")]  # Remove ending
 
         assistant_message = {"role": "assistant", "content": content}
-        print("[call_gpt_4_v] content", content)
+        if VERBOSE:
+            print(
+                "[Self Operating Computer][get_next_action][call_gpt_4_v] content",
+                content,
+            )
         messages.append(assistant_message)
 
         content = json.loads(content)

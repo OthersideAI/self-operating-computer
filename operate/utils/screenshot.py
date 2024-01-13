@@ -9,18 +9,6 @@ import Xlib.Xutil  # not sure if Xutil is necessary
 
 
 def capture_screen_with_cursor(file_path):
-    """
-    Capture the screen with the cursor and save it to the specified file path.
-
-    Args:
-        file_path (str): The file path where the screenshot will be saved.
-
-    Raises:
-        None
-
-    Returns:
-        None
-    """
     user_platform = platform.system()
 
     if user_platform == "Windows":

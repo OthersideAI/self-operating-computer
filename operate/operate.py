@@ -26,7 +26,7 @@ from operate.models.apis import get_next_action
 config = Config()
 operating_system = OperatingSystem()
 
-VERBOSE = True
+VERBOSE = config.verbose
 
 
 def main(model, terminal_prompt, voice_mode=False):
@@ -101,8 +101,8 @@ def main(model, terminal_prompt, voice_mode=False):
 
     while True:
         if VERBOSE:
-            print(f"[Self Operating Computer]")
-            print(f"[Self Operating Computer] loop_count", loop_count)
+            print("[Self Operating Computer]")
+            print("[Self Operating Computer] loop_count", loop_count)
         try:
             operations, session_id = asyncio.run(
                 get_next_action(model, messages, objective, session_id)
@@ -129,37 +129,35 @@ def main(model, terminal_prompt, voice_mode=False):
 
 def operate(operations):
     if VERBOSE:
-        print(f"[Self Operating Computer][operate]")
+        print("[Self Operating Computer][operate]")
     for operation in operations:
         # wait one second
         time.sleep(1)
         operate_type = operation.get("operation").lower()
+        operate_thought = operation.get("thought")
+        operate_detail = ""
         if VERBOSE:
-            print(f"[Self Operating Computer][operate] operation", operation)
-            print(f"[Self Operating Computer][operate] operate_type", operate_type)
+            print("[Self Operating Computer][operate] operation", operation)
+            print("[Self Operating Computer][operate] operate_type", operate_type)
 
         if operate_type == "press" or operate_type == "hotkey":
             keys = operation.get("keys")
-            if VERBOSE:
-                print(f"[Self Operating Computer][operate] keys", keys)
-
-            function_response = operating_system.press(keys)
+            operate_detail = keys
+            operating_system.press(keys)
         elif operate_type == "write":
             content = operation.get("content")
-            if VERBOSE:
-                print(f"[Self Operating Computer][operate] content", content)
-            function_response = operating_system.write(content)
+            operate_detail = content
+            operating_system.write(content)
         elif operate_type == "mouse":
             x = operation.get("x")
             y = operation.get("y")
             click_detail = {"x": x, "y": y}
-            if VERBOSE:
-                print(f"[Self Operating Computer][operate] click_detail", click_detail)
-            function_response = operating_system.mouse(click_detail)
+            operate_detail = click_detail
+
+            operating_system.mouse(click_detail)
         elif operate_type == "done":
-            summary = operation.get("summmary")
-            if VERBOSE:
-                print(f"[Self Operating Computer][operate] summary", summary)
+            summary = operation.get("summary")
+
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
             )
@@ -178,7 +176,10 @@ def operate(operations):
             return True
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operate_type} COMPLETE {ANSI_RESET}{function_response}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Operate] Thought {ANSI_RESET} {operate_thought}"
+        )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Operate] {operate_type} {ANSI_RESET} {operate_detail}"
         )
 
     return False

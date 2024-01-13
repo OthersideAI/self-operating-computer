@@ -11,7 +11,6 @@ class OperatingSystem:
         content = content.replace("\\n", "\n")
         for char in content:
             pyautogui.write(char)
-        return "Type: " + content
 
     def press(self, keys):
         print("[hotkey] ")
@@ -23,7 +22,6 @@ class OperatingSystem:
         for key in keys:
             print("[hotkey] keyup", key)
             pyautogui.keyUp(key)
-        return True
 
     def mouse(self, click_detail):
         try:
@@ -34,9 +32,6 @@ class OperatingSystem:
 
             if click_detail and isinstance(x, float) and isinstance(y, float):
                 self._click_at_percentage(x, y)
-                return "we clicked successfully"
-            else:
-                return "We failed to click"
 
         except Exception as e:
             print(f"[mouse] error {e}")
@@ -64,4 +59,3 @@ class OperatingSystem:
             pyautogui.moveTo(x, y, duration=0.1)
 
         pyautogui.click(x_pixel, y_pixel)
-        return "Successfully clicked"
