@@ -97,7 +97,7 @@ def call_gpt_4_v(messages):
     Get the next action for Self-Operating Computer
     """
     print("[call_gpt_4_v]")
-
+    time.sleep(1)
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):

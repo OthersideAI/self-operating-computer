@@ -16,11 +16,12 @@ from operate.utils.style import (
     ANSI_BRIGHT_MAGENTA,
     style,
 )
-from operate.utils.os import keyboard, mouse, press
+from operate.utils.os import OperatingSystem
 from operate.actions import get_next_action
 
 # Load configuration
 config = Config()
+operating_system = OperatingSystem()
 
 
 def main(model, terminal_prompt, voice_mode=False):
@@ -56,7 +57,7 @@ def main(model, terminal_prompt, voice_mode=False):
     if not terminal_prompt:
         message_dialog(
             title="Self-Operating Computer",
-            text="Ask a computer to do anything! This is an experimental framework to enable multimodal models to operate computers",
+            text="An experimental framework to enable multimodal models to operate computers",
             style=style,
         ).run()
     else:
@@ -133,15 +134,15 @@ def execute_operations(operations):
 
         if operate_type == "press" or operate_type == "hotkey":
             keys = operate.get("keys")
-            function_response = press(keys)
+            function_response = operating_system.press(keys)
         elif operate_type == "write":
             content = operate.get("content")
-            function_response = keyboard(content)
+            function_response = operating_system.write(content)
         elif operate_type == "mouse":
             x = operate.get("x")
             y = operate.get("y")
             click_detail = {"x": x, "y": y}
-            function_response = mouse(click_detail)
+            function_response = operating_system.mouse(click_detail)
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"
