@@ -99,7 +99,6 @@ def main(model, terminal_prompt, voice_mode=False):
             operations, session_id = asyncio.run(
                 get_next_action(model, messages, objective, session_id)
             )
-            print("[loop] operations", operations)
 
         except ModelNotRecognizedException as e:
             print(
@@ -112,7 +111,7 @@ def main(model, terminal_prompt, voice_mode=False):
             )
             break
 
-        stop = execute_operations(operations)
+        stop = operate(operations)
         if stop:
             break
 
@@ -121,26 +120,26 @@ def main(model, terminal_prompt, voice_mode=False):
             break
 
 
-def execute_operations(operations):
-    for operate in operations:
+def operate(operations):
+    for operation in operations:
         # wait one second
         time.sleep(1)
-        print("[execute_operations] operate", operate)
-        operate_type = operate.get("operation").lower()
+        print("[execute_operations] operation", operation)
+        operate_type = operation.get("operation").lower()
 
         # print
         print("[execute_operations] operation_type", operate_type)
         # function_response = ""
 
         if operate_type == "press" or operate_type == "hotkey":
-            keys = operate.get("keys")
+            keys = operation.get("keys")
             function_response = operating_system.press(keys)
         elif operate_type == "write":
-            content = operate.get("content")
+            content = operation.get("content")
             function_response = operating_system.write(content)
         elif operate_type == "mouse":
-            x = operate.get("x")
-            y = operate.get("y")
+            x = operation.get("x")
+            y = operation.get("y")
             click_detail = {"x": x, "y": y}
             function_response = operating_system.mouse(click_detail)
         else:
@@ -148,7 +147,7 @@ def execute_operations(operations):
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"
             )
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{operate}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{operation}"
             )
             return True
 
