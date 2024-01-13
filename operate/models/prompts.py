@@ -1,8 +1,3 @@
-from operate.settings import Config
-
-config = Config()
-monitor_size = config.monitor_size
-
 # General user Prompts
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 

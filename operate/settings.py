@@ -11,7 +11,6 @@ class Config:
         debug (bool): Flag indicating whether debug mode is enabled.
         openai_api_key (str): API key for OpenAI.
         google_api_key (str): API key for Google.
-        monitor_size (dict): Dictionary containing the width and height of the monitor.
     """
 
     def __init__(self):
@@ -19,10 +18,6 @@ class Config:
         self.debug = False
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.google_api_key = os.getenv("GOOGLE_API_KEY")
-        self.monitor_size = {
-            "width": 1920,
-            "height": 1080,
-        }
 
     def initialize_openai_client(self):
         """

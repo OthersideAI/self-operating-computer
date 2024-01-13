@@ -6,11 +6,6 @@ from PIL import Image, ImageDraw, ImageGrab
 import Xlib.display
 import Xlib.X
 import Xlib.Xutil  # not sure if Xutil is necessary
-from operate.settings import Config
-
-# Load configuration
-config = Config()
-monitor_size = config.monitor_size
 
 
 def capture_screen_with_cursor(file_path):
@@ -35,8 +30,6 @@ def capture_screen_with_cursor(file_path):
         # Use xlib to prevent scrot dependency for Linux
         screen = Xlib.display.Display().screen()
         size = screen.width_in_pixels, screen.height_in_pixels
-        monitor_size["width"] = size[0]
-        monitor_size["height"] = size[1]
         screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
         screenshot.save(file_path)
     elif user_platform == "Darwin":  # (Mac OS)
