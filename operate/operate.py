@@ -19,7 +19,7 @@ from operate.utils.style import (
     ANSI_BLUE,
     style,
 )
-from operate.utils.os import OperatingSystem
+from operate.utils.operating_system import OperatingSystem
 from operate.models.apis import get_next_action
 
 # Load configuration
