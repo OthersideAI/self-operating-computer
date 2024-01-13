@@ -113,7 +113,7 @@ def main(model, terminal_prompt, voice_mode=False):
                 break
 
             loop_count += 1
-            if loop_count > 3:
+            if loop_count > 10:
                 break
         except ModelNotRecognizedException as e:
             print(
@@ -159,10 +159,10 @@ def operate(operations):
             summary = operation.get("summary")
 
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective complete {ANSI_RESET}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective Completed {ANSI_RESET}"
             )
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary\n{ANSI_RESET}{summary}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary {ANSI_RESET}{summary}"
             )
             return True
 
@@ -171,7 +171,7 @@ def operate(operations):
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"
             )
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response\n{ANSI_RESET}{operation}"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response {ANSI_RESET}{operation}"
             )
             return True
 
