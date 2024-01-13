@@ -6,6 +6,8 @@ import asyncio
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
+
+# from operate.models.prompts import USER_QUESTION, get_system_prompt
 from operate.models.prompts import USER_QUESTION, get_system_prompt
 from operate.settings import Config
 from operate.utils.style import (
@@ -131,15 +133,10 @@ def operate(operations):
     for operation in operations:
         # wait one second
         time.sleep(1)
-        print("[execute_operations] operation", operation)
         operate_type = operation.get("operation").lower()
         if VERBOSE:
             print(f"[Self Operating Computer][operate] operation", operation)
             print(f"[Self Operating Computer][operate] operate_type", operate_type)
-
-        # print
-        print("[execute_operations] operation_type", operate_type)
-        # function_response = ""
 
         if operate_type == "press" or operate_type == "hotkey":
             keys = operation.get("keys")
@@ -184,11 +181,6 @@ def operate(operations):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Act] {operate_type} COMPLETE {ANSI_RESET}{function_response}"
         )
 
-        # message = {
-        #     "role": "assistant",
-        #     "content": function_response,
-        # }
-        # messages.append(message)
     return False
 
 
