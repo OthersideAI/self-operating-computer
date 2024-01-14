@@ -265,14 +265,6 @@ def format_decision_prompt(objective, previous_action):
     return prompt
 
 
-def format_label_prompt(objective):
-    """
-    Format the vision prompt
-    """
-    prompt = LABELED_IMAGE_PROMPT.format(objective=objective)
-    return prompt
-
-
 def get_system_prompt(objective):
     """
     Format the vision prompt
