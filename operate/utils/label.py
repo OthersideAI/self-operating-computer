@@ -136,30 +136,6 @@ def add_labels(base64_data, yolo_model):
     return img_base64_labeled, img_base64_original, label_coordinates
 
 
-def parse_click_content(message_content):
-    """
-    Parses the response message to determine if it's a CLICK or NONE action and returns the appropriate data.
-
-    :param message_content: The content of the response message.
-    :return: A dictionary with the relevant data or a message indicating a NONE action.
-    """
-    try:
-        # Check for and remove erroneous ```json at the start and ``` at the end
-        if message_content.startswith("```json"):
-            message_content = message_content[
-                len("```json") :
-            ]  # Remove starting ```json
-            if message_content.endswith("```"):
-                message_content = message_content[: -len("```")]  # Remove ending ```
-
-        # Convert JSON string to dictionary
-        return json.loads(message_content.strip())
-    except json.JSONDecodeError as e:
-        return {"error": "Invalid JSON format"}
-
-    return {"error": "Invalid response format"}
-
-
 def get_click_position_in_percent(coordinates, image_size):
     """
     Calculates the click position at the center of the bounding box and converts it to percentages.

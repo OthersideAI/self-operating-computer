@@ -7,7 +7,7 @@ You are operating a computer, using the same operating system as a human.
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
 
-You have 4 possible operation actions available to you which you use in the `pyautogui` library. Your output should always be valid `json` because it will be used in `json.loads`
+You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. mouse - Move mouse and click
 [{{ "thought": "write a thought here", "operation": "mouse", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
@@ -42,7 +42,51 @@ Here are some helpful combinations:
 A few important notes: 
 
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
-- Remember you only have those 4 operations available to you. 
+- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+
+Objective: {objective} # take the next best action for this objective
+"""
+
+
+SYSTEM_PROMPT_LABELED = """
+You are operating a computer, using the same operating system as a human.
+
+From looking at the screen, the objective, and your previous actions, take the next best series of action. 
+
+You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+
+1. mouse - Move mouse and click - We labeled the clickable elements with red bounding boxes and IDs. Label IDs are in the following format with `x` being a number: `~x`
+[{{ "thought": "write a thought here", "operation": "mouse", "label": "~x" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
+
+2. write - Write with your keyboard
+[{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
+
+3. press - Use a hotkey or press key to operate the computer
+[{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
+
+4. done - The objective is completed
+[{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+
+Return the actions in array format `[]`. You can take just one action or multiple actions.
+
+Here are some helpful combinations:
+
+# Opens Spotlight Search on Mac 
+[
+    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["command", "space"] }},
+    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
+    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
+]
+
+# Send a "Hello World" message in the chat
+[
+    {{ "thought": "I see a messsage field on this page near the button. It looks like it has a label", "operation": "mouse", "label": "~34" }},
+    {{ "thought": "Now that I am focused on the message field, I'll go ahead and write ", "operation": "write", "content": "Hello World" }},
+]
+
+A few important notes: 
+
+- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 Objective: {objective} # take the next best action for this objective
@@ -121,38 +165,6 @@ Action:"""
 OPERATE_PROMPT = """
 Please take the next best action. Remember you only have the following 4 operations available: mouse, write, press, done
 Action:"""
-
-
-LABELED_IMAGE_PROMPT = """
-Your job is simple. Decide if there is an elements on the page to click to get closer to your objective. We labeled the clickable elements with red bounding boxes and IDs.
-
-Important to remember, you can only click on labeled elements. 
-
-Label IDs are in the following format with `x` being a number: `~x`
-
-The labels are placed just above the bounding boxes so that they can be read clearly. 
-
-Response formats below.
-
-1. CLICK - If there is a label that gets you closer to the objective, go ahead and click it. 
-Response: {{ "decision": "~decision here~", "reason": "~reason here~", "label": "~x" }} 
-
-Here are examples of how to respond.
-__
-Objective: Follow up with the vendor in outlook
-{{ "decision": "Click the Outlook send button", "reason": "I can see the email is already written and now I just need to send it.",  "label": "~27" }}
-__
-Objective: Play the Holiday music on YouTube
-{{ "decision": "Click on the Play button", "reason": "It appears there is a row with a holiday song available in the Spotify UI", "label": "~3" }}
-__
-
-A few important notes:
-- When navigating the web you'll need to click on the address bar first. Look closely to find the address bar's label it could be any number.
-- The IDs number has NO SIGNIFICANCE. For instance if ID is ~0 or ~1 it does not mean it is first or on top. CHOOSE THE ID BASED ON THE CONTEXT OF THE IMAGE AND IF IT HELPS REACH THE OBJECTIVE. 
-- Do not preappend with ```json, just return the JSON object.
-
-{objective}
-"""
 
 
 # -------------------------
@@ -266,6 +278,14 @@ def get_system_prompt(objective):
     Format the vision prompt
     """
     prompt = SYSTEM_PROMPT.format(objective=objective)
+    return prompt
+
+
+def get_system_prompt_labeled(objective):
+    """
+    Format the vision prompt
+    """
+    prompt = SYSTEM_PROMPT_LABELED.format(objective=objective)
     return prompt
 
 

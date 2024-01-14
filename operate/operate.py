@@ -8,7 +8,11 @@ from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
 
 # from operate.models.prompts import USER_QUESTION, get_system_prompt
-from operate.models.prompts import USER_QUESTION, get_system_prompt
+from operate.models.prompts import (
+    USER_QUESTION,
+    get_system_prompt,
+    get_system_prompt_labeled,
+)
 from operate.settings import Config
 from operate.utils.style import (
     ANSI_GREEN,
@@ -91,7 +95,11 @@ def main(model, terminal_prompt, voice_mode=False):
         print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
         objective = prompt(style=style)
 
-    system_prompt = get_system_prompt(objective)
+    if model == "gpt-4-with-som":
+        system_prompt = get_system_prompt_labeled(objective)
+        print("labeled prompt", system_prompt)
+    else:
+        system_prompt = get_system_prompt(objective)
     system_message = {"role": "system", "content": system_prompt}
     messages = [system_message]
 

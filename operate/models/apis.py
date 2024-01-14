@@ -19,9 +19,6 @@ from operate.utils.screenshot import (
 )
 from operate.models.prompts import (
     format_vision_prompt,
-    format_summary_prompt,
-    format_decision_prompt,
-    format_label_prompt,
     get_user_first_message_prompt,
     get_user_prompt,
 )
@@ -29,7 +26,6 @@ from operate.models.prompts import (
 
 from operate.utils.label import (
     add_labels,
-    parse_click_content,
     get_click_position_in_percent,
     get_label_coordinates,
 )
@@ -50,13 +46,11 @@ yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
 
 
 async def get_next_action(model, messages, objective, session_id):
-    if VERBOSE:
-        print("[Self Operating Computer][get_next_action]")
     if model == "gpt-4":
-        return call_gpt_4_v(messages), None
+        return call_gpt_4_vision_preview(messages), None
     if model == "gpt-4-with-som":
-        operation = await call_gpt_4_v_labeled(messages, objective)
-        return [operation], None
+        operation = await call_gpt_4_vision_preview_labeled(messages, objective)
+        return operation, None
     elif model == "agent-1":
         operation, session_id = call_agent_1(session_id, objective)
         return operation, session_id
@@ -93,7 +87,7 @@ def call_agent_1(session_id, objective):
         return "Failed take action after looking at the screenshot"
 
 
-def call_gpt_4_v(messages):
+def call_gpt_4_vision_preview(messages):
     """
     Get the next action for Self-Operating Computer
     """
@@ -214,56 +208,7 @@ def call_gemini_pro_vision(messages, objective):
         return "Failed take action after looking at the screenshot"
 
 
-def summarize(model, messages, objective):
-    try:
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
-
-        screenshot_filename = os.path.join(screenshots_dir, "summary_screenshot.png")
-        # Call the function to capture the screen with the cursor
-        capture_screen_with_cursor(screenshot_filename)
-
-        summary_prompt = format_summary_prompt(objective)
-
-        if model == "gpt-4-vision-preview":
-            with open(screenshot_filename, "rb") as img_file:
-                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-            summary_message = {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": summary_prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                    },
-                ],
-            }
-            # create a copy of messages and save to pseudo_messages
-            messages.append(summary_message)
-
-            response = client.chat.completions.create(
-                model="gpt-4-vision-preview",
-                messages=messages,
-                max_tokens=500,
-            )
-
-            content = response.choices[0].message.content
-        elif model == "gemini-pro-vision":
-            model = genai.GenerativeModel("gemini-pro-vision")
-            summary_message = model.generate_content(
-                [summary_prompt, Image.open(screenshot_filename)]
-            )
-            content = summary_message.text
-        return content
-
-    except Exception as e:
-        print(f"Error in summarize: {e}")
-        return "Failed to summarize the workflow"
-
-
-async def call_gpt_4_v_labeled(messages, objective):
+async def call_gpt_4_vision_preview_labeled(messages, objective):
     time.sleep(1)
     try:
         screenshots_dir = "screenshots"
@@ -277,19 +222,25 @@ async def call_gpt_4_v_labeled(messages, objective):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        previous_action = get_last_assistant_message(messages)
-
         img_base64_labeled, img_base64_original, label_coordinates = add_labels(
             img_base64, yolo_model
         )
 
-        decision_prompt = format_decision_prompt(objective, previous_action)
-        labeled_click_prompt = format_label_prompt(objective)
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
 
-        click_message = {
+        if VERBOSE:
+            print(
+                "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] user_prompt",
+                user_prompt,
+            )
+
+        vision_message = {
             "role": "user",
             "content": [
-                {"type": "text", "text": labeled_click_prompt},
+                {"type": "text", "text": user_prompt},
                 {
                     "type": "image_url",
                     "image_url": {
@@ -298,75 +249,94 @@ async def call_gpt_4_v_labeled(messages, objective):
                 },
             ],
         }
-        decision_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": decision_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{img_base64_original}"
-                    },
-                },
-            ],
-        }
+        messages.append(vision_message)
 
-        click_messages = messages.copy()
-        click_messages.append(click_message)
-        decision_messages = messages.copy()
-        decision_messages.append(decision_message)
-
-        click_future = fetch_openai_response_async(click_messages)
-        decision_future = fetch_openai_response_async(decision_messages)
-
-        click_response, decision_response = await asyncio.gather(
-            click_future, decision_future
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=messages,
+            presence_penalty=1,
+            frequency_penalty=1,
+            temperature=0.7,
+            max_tokens=1000,
         )
 
-        # Extracting the message content from the ChatCompletionMessage object
-        click_content = click_response.get("choices")[0].get("message").get("content")
+        content = response.choices[0].message.content
 
-        decision_content = (
-            decision_response.get("choices")[0].get("message").get("content")
-        )
+        if content.startswith("```json"):
+            content = content[len("```json") :]  # Remove starting ```json
+            if content.endswith("```"):
+                content = content[: -len("```")]  # Remove ending
 
-        if not decision_content.startswith("CLICK"):
-            return decision_content
-
-        label_data = parse_click_content(click_content)
-
-        if label_data and "label" in label_data:
-            coordinates = get_label_coordinates(label_data["label"], label_coordinates)
-            image = Image.open(
-                io.BytesIO(base64.b64decode(img_base64))
-            )  # Load the image to get its size
-            image_size = image.size  # Get the size of the image (width, height)
-            click_position_percent = get_click_position_in_percent(
-                coordinates, image_size
-            )
-            if not click_position_percent:
-                print(
-                    f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Failed to get click position in percent. Trying another method {ANSI_RESET}"
-                )
-                return call_gpt_4_v(messages)
-
-            x_percent = f"{click_position_percent[0]:.2f}%"
-            y_percent = f"{click_position_percent[1]:.2f}%"
-            click_action = f'CLICK {{ "x": "{x_percent}", "y": "{y_percent}", "description": "{label_data["decision"]}", "reason": "{label_data["reason"]}" }}'
-
-        else:
+        assistant_message = {"role": "assistant", "content": content}
+        if VERBOSE:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] No label found. Trying another method {ANSI_RESET}"
+                "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] content",
+                content,
             )
-            return call_gpt_4_v(messages)
+        messages.append(assistant_message)
 
-        return click_action
+        content = json.loads(content)
+
+        processed_content = []
+
+        for operation in content:
+            if operation.get("operation") == "mouse":
+                label = operation.get("label")
+                if VERBOSE:
+                    print(
+                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] label",
+                        label,
+                    )
+
+                coordinates = get_label_coordinates(label, label_coordinates)
+                if VERBOSE:
+                    print(
+                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] coordinates",
+                        coordinates,
+                    )
+                image = Image.open(
+                    io.BytesIO(base64.b64decode(img_base64))
+                )  # Load the image to get its size
+                image_size = image.size  # Get the size of the image (width, height)
+                click_position_percent = get_click_position_in_percent(
+                    coordinates, image_size
+                )
+                if VERBOSE:
+                    print(
+                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] click_position_percent",
+                        click_position_percent,
+                    )
+                if not click_position_percent:
+                    print(
+                        f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Failed to get click position in percent. Trying another method {ANSI_RESET}"
+                    )
+                    return call_gpt_4_vision_preview(messages)
+
+                x_percent = f"{click_position_percent[0]:.2f/100}"
+                y_percent = f"{click_position_percent[1]:.2f/100}"
+                operation["x"] = x_percent
+                operation["y"] = y_percent
+                if VERBOSE:
+                    print(
+                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] new click operation",
+                        operation,
+                    )
+                processed_content.append(operation)
+            else:
+                processed_content.append(operation)
+
+            if VERBOSE:
+                print(
+                    "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] new processed_content",
+                    processed_content,
+                )
+            return processed_content
 
     except:
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}"
         )
-        return call_gpt_4_v(messages)
+        return call_gpt_4_vision_preview(messages)
 
 
 def fetch_agent_1_response(session_id, objective, base64_image):
