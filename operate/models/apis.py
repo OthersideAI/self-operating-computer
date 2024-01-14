@@ -21,6 +21,7 @@ from operate.models.prompts import (
     format_vision_prompt,
     get_user_first_message_prompt,
     get_user_prompt,
+    get_system_prompt,
 )
 
 
@@ -181,31 +182,25 @@ def call_gemini_pro_vision(messages, objective):
 
         previous_action = get_last_assistant_message(messages)
 
-        vision_prompt = format_vision_prompt(objective, previous_action)
+        # vision_prompt = format_vision_prompt(objective, previous_action)
+        prompt = get_system_prompt(objective)
 
         model = genai.GenerativeModel("gemini-pro-vision")
 
-        response = model.generate_content(
-            [vision_prompt, Image.open(screenshot_filename)]
-        )
+        response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
-        # create a copy of messages and save to pseudo_messages
-        pseudo_messages = messages.copy()
-        pseudo_messages.append(response.text)
-
-        messages.append(
-            {
-                "role": "user",
-                "content": "`screenshot.png`",
-            }
-        )
         content = response.text[1:]
+        print("content", content)
+        content = json.loads(content)
 
         return content
 
     except Exception as e:
-        print(f"Error: {e}")
-        return "Failed take action after looking at the screenshot"
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
+            e,
+        )
+        return call_gpt_4_vision_preview(messages)
 
 
 async def call_gpt_4_vision_preview_labeled(messages, objective):
