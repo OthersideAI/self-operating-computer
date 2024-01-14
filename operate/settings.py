@@ -21,10 +21,10 @@ class Config:
 
     def initialize_openai_client(self):
         """
-        Initializes and returns an OpenAI client with the configured API key.
+            Initializes and returns an OpenAI client with the configured API key.
 
         Returns:
-            OpenAI or None: An instance of the OpenAI client if the API key is provided, else None.
+                OpenAI or None: An instance of the OpenAI client if the API key is provided, else None.
         """
         if self.openai_api_key:
             client = OpenAI()

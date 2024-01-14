@@ -9,8 +9,8 @@ From looking at the screen, the objective, and your previous actions, take the n
 
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
-1. mouse - Move mouse and click
-[{{ "thought": "write a thought here", "operation": "mouse", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
+1. click - Move mouse and click
+[{{ "thought": "write a thought here", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
@@ -55,8 +55,8 @@ From looking at the screen, the objective, and your previous actions, take the n
 
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
-1. mouse - Move mouse and click - We labeled the clickable elements with red bounding boxes and IDs. Label IDs are in the following format with `x` being a number: `~x`
-[{{ "thought": "write a thought here", "operation": "mouse", "label": "~x" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
+1. click - Move mouse and click - We labeled the clickable elements with red bounding boxes and IDs. Label IDs are in the following format with `x` being a number: `~x`
+[{{ "thought": "write a thought here", "operation": "click", "label": "~x" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
@@ -80,7 +80,7 @@ Here are some helpful combinations:
 
 # Send a "Hello World" message in the chat
 [
-    {{ "thought": "I see a messsage field on this page near the button. It looks like it has a label", "operation": "mouse", "label": "~34" }},
+    {{ "thought": "I see a messsage field on this page near the button. It looks like it has a label", "operation": "click", "label": "~34" }},
     {{ "thought": "Now that I am focused on the message field, I'll go ahead and write ", "operation": "write", "content": "Hello World" }},
 ]
 

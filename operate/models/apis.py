@@ -336,7 +336,8 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
 
 def fetch_agent_1_response(session_id, objective, base64_image):
-    print("[call_agent_1][fetch_agent_1_response]")
+    if VERBOSE:
+        print("[call_agent_1][fetch_agent_1_response]")
     url = "http://127.0.0.1:5000/agent/v2/action"
     api_token = os.environ.get("AGENT_API_KEY")
     headers = {
