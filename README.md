@@ -43,23 +43,22 @@ https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
-### Option 1: Traditional Installation
-
-```
-1. **Install Project Requirements and Command-Line Interface: Instead of using `pip install .`, you can now install the project directly from PyPI with:**
+### Option 1: Quick Start
+Install `self-operating-computer`
+1. **Install `self-operating-computer`**:
 ```
 pip install self-operating-computer
 ```
-2. 
+2. **Add your Open AI key. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+For Mac, 
 ```
-
+export OPENAI_API_KEY='your-key-here'
 ``` 
-3. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
+For Windows
 ```
-OPENAI_API_KEY='your-key-here'
+set GOOGLE_API_KEY='your_api_key'
 ```
-
-4. **Run it**!
+3. **Run it**!
 ```
 operate
 ```
