@@ -152,7 +152,7 @@ def get_click_position_in_percent(coordinates, image_size):
     y_center = (coordinates[1] + coordinates[3]) / 2
 
     # Convert to percentages
-    x_percent = (x_center / image_size[0]) * 100
-    y_percent = (y_center / image_size[1]) * 100
+    x_percent = x_center / image_size[0]
+    y_percent = y_center / image_size[1]
 
     return x_percent, y_percent

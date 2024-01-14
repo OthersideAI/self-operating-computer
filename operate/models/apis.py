@@ -312,8 +312,8 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                     )
                     return call_gpt_4_vision_preview(messages)
 
-                x_percent = f"{click_position_percent[0]:.2f/100}"
-                y_percent = f"{click_position_percent[1]:.2f/100}"
+                x_percent = f"{click_position_percent[0]:.2f}"
+                y_percent = f"{click_position_percent[1]:.2f}"
                 operation["x"] = x_percent
                 operation["y"] = y_percent
                 if VERBOSE:
@@ -332,9 +332,10 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 )
             return processed_content
 
-    except:
+    except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
+            e,
         )
         return call_gpt_4_vision_preview(messages)
 
