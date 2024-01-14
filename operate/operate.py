@@ -157,7 +157,7 @@ def operate(operations):
             content = operation.get("content")
             operate_detail = content
             operating_system.write(content)
-        elif operate_type == "mouse":
+        elif operate_type == "click":
             x = operation.get("x")
             y = operation.get("y")
             click_detail = {"x": x, "y": y}
