@@ -139,13 +139,14 @@ def operate(operations):
     if VERBOSE:
         print("[Self Operating Computer][operate]")
     for operation in operations:
+        if VERBOSE:
+            print("[Self Operating Computer][operate] operation", operation)
         # wait one second
         time.sleep(1)
         operate_type = operation.get("operation").lower()
         operate_thought = operation.get("thought")
         operate_detail = ""
         if VERBOSE:
-            print("[Self Operating Computer][operate] operation", operation)
             print("[Self Operating Computer][operate] operate_type", operate_type)
 
         if operate_type == "press" or operate_type == "hotkey":

@@ -56,7 +56,7 @@ async def get_next_action(model, messages, objective, session_id):
         operation, session_id = call_agent_1(session_id, objective)
         return operation, session_id
     elif model == "gemini-pro-vision":
-        return [call_gemini_pro_vision(messages, objective)], None
+        return call_gemini_pro_vision(messages, objective), None
 
     raise ModelNotRecognizedException(model)
 
@@ -179,9 +179,6 @@ def call_gemini_pro_vision(messages, objective):
         capture_screen_with_cursor(screenshot_filename)
         # sleep for a second
         time.sleep(1)
-
-        previous_action = get_last_assistant_message(messages)
-
         # vision_prompt = format_vision_prompt(objective, previous_action)
         prompt = get_system_prompt(objective)
 
@@ -190,8 +187,13 @@ def call_gemini_pro_vision(messages, objective):
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
         content = response.text[1:]
-        print("content", content)
+
         content = json.loads(content)
+        if VERBOSE:
+            print(
+                "[Self Operating Computer][get_next_action][call_gemini_pro_vision] content",
+                content,
+            )
 
         return content
 
