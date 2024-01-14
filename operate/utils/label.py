@@ -133,7 +133,7 @@ def add_labels(base64_data, yolo_model):
     image_labeled.save(buffered_labeled, format="PNG")  # I guess this is needed
     img_base64_labeled = base64.b64encode(buffered_labeled.getvalue()).decode("utf-8")
 
-    return img_base64_labeled, img_base64_original, label_coordinates
+    return img_base64_labeled, label_coordinates
 
 
 def get_click_position_in_percent(coordinates, image_size):

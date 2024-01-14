@@ -222,9 +222,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        img_base64_labeled, img_base64_original, label_coordinates = add_labels(
-            img_base64, yolo_model
-        )
+        img_base64_labeled, label_coordinates = add_labels(img_base64, yolo_model)
 
         if len(messages) == 1:
             user_prompt = get_user_first_message_prompt()
