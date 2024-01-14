@@ -18,7 +18,6 @@ from operate.utils.screenshot import (
     capture_screen_with_cursor,
 )
 from operate.models.prompts import (
-    format_vision_prompt,
     get_user_first_message_prompt,
     get_user_prompt,
     get_system_prompt,
@@ -159,8 +158,11 @@ def call_gpt_4_vision_preview(messages):
         return content
 
     except Exception as e:
-        print(f"Error: {e}")
-        return "Failed take action after looking at the screenshot"
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying again {ANSI_RESET}",
+            e,
+        )
+        return call_gpt_4_vision_preview(messages)
 
 
 def call_gemini_pro_vision(messages, objective):
@@ -179,7 +181,6 @@ def call_gemini_pro_vision(messages, objective):
         capture_screen_with_cursor(screenshot_filename)
         # sleep for a second
         time.sleep(1)
-        # vision_prompt = format_vision_prompt(objective, previous_action)
         prompt = get_system_prompt(objective)
 
         model = genai.GenerativeModel("gemini-pro-vision")
