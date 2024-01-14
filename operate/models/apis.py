@@ -276,7 +276,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         processed_content = []
 
         for operation in content:
-            if operation.get("operation") == "mouse":
+            if operation.get("operation") == "click":
                 label = operation.get("label")
                 if VERBOSE:
                     print(
