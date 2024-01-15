@@ -303,28 +303,6 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         return call_gpt_4_vision_preview(messages)
 
 
-async def fetch_openai_response_async(messages):
-    url = "https://api.openai.com/v1/chat/completions"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {config.openai_api_key}",
-    }
-    data = {
-        "model": "gpt-4-vision-preview",
-        "messages": messages,
-        "frequency_penalty": 1,
-        "presence_penalty": 1,
-        "temperature": 0.7,
-        "max_tokens": 300,
-    }
-
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            url, headers=headers, data=json.dumps(data)
-        ) as response:
-            return await response.json()
-
-
 def get_last_assistant_message(messages):
     """
     Retrieve the last message from the assistant in the messages array.
