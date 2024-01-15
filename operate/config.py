@@ -27,17 +27,12 @@ class Config:
         Returns:
                 OpenAI or None: An instance of the OpenAI client if the API key is provided, else None.
         """
-        try:
-            if self.openai_api_key:
-                client = OpenAI()
-                print("setting openai key")
-                client.api_key = self.openai_api_key
-                client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
-                return client
-            return "Failed to initialize OpenAI"
-        except Exception as e:
-            print("[Config] Failed to initialize OpenAI", e)
-            return "Failed to initialize OpenAI"
+        if self.openai_api_key:
+            client = OpenAI()
+            client.api_key = self.openai_api_key
+            client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+            return client
+        return None
 
     def validation(self, model, voice_mode):
         """
@@ -51,8 +46,6 @@ class Config:
             SystemExit: If the input parameters are invalid.
 
         """
-        print("[validation]")
-        print("[validation] self.openai_api_key", self.openai_api_key)
 
         if voice_mode and not self.openai_api_key:
             print("To use voice mode, please add an OpenAI API key")
@@ -61,7 +54,6 @@ class Config:
         if model == "gpt-4" and not self.openai_api_key:
             print("To use `gpt-4-vision-preview` add an OpenAI API key")
             sys.exit(1)
-
+        print("self.google_api_key", self.google_api_key)
         if model == "gemini-pro-vision" and not self.google_api_key:
-            print("To use `gemini-pro-vision` add a Google API key")
             sys.exit(1)
