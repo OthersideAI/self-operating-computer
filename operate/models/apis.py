@@ -3,11 +3,9 @@ import time
 import json
 import base64
 
-import re
 import io
-import asyncio
 import aiohttp
-import requests
+
 
 from PIL import Image
 from ultralytics import YOLO
@@ -37,10 +35,7 @@ from operate.utils.style import (
 
 
 # Load configuration
-config = Config()
-VERBOSE = config.verbose
-
-client = config.initialize_apis()
+VERBOSE = Config().verbose
 
 
 async def get_next_action(model, messages, objective, session_id):
@@ -58,9 +53,8 @@ async def get_next_action(model, messages, objective, session_id):
 
 
 def call_gpt_4_vision_preview(messages):
-    """
-    Get the next action for Self-Operating Computer
-    """
+    config = Config()
+    client = config.initialize_openai()
     if VERBOSE:
         print("[Self Operating Computer][get_next_action][call_gpt_4_v]")
     time.sleep(1)
@@ -177,6 +171,8 @@ def call_gemini_pro_vision(messages, objective):
 
 
 async def call_gpt_4_vision_preview_labeled(messages, objective):
+    config = Config()
+    client = config.initialize_openai()
     time.sleep(1)
     try:
         yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model

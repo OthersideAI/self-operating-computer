@@ -1,6 +1,5 @@
 import sys
 import os
-import platform
 import time
 import asyncio
 from prompt_toolkit.shortcuts import message_dialog
@@ -64,21 +63,22 @@ def main(model, terminal_prompt, voice_mode=False):
 
     # Skip message dialog if prompt was given directly
     if not terminal_prompt:
-        message_dialog(
-            title="Self-Operating Computer",
-            text="An experimental framework to enable multimodal models to operate computers",
-            style=style,
-        ).run()
+        # message_dialog(
+        #     title="Self-Operating Computer",
+        #     text="An experimental framework to enable multimodal models to operate computers",
+        #     style=style,
+        # ).run()
+        pass
 
     else:
         if VERBOSE:
             print("Running direct prompt...")
 
-    # Clear the console
-    if platform.system() == "Windows":
-        os.system("cls")
-    else:
-        print("\033c", end="")
+    # # Clear the console
+    # if platform.system() == "Windows":
+    #     os.system("cls")
+    # else:
+    #     print("\033c", end="")
 
     if terminal_prompt:  # Skip objective prompt if it was given as an argument
         objective = terminal_prompt
