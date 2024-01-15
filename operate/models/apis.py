@@ -4,7 +4,6 @@ import json
 import base64
 
 import io
-import aiohttp
 
 
 from PIL import Image
