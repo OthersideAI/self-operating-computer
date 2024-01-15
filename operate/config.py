@@ -54,6 +54,5 @@ class Config:
         if model == "gpt-4" and not self.openai_api_key:
             print("To use `gpt-4-vision-preview` add an OpenAI API key")
             sys.exit(1)
-        print("self.google_api_key", self.google_api_key)
         if model == "gemini-pro-vision" and not self.google_api_key:
             sys.exit(1)

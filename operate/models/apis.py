@@ -42,8 +42,6 @@ VERBOSE = config.verbose
 
 client = config.initialize_apis()
 
-yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
-
 
 async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4":
@@ -181,6 +179,7 @@ def call_gemini_pro_vision(messages, objective):
 async def call_gpt_4_vision_preview_labeled(messages, objective):
     time.sleep(1)
     try:
+        yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
