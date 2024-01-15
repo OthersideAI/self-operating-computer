@@ -12,7 +12,7 @@ import requests
 from PIL import Image
 from ultralytics import YOLO
 import google.generativeai as genai
-from operate.settings import Config
+from operate.config import Config
 from operate.exceptions import ModelNotRecognizedException
 from operate.utils.screenshot import (
     capture_screen_with_cursor,
@@ -40,7 +40,7 @@ from operate.utils.style import (
 config = Config()
 VERBOSE = config.verbose
 
-client = config.initialize_openai_client()
+client = config.initialize_apis()
 
 yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
 

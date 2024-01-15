@@ -54,15 +54,11 @@ class Config:
         print("[validation]")
         print("[validation] self.openai_api_key", self.openai_api_key)
 
-        if model == "gpt-4-vision-preview" and not self.openai_api_key:
-            print("Please add your OpenAI API key before running `operate`")
-            sys.exit(1)
-
         if voice_mode and not self.openai_api_key:
             print("To use voice mode, please add an OpenAI API key")
             sys.exit(1)
 
-        if model == "gpt-4-vision-preview" and not self.openai_api_key:
+        if model == "gpt-4" and not self.openai_api_key:
             print("To use `gpt-4-vision-preview` add an OpenAI API key")
             sys.exit(1)
 

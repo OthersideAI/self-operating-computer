@@ -13,7 +13,7 @@ from operate.models.prompts import (
     get_system_prompt,
     get_system_prompt_labeled,
 )
-from operate.settings import Config
+from operate.config import Config
 from operate.utils.style import (
     ANSI_GREEN,
     ANSI_RESET,
@@ -48,7 +48,7 @@ def main(model, terminal_prompt, voice_mode=False):
     mic = None
     # Initialize `WhisperMic`, if `voice_mode` is True
 
-    validation(model, voice_mode)
+    config.validation(model, voice_mode)
 
     if voice_mode:
         try:
@@ -69,6 +69,7 @@ def main(model, terminal_prompt, voice_mode=False):
             text="An experimental framework to enable multimodal models to operate computers",
             style=style,
         ).run()
+
     else:
         if VERBOSE:
             print("Running direct prompt...")
@@ -192,29 +193,3 @@ def operate(operations):
         )
 
     return False
-
-
-def validation(model, voice_mode):
-    """
-    Validate the input parameters for the dialog operation.
-
-    Args:
-        model (str): The model to be used for the dialog operation.
-        voice_mode (bool): Flag indicating whether to use voice mode.
-
-    Raises:
-        SystemExit: If the input parameters are invalid.
-
-    """
-
-    if voice_mode and not config.openai_api_key:
-        print("To use voice mode, please add an OpenAI API key")
-        sys.exit(1)
-
-    if model == "gpt-4-vision-preview" and not config.openai_api_key:
-        print("To use `gpt-4-vision-preview` add an OpenAI API key")
-        sys.exit(1)
-
-    if model == "gemini-pro-vision" and not config.google_api_key:
-        print("To use `gemini-pro-vision` add a Google API key")
-        sys.exit(1)
