@@ -5,6 +5,7 @@ import asyncio
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
+import platform
 
 # from operate.models.prompts import USER_QUESTION, get_system_prompt
 from operate.models.prompts import (
@@ -63,22 +64,21 @@ def main(model, terminal_prompt, voice_mode=False):
 
     # Skip message dialog if prompt was given directly
     if not terminal_prompt:
-        # message_dialog(
-        #     title="Self-Operating Computer",
-        #     text="An experimental framework to enable multimodal models to operate computers",
-        #     style=style,
-        # ).run()
-        pass
+        message_dialog(
+            title="Self-Operating Computer",
+            text="An experimental framework to enable multimodal models to operate computers",
+            style=style,
+        ).run()
 
     else:
         if VERBOSE:
             print("Running direct prompt...")
 
     # # Clear the console
-    # if platform.system() == "Windows":
-    #     os.system("cls")
-    # else:
-    #     print("\033c", end="")
+    if platform.system() == "Windows":
+        os.system("cls")
+    else:
+        print("\033c", end="")
 
     if terminal_prompt:  # Skip objective prompt if it was given as an argument
         objective = terminal_prompt
