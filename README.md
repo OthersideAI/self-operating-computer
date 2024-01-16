@@ -33,6 +33,8 @@ We will soon be offering API access to our Agent-1-Vision model.
 
 If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
 
+### Additional Thoughts
+We recognize that some operating system functions may be more efficiently executed with hotkeys such as entering the Browser Address bar using `command + L` rather than by simulating a mouse click at the correct XY location. We plan to make these improvements over time. However, it's important to note that many actions require the accurate selection of visual elements on the screen, necessitating precise XY mouse click locations. A primary focus of this project is to refine the accuracy of determining these click locations. We believe this is essential for achieving a fully self-operating computer in the current technological landscape.
 ## Demo
 
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
@@ -41,26 +43,45 @@ https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-
 ## Quick Start Instructions
 Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
 
-### Option 1: Quick Start
-1. **Install the project locally**:
+### Option 1: Traditional Installation
+
+1. **Clone the repo** to a directory on your computer:
+```
+git clone https://github.com/OthersideAI/self-operating-computer.git
+```
+2. **Cd into directory**:
+
+```
+cd self-operating-computer
+```
+
+3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
+
+```
+python3 -m venv venv
+```
+4. **Activate the virtual environment**:
+```
+source venv/bin/activate
+```
+5. **Install Project Requirements and Command-Line Interface: Instead of using `pip install .`, you can now install the project directly from PyPI with:**
 ```
 pip install self-operating-computer
 ```
-2. **Add your Open AI key. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
-
-For Mac:
+6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
 ```
-export OPENAI_API_KEY='your-key-here'
+mv .example.env .env
 ``` 
-For Windows:
+7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
 ```
-set GOOGLE_API_KEY='your_api_key'
+OPENAI_API_KEY='your-key-here'
 ```
-3. **Run it**!
+
+8. **Run it**!
 ```
 operate
 ```
-5. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+9. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
