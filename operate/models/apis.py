@@ -4,6 +4,7 @@ import json
 import base64
 import traceback
 import io
+import requests
 
 
 from PIL import Image
@@ -41,8 +42,8 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4":
         return call_gpt_4_vision_preview(messages), None
     if model == "gpt-4-with-som":
-        operation = await call_gpt_4_vision_preview_labeled(messages, objective)
-        return operation, None
+        operation, session_id = call_agent_1(session_id, objective, messages)
+        return operation, session_id
     elif model == "agent-1":
         return "coming soon"
     elif model == "gemini-pro-vision":
@@ -128,6 +129,41 @@ def call_gpt_4_vision_preview(messages):
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
             content,
+        )
+        traceback.print_exc()
+        return call_gpt_4_vision_preview(messages)
+
+
+def call_agent_1(session_id, objective, messages):
+    print("[call_agent_1]")
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+
+        capture_screen_with_cursor(screenshot_filename)
+
+        with open(screenshot_filename, "rb") as img_file:
+            base64_image = base64.b64encode(img_file.read()).decode("utf-8")
+
+        print("[call_agent_1] about to fetch_agent_1_response")
+        response, session_id = fetch_agent_1_response(
+            session_id, objective, base64_image
+        )
+        print("[call_agent_1] response", response)
+
+        return response, session_id
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying again {ANSI_RESET}",
+            e,
+        )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
+            response,
         )
         traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
@@ -305,6 +341,29 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
             e,
         )
         return call_gpt_4_vision_preview(messages)
+
+
+def fetch_agent_1_response(session_id, objective, base64_image):
+    if VERBOSE:
+        print("[call_agent_1][fetch_agent_1_response]")
+    url = "http://127.0.0.1:5000/agent/v2/action"
+    api_token = os.environ.get("AGENT_API_KEY")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_token}",
+    }
+    data = {
+        "session_id": session_id,
+        "objective": objective,
+        "image": f"data:image/jpeg;base64,{base64_image}",
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response_dict = response.json()
+    operations = response_dict.get("operations")
+    session_id = response_dict.get("session_id")
+
+    return operations, session_id
 
 
 def get_last_assistant_message(messages):
