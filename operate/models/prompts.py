@@ -199,7 +199,7 @@ Objective: {objective} # take the next best action for this objective
 OPERATE_FIRST_MESSAGE_PROMPT = """
 Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
 
-Right now you are probably in the terminal because the human just started up. Remember
+Right now you are probably in the terminal because the human just started up. If you want to leave the terminal go ahead and search for a new program, otherwise if you want to use the terminal you need to start a new tab first because your code is running in this first terminal tab.
 
 Action:"""
 
