@@ -24,7 +24,7 @@ reason must be a string containing a justification for your decision.
 Guideline: {guideline}
 """
 
-SUMMARY_SCREENSHOT_PATH = os.path.join('screenshots', 'summary_screenshot.png')
+SCREENSHOT_PATH = os.path.join('screenshots', 'screenshot.png')
 
 # Check if on a windows terminal that supports ANSI escape codes
 def supports_ansi():
@@ -82,7 +82,7 @@ def parse_eval_content(content):
 
 def evaluate_summary_screenshot(guideline):
     '''Load the summary screenshot and return True or False if it meets the given guideline.'''
-    with open(SUMMARY_SCREENSHOT_PATH, "rb") as img_file:
+    with open(SCREENSHOT_PATH, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
         eval_message = [{
