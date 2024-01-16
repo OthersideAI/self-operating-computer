@@ -42,10 +42,11 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4":
         return call_gpt_4_vision_preview(messages), None
     if model == "gpt-4-with-som":
+        operation = await call_gpt_4_vision_preview_labeled(messages, objective)
+        return operation, None
+    elif model == "agent-1":
         operation, session_id = call_agent_1(session_id, objective, messages)
         return operation, session_id
-    elif model == "agent-1":
-        return "coming soon"
     elif model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective), None
 
