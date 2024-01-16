@@ -133,31 +133,7 @@ def add_labels(base64_data, yolo_model):
     image_labeled.save(buffered_labeled, format="PNG")  # I guess this is needed
     img_base64_labeled = base64.b64encode(buffered_labeled.getvalue()).decode("utf-8")
 
-    return img_base64_labeled, img_base64_original, label_coordinates
-
-
-def parse_click_content(message_content):
-    """
-    Parses the response message to determine if it's a CLICK or NONE action and returns the appropriate data.
-
-    :param message_content: The content of the response message.
-    :return: A dictionary with the relevant data or a message indicating a NONE action.
-    """
-    try:
-        # Check for and remove erroneous ```json at the start and ``` at the end
-        if message_content.startswith("```json"):
-            message_content = message_content[
-                len("```json") :
-            ]  # Remove starting ```json
-            if message_content.endswith("```"):
-                message_content = message_content[: -len("```")]  # Remove ending ```
-
-        # Convert JSON string to dictionary
-        return json.loads(message_content.strip())
-    except json.JSONDecodeError as e:
-        return {"error": "Invalid JSON format"}
-
-    return {"error": "Invalid response format"}
+    return img_base64_labeled, label_coordinates
 
 
 def get_click_position_in_percent(coordinates, image_size):
@@ -176,7 +152,7 @@ def get_click_position_in_percent(coordinates, image_size):
     y_center = (coordinates[1] + coordinates[3]) / 2
 
     # Convert to percentages
-    x_percent = (x_center / image_size[0]) * 100
-    y_percent = (y_center / image_size[1]) * 100
+    x_percent = x_center / image_size[0]
+    y_percent = y_center / image_size[1]
 
     return x_percent, y_percent
