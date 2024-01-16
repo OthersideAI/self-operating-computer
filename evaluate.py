@@ -80,8 +80,8 @@ def parse_eval_content(content):
         exit(1)
 
 
-def evaluate_summary_screenshot(guideline):
-    '''Load the summary screenshot and return True or False if it meets the given guideline.'''
+def evaluate_final_screenshot(guideline):
+    '''Load the final screenshot and return True or False if it meets the given guideline.'''
     with open(SCREENSHOT_PATH, "rb") as img_file:
         img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
@@ -116,9 +116,9 @@ def run_test_case(objective, guideline):
     subprocess.run(['operate', '--prompt', f'"{objective}"'], stdout=subprocess.DEVNULL)
     
     try:
-        result = evaluate_summary_screenshot(guideline)
+        result = evaluate_final_screenshot(guideline)
     except(OSError):
-        print("Couldn't open the summary screenshot")
+        print("[Error] Couldn't open the screenshot for evaluation")
         return False
     
     return result
