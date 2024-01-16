@@ -2,7 +2,7 @@ import os
 import time
 import json
 import base64
-
+import traceback
 import io
 
 
@@ -114,9 +114,9 @@ def call_gpt_4_vision_preview(messages):
                 "[Self Operating Computer][get_next_action][call_gpt_4_v] content",
                 content,
             )
-        messages.append(assistant_message)
-
         content = json.loads(content)
+
+        messages.append(assistant_message)
 
         return content
 
@@ -125,6 +125,11 @@ def call_gpt_4_vision_preview(messages):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying again {ANSI_RESET}",
             e,
         )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
+            content,
+        )
+        traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 
