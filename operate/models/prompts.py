@@ -12,7 +12,7 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
-[{{ "thought": "write a thought here", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
+[{{ "thought": "write a thought here", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
@@ -49,7 +49,7 @@ A few important notes:
 Objective: {objective} # take the next best action for this objective
 """
 
-SYSTEM_PROMPT_WIN_LINUX= """
+SYSTEM_PROMPT_WIN_LINUX = """
 You are operating a computer, using the same operating system as a human.
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
@@ -57,7 +57,7 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
-[{{ "thought": "write a thought here", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
+[{{ "thought": "write a thought here", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
@@ -216,7 +216,7 @@ def get_system_prompt(objective):
         prompt = SYSTEM_PROMPT_MAC.format(objective=objective)
     else:
         prompt = SYSTEM_PROMPT_WIN_LINUX.format(objective=objective)
-        
+
     return prompt
 
 
@@ -228,7 +228,7 @@ def get_system_prompt_labeled(objective):
         prompt = SYSTEM_PROMPT_LABELED_MAC.format(objective=objective)
     else:
         prompt = SYSTEM_PROMPT_LABELED_WIN_LINUX.format(objective=objective)
-        
+
     return prompt
 
 
