@@ -143,7 +143,7 @@ def main():
             failed += 1
 
     print(
-        f"{ANSI_BRIGHT_MAGENTA}[EVALUATION COMPLETE]{ANSI_RESET} {passed} tests passed, {failed} tests failed"
+        f"{ANSI_BRIGHT_MAGENTA}[EVALUATION COMPLETE]{ANSI_RESET} {passed} test{'' if passed == 1 else 's'} passed, {failed} test{'' if failed == 1 else 's'} failed"
     )
 
 if __name__ == "__main__":
