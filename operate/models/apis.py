@@ -212,6 +212,7 @@ def call_gemini_pro_vision(messages, objective):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
             e,
         )
+        traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 
@@ -345,6 +346,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
             e,
         )
+        traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 

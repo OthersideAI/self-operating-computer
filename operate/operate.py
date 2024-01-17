@@ -1,4 +1,5 @@
 import sys
+import traceback
 import os
 import time
 import asyncio
@@ -133,6 +134,7 @@ def main(model, terminal_prompt, voice_mode=False):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
             )
+            traceback.print_exc()
             break
 
 
@@ -190,6 +192,7 @@ def operate(operations):
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response {ANSI_RESET}{operation}"
             )
+            traceback.print_exc()
             return True
 
         print(
