@@ -177,6 +177,7 @@ def call_gemini_pro_vision(messages, objective):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
+    config = Config()
     # sleep for a second
     time.sleep(1)
     try:
