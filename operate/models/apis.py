@@ -138,12 +138,15 @@ def call_gpt_4_vision_preview(messages):
 def call_agent_1(session_id, objective, messages):
     print("[call_agent_1]")
     time.sleep(1)
+    response = ""
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+
+        print("[call_agent_1] screenshot_filename", screenshot_filename)
 
         capture_screen_with_cursor(screenshot_filename)
 
@@ -347,7 +350,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 def fetch_agent_1_response(session_id, objective, base64_image):
     if VERBOSE:
         print("[call_agent_1][fetch_agent_1_response]")
-    url = "http://127.0.0.1:5000/agent/v2/action"
+    url = "http://127.0.0.1:5000/agent/v1/action"
     api_token = os.environ.get("AGENT_API_KEY")
     headers = {
         "Content-Type": "application/json",

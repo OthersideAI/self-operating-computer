@@ -164,7 +164,14 @@ def operate(operations):
             click_detail = {"x": x, "y": y}
             operate_detail = click_detail
 
-            operating_system.mouse(click_detail)
+            operating_system.click(click_detail)
+        elif operate_type == "double_click":
+            x = operation.get("x")
+            y = operation.get("y")
+            click_detail = {"x": x, "y": y}
+            operate_detail = click_detail
+
+            operating_system.double_click(click_detail)
         elif operate_type == "done":
             summary = operation.get("summary")
 

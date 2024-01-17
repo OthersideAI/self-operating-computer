@@ -17,7 +17,7 @@ class Config:
 
     def __init__(self):
         load_dotenv()
-        self.verbose = False
+        self.verbose = True
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.google_api_key = os.getenv("GOOGLE_API_KEY")
 
