@@ -352,11 +352,12 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
 def fetch_agent_1_response(session_id, objective, base64_image):
     if VERBOSE:
-        print("[call_agent_1][fetch_agent_1_response]")
+        print("[fetch_agent_1_response]")
 
     base_url = os.environ.get("AGENT_API_BASE_URL")
     api_token = os.environ.get("AGENT_API_KEY")
     url = base_url + "/agent/v1/action"
+    print("[fetch_agent_1_response] url", url)
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_token}",
@@ -368,9 +369,13 @@ def fetch_agent_1_response(session_id, objective, base64_image):
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(data))
+    print("[fetch_agent_1_response] response")
     response_dict = response.json()
+    print("[fetch_agent_1_response] response_dict", response_dict)
     operations = response_dict.get("operations")
     session_id = response_dict.get("session_id")
+    print("[fetch_agent_1_response] operations", operations)
+    print("[fetch_agent_1_response] session_id", session_id)
 
     return operations, session_id
 
