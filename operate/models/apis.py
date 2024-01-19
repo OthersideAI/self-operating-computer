@@ -35,8 +35,8 @@ import pkg_resources
 
 
 # Load configuration
-VERBOSE = Config().verbose
 config = Config()
+VERBOSE = config
 
 
 async def get_next_action(model, messages, objective, session_id):

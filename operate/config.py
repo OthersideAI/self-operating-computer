@@ -16,9 +16,23 @@ class Config:
         google_api_key (str): API key for Google.
     """
 
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Config, cls).__new__(cls)
+            # Put any initialization here
+        return cls._instance
+
     def __init__(self):
         load_dotenv()
         self.verbose = False
+        self.openai_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
+        self.google_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
 
     def initialize_openai(self):
         client = OpenAI()
@@ -64,6 +78,10 @@ class Config:
             sys.exit("Operation cancelled by user.")
 
         if key_value:
+            if key_name == "OPENAI_API_KEY":
+                self.openai_api_key = key_value
+            elif key_name == "GOOGLE_API_KEY":
+                self.google_api_key = key_value
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
             # Update the instance attribute with the new key

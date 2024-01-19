@@ -39,6 +39,7 @@ https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-
 
 
 ## Run `Self-Operating Computer`
+
 1. **Install the project**
 ```
 pip install self-operating-computer
@@ -77,7 +78,6 @@ cd self-operating-computer
 ```
 ./run.sh
 ```
-
 
 ## Using `operate` Modes
 
