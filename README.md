@@ -38,56 +38,30 @@ If you're interested in gaining access to this API, sign up [here](https://other
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
-## Quick Start Instructions
-Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
+## Run `Self-Operating Computer`
 
-### Option 1: Traditional Installation
-
-1. **Clone the repo** to a directory on your computer:
-```
-git clone https://github.com/OthersideAI/self-operating-computer.git
-```
-2. **Cd into directory**:
-
-```
-cd self-operating-computer
-```
-
-3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
-
-```
-python3 -m venv venv
-```
-4. **Activate the virtual environment**:
-```
-source venv/bin/activate
-```
-5. **Install Project Requirements and Command-Line Interface: Instead of using `pip install .`, you can now install the project directly from PyPI with:**
+1. **Install the project**
 ```
 pip install self-operating-computer
 ```
-6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
-```
-mv .example.env .env
-``` 
-7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
-```
-OPENAI_API_KEY='your-key-here'
-```
-
-8. **Run it**!
+2. **Run the project**
 ```
 operate
 ```
-9. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)
+
+<div align="center">
+  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
+</div>
+
+4. **Give Terminal app the required permissions**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-
-### Option 2: Installation using .sh script
+### Alternatively installation with `.sh`
 
 1. **Clone the repo** to a directory on your computer:
 ```
@@ -105,21 +79,17 @@ cd self-operating-computer
 ./run.sh
 ```
 
-
 ## Using `operate` Modes
 
 ### Multimodal Models  `-m`
 An additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. 
 
-**Add your Google AI Studio API key to your .env file.** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR:
-```
-GOOGLE_API_KEY='your-key-here'
-```
-
 Start `operate` with the Gemini model
 ```
 operate -m gemini-pro-vision
 ```
+
+**Enter your Google AI Studio API key when terminal prompts you for it** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR:
 
 ### Set-of-Mark Prompting `-m gpt-4-with-som`
 The Self-Operating Computer Framework now supports Set-of-Mark (SoM) Prompting with the `gpt-4-with-som` command. This new visual prompting method enhances the visual grounding capabilities of large multimodal models.
@@ -136,7 +106,14 @@ operate -m gpt-4-with-som
 
 ### Voice Mode `--voice`
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
-
+**Clone the repo** to a directory on your computer:
+```
+git clone https://github.com/OthersideAI/self-operating-computer.git
+```
+**Cd into directory**:
+```
+cd self-operating-computer
+```
 Install the additional `requirements-audio.txt`
 ```
 pip install -r requirements-audio.txt

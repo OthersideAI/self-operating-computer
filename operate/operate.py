@@ -46,6 +46,7 @@ def main(model, terminal_prompt, voice_mode=False):
     Returns:
     None
     """
+
     mic = None
     # Initialize `WhisperMic`, if `voice_mode` is True
 
@@ -72,8 +73,7 @@ def main(model, terminal_prompt, voice_mode=False):
         ).run()
 
     else:
-        if VERBOSE:
-            print("Running direct prompt...")
+        print("Running direct prompt...")
 
     # # Clear the console
     if platform.system() == "Windows":
@@ -99,7 +99,6 @@ def main(model, terminal_prompt, voice_mode=False):
 
     if model == "gpt-4-with-som":
         system_prompt = get_system_prompt_labeled(objective)
-        print("labeled prompt", system_prompt)
     else:
         system_prompt = get_system_prompt(objective)
     system_message = {"role": "system", "content": system_prompt}
@@ -111,7 +110,6 @@ def main(model, terminal_prompt, voice_mode=False):
 
     while True:
         if VERBOSE:
-            print("[Self Operating Computer]")
             print("[Self Operating Computer] loop_count", loop_count)
         try:
             operations, session_id = asyncio.run(
