@@ -22,12 +22,10 @@ class Config:
         self.google_api_key = os.getenv("GOOGLE_API_KEY", "")
 
     def initialize_openai(self):
-        if self.openai_api_key:
-            client = OpenAI()
-            client.api_key = self.openai_api_key
-            client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
-            return client
-        return None
+        client = OpenAI()
+        client.api_key = self.openai_api_key
+        client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+        return client
 
     def validation(self, model, voice_mode):
         """
