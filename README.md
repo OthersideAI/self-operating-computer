@@ -38,56 +38,23 @@ If you're interested in gaining access to this API, sign up [here](https://other
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
-## Quick Start Instructions
-Below are instructions to set up the Self-Operating Computer Framework locally on your computer.
-
-### Option 1: Traditional Installation
-
-1. **Clone the repo** to a directory on your computer:
-```
-git clone https://github.com/OthersideAI/self-operating-computer.git
-```
-2. **Cd into directory**:
-
-```
-cd self-operating-computer
-```
-
-3. **Create a Python virtual environment**. [Learn more about Python virtual environment](https://docs.python.org/3/library/venv.html).
-
-```
-python3 -m venv venv
-```
-4. **Activate the virtual environment**:
-```
-source venv/bin/activate
-```
-5. **Install Project Requirements and Command-Line Interface: Instead of using `pip install .`, you can now install the project directly from PyPI with:**
+## Run `Self-Operating Computer`
+Install the project
 ```
 pip install self-operating-computer
 ```
-6. **Then rename the `.example.env` file to `.env` so that you can save your OpenAI key in it.**
-```
-mv .example.env .env
-``` 
-7. **Add your Open AI key to your new `.env` file. If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)**:
-```
-OPENAI_API_KEY='your-key-here'
-```
-
-8. **Run it**!
+Next fire the main command
 ```
 operate
 ```
-9. **Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+**Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-
-### Option 2: Installation using .sh script
+### Run with `.sh`
 
 1. **Clone the repo** to a directory on your computer:
 ```
