@@ -71,8 +71,7 @@ def main(model, terminal_prompt, voice_mode=False):
         ).run()
 
     else:
-        if VERBOSE:
-            print("Running direct prompt...")
+        print("Running direct prompt...")
 
     # # Clear the console
     if platform.system() == "Windows":
