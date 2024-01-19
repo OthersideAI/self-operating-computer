@@ -36,7 +36,6 @@ from operate.utils.style import (
 # Load configuration
 VERBOSE = Config().verbose
 config = Config()
-client = config.initialize_openai()
 
 
 async def get_next_action(model, messages, objective, session_id):
@@ -60,6 +59,7 @@ def call_gpt_4_vision_preview(messages):
     if VERBOSE:
         print("[Self Operating Computer][get_next_action][call_gpt_4_v]")
     time.sleep(1)
+    client = config.initialize_openai()
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
@@ -190,6 +190,7 @@ def call_gemini_pro_vision(messages, objective):
 
 async def call_gpt_4_vision_preview_labeled(messages, objective):
     time.sleep(1)
+    client = config.initialize_openai()
     try:
         yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
         screenshots_dir = "screenshots"

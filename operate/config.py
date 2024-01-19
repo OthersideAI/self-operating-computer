@@ -45,6 +45,11 @@ class Config:
 
     def require_api_key(self, key_name, key_description, is_required):
         key_exists = bool(os.environ.get(key_name))
+        if self.verbose:
+            print("[Config] require_api_key")
+            print("[Config] key_name", key_name)
+            print("[Config] key_description", key_description)
+            print("[Config] key_exists", key_exists)
         if is_required and not key_exists:
             self.prompt_and_save_api_key(key_name, key_description)
 
