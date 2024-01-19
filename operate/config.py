@@ -3,6 +3,7 @@ import sys
 from dotenv import load_dotenv
 from openai import OpenAI
 from prompt_toolkit.shortcuts import input_dialog
+import google.generativeai as genai
 
 
 class Config:
@@ -18,14 +19,18 @@ class Config:
     def __init__(self):
         load_dotenv()
         self.verbose = False
-        self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
-        self.google_api_key = os.getenv("GOOGLE_API_KEY", "")
 
     def initialize_openai(self):
         client = OpenAI()
-        client.api_key = self.openai_api_key
+        client.api_key = os.getenv("OPENAI_API_KEY")
         client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
         return client
+
+    def initialize_google(self):
+        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"), transport="rest")
+        model = genai.GenerativeModel("gemini-pro-vision")
+
+        return model
 
     def validation(self, model, voice_mode):
         """
@@ -39,7 +44,8 @@ class Config:
         )
 
     def require_api_key(self, key_name, key_description, is_required):
-        if is_required and not getattr(self, key_name.lower()):
+        key_exists = bool(os.environ.get(key_name))
+        if is_required and not key_exists:
             self.prompt_and_save_api_key(key_name, key_description)
 
     def prompt_and_save_api_key(self, key_name, key_description):
