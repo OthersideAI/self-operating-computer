@@ -84,15 +84,12 @@ cd self-operating-computer
 ### Multimodal Models  `-m`
 An additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. 
 
-**Add your Google AI Studio API key to your .env file.** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR:
-```
-GOOGLE_API_KEY='your-key-here'
-```
-
 Start `operate` with the Gemini model
 ```
 operate -m gemini-pro-vision
 ```
+
+**Enter your Google AI Studio API key when terminal prompts you for it** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR:
 
 ### Set-of-Mark Prompting `-m gpt-4-with-som`
 The Self-Operating Computer Framework now supports Set-of-Mark (SoM) Prompting with the `gpt-4-with-som` command. This new visual prompting method enhances the visual grounding capabilities of large multimodal models.
