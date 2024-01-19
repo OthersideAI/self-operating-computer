@@ -81,7 +81,7 @@ Here are some helpful combinations:
 
 # Focuses on the address bar in a browser before typing a website
 [
-    {{ "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["ctrl", "l"] }},
+    {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["ctrl", "l"] }},
     {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
@@ -126,7 +126,7 @@ Here are some helpful combinations:
 
 # Focuses on the address bar in a browser before typing a website
 [
-    {{ "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["command", "l"] }},
+    {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["command", "l"] }},
     {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
@@ -176,7 +176,7 @@ Here are some helpful combinations:
 
 # Focuses on the address bar in a browser before typing a website
 [
-    {{ "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["ctrl", "l"] }},
+    {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["ctrl", "l"] }},
     {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
