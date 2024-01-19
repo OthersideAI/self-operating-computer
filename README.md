@@ -39,15 +39,21 @@ https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-
 
 
 ## Run `Self-Operating Computer`
-Install the project
+1. **Install the project**
 ```
 pip install self-operating-computer
 ```
-Next fire the main command
+2. **Run the project**
 ```
 operate
 ```
-**Final Step**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+3. **Enter your OpenAI Key**
+
+<div align="center">
+  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
+</div>
+
+4. **Give Terminal app the required permissions**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
