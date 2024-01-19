@@ -18,6 +18,10 @@ setup(
             "operate=operate.main:main_entry",
         ],
     },
+    package_data={
+        # Include the file in the operate.models.weights package
+        "operate.models.weights": ["best.pt"],
+    },
     long_description=long_description,  # Add project description here
     long_description_content_type="text/markdown",  # Specify Markdown format
     # include any other necessary setup options here
