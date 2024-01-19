@@ -45,6 +45,7 @@ def main(model, terminal_prompt, voice_mode=False):
     Returns:
     None
     """
+
     mic = None
     # Initialize `WhisperMic`, if `voice_mode` is True
 
@@ -109,7 +110,6 @@ def main(model, terminal_prompt, voice_mode=False):
 
     while True:
         if VERBOSE:
-            print("[Self Operating Computer]")
             print("[Self Operating Computer] loop_count", loop_count)
         try:
             operations, session_id = asyncio.run(

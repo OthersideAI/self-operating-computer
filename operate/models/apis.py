@@ -8,7 +8,7 @@ import io
 
 from PIL import Image
 from ultralytics import YOLO
-import google.generativeai as genai
+
 from operate.config import Config
 from operate.exceptions import ModelNotRecognizedException
 from operate.utils.screenshot import (
@@ -35,9 +35,13 @@ from operate.utils.style import (
 
 # Load configuration
 VERBOSE = Config().verbose
+config = Config()
 
 
 async def get_next_action(model, messages, objective, session_id):
+    if VERBOSE:
+        print("[Self-Operating Computer][get_next_action]")
+        print("[Self-Operating Computer][get_next_action] model", model)
     if model == "gpt-4":
         return call_gpt_4_vision_preview(messages), None
     if model == "gpt-4-with-som":
@@ -52,11 +56,10 @@ async def get_next_action(model, messages, objective, session_id):
 
 
 def call_gpt_4_vision_preview(messages):
-    config = Config()
-    client = config.initialize_openai()
     if VERBOSE:
         print("[Self Operating Computer][get_next_action][call_gpt_4_v]")
     time.sleep(1)
+    client = config.initialize_openai()
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
@@ -137,7 +140,10 @@ def call_gemini_pro_vision(messages, objective):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
-    config = Config()
+    if VERBOSE:
+        print(
+            "[Self Operating Computer][call_gemini_pro_vision]",
+        )
     # sleep for a second
     time.sleep(1)
     try:
@@ -152,11 +158,18 @@ def call_gemini_pro_vision(messages, objective):
         time.sleep(1)
         prompt = get_system_prompt(objective)
 
-        model = genai.GenerativeModel("gemini-pro-vision")
+        model = config.initialize_google()
+        if VERBOSE:
+            print("[Self Operating Computer][call_gemini_pro_vision] model", model)
 
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
         content = response.text[1:]
+        if VERBOSE:
+            print(
+                "[Self Operating Computer][call_gemini_pro_vision] response", response
+            )
+            print("[Self Operating Computer][call_gemini_pro_vision] content", content)
 
         content = json.loads(content)
         if VERBOSE:
@@ -176,9 +189,8 @@ def call_gemini_pro_vision(messages, objective):
 
 
 async def call_gpt_4_vision_preview_labeled(messages, objective):
-    config = Config()
-    client = config.initialize_openai()
     time.sleep(1)
+    client = config.initialize_openai()
     try:
         yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
         screenshots_dir = "screenshots"
