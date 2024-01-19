@@ -69,7 +69,7 @@ class Config:
                 "[Config][initialize_google] no cached google_api_key, try to get from env."
             )
             api_key = os.getenv("GOOGLE_API_KEY")
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"), transport="rest")
+        genai.configure(api_key=api_key, transport="rest")
         model = genai.GenerativeModel("gemini-pro-vision")
 
         return model
