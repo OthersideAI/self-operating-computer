@@ -98,7 +98,6 @@ def main(model, terminal_prompt, voice_mode=False):
 
     if model == "gpt-4-with-som":
         system_prompt = get_system_prompt_labeled(objective)
-        print("labeled prompt", system_prompt)
     else:
         system_prompt = get_system_prompt(objective)
     system_message = {"role": "system", "content": system_prompt}
