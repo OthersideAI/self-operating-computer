@@ -61,11 +61,6 @@ class Config:
             load_dotenv()  # Reload environment variables
             # Update the instance attribute with the new key
 
-            if key_value:
-                self.save_api_key_to_env(key_name, key_value)
-                load_dotenv()  # Reload environment variables
-                setattr(self, key_name.lower(), key_value)
-
     @staticmethod
     def save_api_key_to_env(key_name, key_value):
         with open(".env", "a") as file:
