@@ -106,7 +106,14 @@ operate -m gpt-4-with-som
 
 ### Voice Mode `--voice`
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
-
+**Clone the repo** to a directory on your computer:
+```
+git clone https://github.com/OthersideAI/self-operating-computer.git
+```
+**Cd into directory**:
+```
+cd self-operating-computer
+```
 Install the additional `requirements-audio.txt`
 ```
 pip install -r requirements-audio.txt
