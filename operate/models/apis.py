@@ -36,12 +36,14 @@ import pkg_resources
 
 # Load configuration
 config = Config()
-VERBOSE = config
+VERBOSE = config.verbose
 
 
 async def get_next_action(model, messages, objective, session_id):
     if VERBOSE:
         print("[Self-Operating Computer][get_next_action]")
+        print("[Self-Operating Computer][get_next_action] VERBOSE", VERBOSE)
+        print("[Self-Operating Computer][get_next_action] config", config)
         print("[Self-Operating Computer][get_next_action] model", model)
     if model == "gpt-4":
         return call_gpt_4_vision_preview(messages), None
