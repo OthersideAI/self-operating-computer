@@ -36,11 +36,29 @@ class Config:
 
     def initialize_openai(self):
         client = OpenAI()
-        client.api_key = os.getenv("OPENAI_API_KEY")
+        if self.openai_api_key:
+            if self.verbose:
+                print("[Config][initialize_openai] using cached openai_api_key")
+            api_key = self.openai_api_key
+        else:
+            print(
+                "[Config][initialize_openai] no cached openai_api_key, try to get from env."
+            )
+            api_key = os.getenv("OPENAI_API_KEY")
+        client.api_key = api_key
         client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
         return client
 
     def initialize_google(self):
+        if self.google_api_key:
+            if self.verbose:
+                print("[Config][initialize_google] using cached google_api_key")
+            api_key = self.google_api_key
+        else:
+            print(
+                "[Config][initialize_google] no cached google_api_key, try to get from env."
+            )
+            api_key = os.getenv("GOOGLE_API_KEY")
         genai.configure(api_key=os.getenv("GOOGLE_API_KEY"), transport="rest")
         model = genai.GenerativeModel("gemini-pro-vision")
 
