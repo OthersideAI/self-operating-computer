@@ -47,7 +47,7 @@ pip install self-operating-computer
 ```
 operate
 ```
-3. **Enter your OpenAI Key**
+3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
