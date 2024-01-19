@@ -31,6 +31,7 @@ from operate.utils.style import (
     ANSI_RED,
     ANSI_RESET,
 )
+import pkg_resources
 
 
 # Load configuration
@@ -191,8 +192,11 @@ def call_gemini_pro_vision(messages, objective):
 async def call_gpt_4_vision_preview_labeled(messages, objective):
     time.sleep(1)
     client = config.initialize_openai()
+
+    # Construct the path to the file within the package
     try:
-        yolo_model = YOLO("./operate/models/weights/best.pt")  # Load your trained model
+        file_path = pkg_resources.resource_filename("operate.models.weights", "best.pt")
+        yolo_model = YOLO(file_path)  # Load your trained model
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
