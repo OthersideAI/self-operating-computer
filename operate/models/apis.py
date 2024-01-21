@@ -211,8 +211,6 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        img_base64_labeled, label_coordinates = add_labels(img_base64, yolo_model)
-
         if len(messages) == 1:
             user_prompt = get_user_first_message_prompt()
         else:
@@ -220,7 +218,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
 
         if VERBOSE:
             print(
-                "[call_gpt_4_vision_preview_labeled] user_prompt",
+                "[call_gpt_4_vision_preview_ocr] user_prompt",
                 user_prompt,
             )
 
@@ -230,9 +228,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
                 {"type": "text", "text": user_prompt},
                 {
                     "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{img_base64_labeled}"
-                    },
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
                 },
             ],
         }
@@ -268,7 +264,13 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
                         "[call_gpt_4_vision_preview_ocr][click] text_to_click",
                         text_to_click,
                     )
-                text_element_index = get_text_element(result, search_text)
+                # Initialize EasyOCR Reader
+                reader = easyocr.Reader(["en"])
+
+                # Read the screenshot
+                result = reader.readtext(screenshot_filename)
+
+                text_element_index = get_text_element(result, text_to_click)
                 if VERBOSE:
                     print(
                         "[call_gpt_4_vision_preview_ocr][click] text_element_index",

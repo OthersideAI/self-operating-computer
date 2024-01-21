@@ -11,7 +11,6 @@ import platform
 from operate.models.prompts import (
     USER_QUESTION,
     get_system_prompt,
-    get_system_prompt_labeled,
 )
 from operate.config import Config
 from operate.utils.style import (

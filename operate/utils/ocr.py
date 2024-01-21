@@ -1,5 +1,4 @@
 from operate.config import Config
-from operate.config import Config
 
 # Load configuration
 VERBOSE = Config().verbose
