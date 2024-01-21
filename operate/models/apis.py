@@ -4,6 +4,7 @@ import json
 import base64
 import traceback
 import io
+import easyocr
 
 
 from PIL import Image
@@ -48,6 +49,9 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4-with-som":
         operation = await call_gpt_4_vision_preview_labeled(messages, objective)
         return operation, None
+    if model == "gpt-4-with-ocr":
+        operation = await call_gpt_4_vision_preview_ocr(messages, objective)
+        return operation, None
     elif model == "agent-1":
         return "coming soon"
     elif model == "gemini-pro-vision":
@@ -58,7 +62,7 @@ async def get_next_action(model, messages, objective, session_id):
 
 def call_gpt_4_vision_preview(messages):
     if VERBOSE:
-        print("[Self Operating Computer][get_next_action][call_gpt_4_v]")
+        print("[Self Operating Computer][call_gpt_4_v]")
     time.sleep(1)
     client = config.initialize_openai()
     try:
@@ -80,7 +84,7 @@ def call_gpt_4_vision_preview(messages):
 
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_v] user_prompt",
+                "[Self Operating Computer][call_gpt_4_v] user_prompt",
                 user_prompt,
             )
 
@@ -115,7 +119,7 @@ def call_gpt_4_vision_preview(messages):
         assistant_message = {"role": "assistant", "content": content}
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_v] content",
+                "[Self Operating Computer][call_gpt_4_v] content",
                 content,
             )
         content = json.loads(content)
@@ -189,6 +193,47 @@ def call_gemini_pro_vision(messages, objective):
         return call_gpt_4_vision_preview(messages)
 
 
+async def call_gpt_4_vision_preview_ocr(messages, objective):
+    if VERBOSE:
+        print("[Self Operating Computer][call_gpt_4_vision_preview_ocr] extracted_text")
+    time.sleep(1)
+    client = config.initialize_openai()
+
+    # Construct the path to the file within the package
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        # Initialize EasyOCR Reader
+        reader = easyocr.Reader(["ch_sim", "en"])
+
+        # Read the screenshot
+        result = reader.readtext(screenshot_filename)
+
+        # Process the result
+        extracted_text = " ".join([item[1] for item in result])
+        if VERBOSE:
+            print(
+                "[Self Operating Computer][call_gpt_4_vision_preview_ocr] extracted_text",
+                extracted_text,
+            )
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
+            e,
+        )
+        return call_gpt_4_vision_preview(messages)
+
+
 async def call_gpt_4_vision_preview_labeled(messages, objective):
     time.sleep(1)
     client = config.initialize_openai()
@@ -217,7 +262,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] user_prompt",
+                "[Self Operating Computer][call_gpt_4_vision_preview_labeled] user_prompt",
                 user_prompt,
             )
 
@@ -254,7 +299,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         assistant_message = {"role": "assistant", "content": content}
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] content",
+                "[Self Operating Computer][call_gpt_4_vision_preview_labeled] content",
                 content,
             )
         messages.append(assistant_message)
@@ -268,14 +313,14 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 label = operation.get("label")
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] label",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] label",
                         label,
                     )
 
                 coordinates = get_label_coordinates(label, label_coordinates)
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] coordinates",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] coordinates",
                         coordinates,
                     )
                 image = Image.open(
@@ -287,7 +332,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 )
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] click_position_percent",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] click_position_percent",
                         click_position_percent,
                     )
                 if not click_position_percent:
@@ -302,7 +347,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 operation["y"] = y_percent
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] new click operation",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new click operation",
                         operation,
                     )
                 processed_content.append(operation)
@@ -311,7 +356,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
             if VERBOSE:
                 print(
-                    "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] new processed_content",
+                    "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new processed_content",
                     processed_content,
                 )
             return processed_content
