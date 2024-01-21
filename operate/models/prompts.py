@@ -273,11 +273,19 @@ Return the actions in array format `[]`. You can take just one action or multipl
 
 Here are some helpful combinations:
 
-# Opens Menu Search on Windows and Linux 
+# Opens Spotlight Search on Mac and see if Google Chrome is available to use
 [
     {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["win"] }},
     {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
     {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
+]
+
+# Go to a website (LinkedIn) when the browser is already open
+
+[
+    {{ "thought": "I can see that Google Chrome is open. I'll focus on the address bar to type ", "operation": "press", "keys": ["ctrl", "l"] }},
+    {{ "thought": "Now I'll write LinkedIn's website to go there", "operation": "write", "content": "https://www.linkedin.com/feed/" }},
+    {{ "thought": "Finally I'll press enter to go to LinkedIn", "operation": "press", "keys": ["enter"] }}
 ]
 
 # Search for someone on Linkedin when already on linkedin.com
