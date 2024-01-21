@@ -41,7 +41,6 @@ def get_text_element(result, search_text, image_path):
         if VERBOSE:
             # Draw bounding box in blue
             draw.polygon([tuple(point) for point in box], outline="blue")
-            print("[get_text_element][loop] text", text)
 
         if search_text in text:
             found_index = index

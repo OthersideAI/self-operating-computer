@@ -49,9 +49,6 @@ class Config:
                 )
             api_key = os.getenv("OPENAI_API_KEY")
 
-        if self.verbose:
-            print("[Config][initialize_openai] api_key", api_key)
-
         client = OpenAI(
             api_key=api_key,
         )
