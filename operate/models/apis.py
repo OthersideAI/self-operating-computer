@@ -271,7 +271,13 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
                 result = reader.readtext(screenshot_filename)
 
                 text_element_index = get_text_element(result, text_to_click)
-                coordinates = get_text_coordinates(result, text_element_index)
+                coordinates = get_text_coordinates(
+                    result, text_element_index, screenshot_filename
+                )
+
+                # add `coordinates`` to `content`
+                operation["x"] = coordinates["x"]
+                operation["y"] = coordinates["y"]
 
                 if VERBOSE:
                     print(
@@ -282,6 +288,11 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
                         "[call_gpt_4_vision_preview_ocr][click] coordinates",
                         coordinates,
                     )
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] final operation",
+                        operation,
+                    )
+                processed_content.append(operation)
 
             else:
                 processed_content.append(operation)

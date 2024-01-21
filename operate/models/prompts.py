@@ -321,8 +321,8 @@ def get_system_prompt(model, objective):
         else:
             prompt = SYSTEM_PROMPT_WIN_LINUX.format(objective=objective)
 
-    if VERBOSE:
-        print("[get_system_prompt] prompt", prompt)
+    # if VERBOSE:
+    #     print("[get_system_prompt] prompt", prompt)
 
     return prompt
 

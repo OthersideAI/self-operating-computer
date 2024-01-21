@@ -1,4 +1,5 @@
 from operate.config import Config
+from PIL import Image
 
 # Load configuration
 VERBOSE = Config().verbose
@@ -32,15 +33,16 @@ def get_text_element(result, search_text):
     raise Exception("The text element was not found in the image")
 
 
-def get_text_coordinates(result, index):
+def get_text_coordinates(result, index, image_path):
     """
-    Gets the center coordinates of the text element at the specified index.
+    Gets the coordinates of the text element at the specified index as a percentage of screen width and height.
     Args:
         result (list): The list of results returned by EasyOCR.
         index (int): The index of the text element in the results list.
+        image_path (str): Path to the screenshot image.
 
     Returns:
-        dict: A dictionary containing the 'x' and 'y' coordinates of the center of the text element.
+        dict: A dictionary containing the 'x' and 'y' coordinates as percentages of the screen width and height.
     """
     if index >= len(result):
         raise Exception("Index out of range in OCR results")
@@ -57,4 +59,12 @@ def get_text_coordinates(result, index):
     center_x = (min_x + max_x) / 2
     center_y = (min_y + max_y) / 2
 
-    return {"x": center_x, "y": center_y}
+    # Get image dimensions
+    with Image.open(image_path) as img:
+        width, height = img.size
+
+    # Convert to percentages
+    percent_x = round((center_x / width), 1)
+    percent_y = round((center_y / height), 1)
+
+    return {"x": percent_x, "y": percent_y}
