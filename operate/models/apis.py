@@ -250,6 +250,8 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
             if content.endswith("```"):
                 content = content[: -len("```")]  # Remove ending
 
+        content_str = content
+
         content = json.loads(content)
         if VERBOSE:
             print("[call_gpt_4_vision_preview_ocr] content", content)
@@ -300,12 +302,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
                 processed_content.append(operation)
 
         # wait to append the assistant message so that if the `processed_content` step fails we don't append a message and mess up message history
-        assistant_message = {"role": "assistant", "content": content}
-        if VERBOSE:
-            print(
-                "[call_gpt_4_vision_preview_labeled] content",
-                content,
-            )
+        assistant_message = {"role": "assistant", "content": content_str}
         messages.append(assistant_message)
 
         return processed_content
