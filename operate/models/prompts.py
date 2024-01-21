@@ -50,7 +50,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 SYSTEM_PROMPT_WIN_LINUX = """
@@ -95,7 +95,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 
@@ -146,7 +146,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 SYSTEM_PROMPT_LABELED_WIN_LINUX = """
@@ -196,7 +196,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 
@@ -239,7 +239,7 @@ Here are some helpful combinations:
 
 A very important note, don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 SYSTEM_PROMPT_OCR_WIN_LINUX = """
@@ -284,7 +284,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 OPERATE_FIRST_MESSAGE_PROMPT = """
