@@ -1,16 +1,18 @@
 from operate.config import Config
-from PIL import Image
+from PIL import Image, ImageDraw
+import os
 
 # Load configuration
 VERBOSE = Config().verbose
 
 
-def get_text_element(result, search_text):
+def get_text_element(result, search_text, image_path):
     """
-    Searches for a text element in the OCR results and returns its index.
+    Searches for a text element in the OCR results and returns its index. Also draws bounding boxes on the image.
     Args:
         result (list): The list of results returned by EasyOCR.
         search_text (str): The text to search for in the OCR results.
+        image_path (str): Path to the original image.
 
     Returns:
         int: The index of the element containing the search text.
@@ -21,15 +23,42 @@ def get_text_element(result, search_text):
     if VERBOSE:
         print("[get_text_element]")
         print("[get_text_element] search_text", search_text)
+        # Create /ocr directory if it doesn't exist
+        ocr_dir = "ocr"
+        if not os.path.exists(ocr_dir):
+            os.makedirs(ocr_dir)
+
+        # Open the original image
+        image = Image.open(image_path)
+        draw = ImageDraw.Draw(image)
+
+    found_index = None
     for index, element in enumerate(result):
         text = element[1]
+        box = element[0]
+
         if VERBOSE:
+            # Draw bounding box in blue
+            draw.polygon([tuple(point) for point in box], outline="blue")
             print("[get_text_element][loop] text", text)
+
         if search_text in text:
+            found_index = index
             if VERBOSE:
                 print("[get_text_element][loop] found search_text, index:", index)
 
-            return index
+    if found_index is not None:
+        if VERBOSE:
+            # Draw bounding box of the found text in red
+            box = result[found_index][0]
+            draw.polygon([tuple(point) for point in box], outline="red")
+            # Save the image with bounding boxes
+            ocr_image_path = os.path.join(ocr_dir, "ocr_image.png")
+            image.save(ocr_image_path)
+            print("[get_text_element] OCR image saved at:", ocr_image_path)
+
+        return found_index
+
     raise Exception("The text element was not found in the image")
 
 
@@ -64,7 +93,7 @@ def get_text_coordinates(result, index, image_path):
         width, height = img.size
 
     # Convert to percentages
-    percent_x = round((center_x / width), 1)
-    percent_y = round((center_y / height), 1)
+    percent_x = round((center_x / width), 3)
+    percent_y = round((center_y / height), 3)
 
     return {"x": percent_x, "y": percent_y}

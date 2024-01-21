@@ -270,7 +270,9 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
                 # Read the screenshot
                 result = reader.readtext(screenshot_filename)
 
-                text_element_index = get_text_element(result, text_to_click)
+                text_element_index = get_text_element(
+                    result, text_to_click, screenshot_filename
+                )
                 coordinates = get_text_coordinates(
                     result, text_element_index, screenshot_filename
                 )
