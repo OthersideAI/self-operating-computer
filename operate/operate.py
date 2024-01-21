@@ -96,10 +96,7 @@ def main(model, terminal_prompt, voice_mode=False):
         print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
         objective = prompt(style=style)
 
-    if model == "gpt-4-with-som":
-        system_prompt = get_system_prompt_labeled(objective)
-    else:
-        system_prompt = get_system_prompt(objective)
+    system_prompt = get_system_prompt(model, objective)
     system_message = {"role": "system", "content": system_prompt}
     messages = [system_message]
 

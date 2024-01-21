@@ -1,4 +1,8 @@
 import platform
+from operate.config import Config
+
+# Load configuration
+VERBOSE = Config().verbose
 
 # General user Prompts
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -196,6 +200,93 @@ Objective: {objective} # take the next best action for this objective
 """
 
 
+SYSTEM_PROMPT_OCR_MAC = """
+You are operating a computer, using the same operating system as a human.
+
+From looking at the screen, the objective, and your previous actions, take the next best series of action. 
+
+You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+
+1. click - Move mouse and click
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons and links with the text. We've hooked up the `pyautogui` so that you can click on any buttons or links as long as you have the text for them.
+
+2. write - Write with your keyboard
+[{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
+
+3. press - Use a hotkey or press key to operate the computer
+[{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
+
+4. done - The objective is completed
+[{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+
+Return the actions in array format `[]`. You can take just one action or multiple actions.
+
+Here are some helpful combinations:
+
+# Opens Spotlight Search on Mac 
+[
+    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["command", "space"] }},
+    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
+    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
+]
+
+# Search for someone on Linkedin when already on linkedin.com
+[
+    {{ "thought": "I can see the search field with the placeholder text 'search'. I click that field to search", "operation": "click", "text": "search" }},
+    {{ "thought": "Now that the field is active I can write the name of the person I'd like to search for", "operation": "write", "content": "John Doe" }},
+    {{ "thought": "Finally I'll submit the search form with enter", "operation": "presss", "keys": ["enter"] }},
+]
+
+A very important note, don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+
+Objective: {objective} # take the next best action for this objective
+"""
+
+SYSTEM_PROMPT_OCR_WIN_LINUX = """
+You are operating a computer, using the same operating system as a human.
+
+From looking at the screen, the objective, and your previous actions, take the next best series of action. 
+
+You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+
+1. click - Move mouse and click
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons and links with the text. We've hooked up the `pyautogui` so that you can click on any buttons or links as long as you have the text for them.
+
+2. write - Write with your keyboard
+[{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
+
+3. press - Use a hotkey or press key to operate the computer
+[{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
+
+4. done - The objective is completed
+[{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+
+Return the actions in array format `[]`. You can take just one action or multiple actions.
+
+Here are some helpful combinations:
+
+# Opens Menu Search on Windows and Linux 
+[
+    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["win"] }},
+    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
+    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
+]
+
+# Search for someone on Linkedin when already on linkedin.com
+[
+    {{ "thought": "I can see the search field with the placeholder text 'search'. I click that field to search", "operation": "click", "text": "search" }},
+    {{ "thought": "Now that the field is active I can write the name of the person I'd like to search for", "operation": "write", "content": "John Doe" }},
+    {{ "thought": "Finally I'll submit the search form with enter", "operation": "presss", "keys": ["enter"] }},
+]
+
+A few important notes: 
+
+- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
+- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+
+Objective: {objective} # take the next best action for this objective
+"""
+
 OPERATE_FIRST_MESSAGE_PROMPT = """
 Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
 
@@ -208,26 +299,30 @@ Please take the next best action. The `pyautogui` library will be used to execut
 Action:"""
 
 
-def get_system_prompt(objective):
+def get_system_prompt(model, objective):
     """
     Format the vision prompt
     """
-    if platform.system() == "Darwin":
-        prompt = SYSTEM_PROMPT_MAC.format(objective=objective)
+    if VERBOSE:
+        print("[get_system_prompt] model", model)
+    if model == "gpt-4-with-som":
+        if platform.system() == "Darwin":
+            prompt = SYSTEM_PROMPT_LABELED_MAC.format(objective=objective)
+        else:
+            prompt = SYSTEM_PROMPT_LABELED_WIN_LINUX.format(objective=objective)
+    elif model == "gpt-4-with-ocr":
+        if platform.system() == "Darwin":
+            prompt = SYSTEM_PROMPT_OCR_MAC.format(objective=objective)
+        else:
+            prompt = SYSTEM_PROMPT_OCR_WIN_LINUX.format(objective=objective)
     else:
-        prompt = SYSTEM_PROMPT_WIN_LINUX.format(objective=objective)
+        if platform.system() == "Darwin":
+            prompt = SYSTEM_PROMPT_MAC.format(objective=objective)
+        else:
+            prompt = SYSTEM_PROMPT_WIN_LINUX.format(objective=objective)
 
-    return prompt
-
-
-def get_system_prompt_labeled(objective):
-    """
-    Format the vision prompt
-    """
-    if platform.system() == "Darwin":
-        prompt = SYSTEM_PROMPT_LABELED_MAC.format(objective=objective)
-    else:
-        prompt = SYSTEM_PROMPT_LABELED_WIN_LINUX.format(objective=objective)
+    if VERBOSE:
+        print("[get_system_prompt] prompt", prompt)
 
     return prompt
 
