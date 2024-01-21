@@ -1,6 +1,7 @@
 from operate.config import Config
 from PIL import Image, ImageDraw
 import os
+from datetime import datetime
 
 # Load configuration
 VERBOSE = Config().verbose
@@ -53,7 +54,8 @@ def get_text_element(result, search_text, image_path):
             box = result[found_index][0]
             draw.polygon([tuple(point) for point in box], outline="red")
             # Save the image with bounding boxes
-            ocr_image_path = os.path.join(ocr_dir, "ocr_image.png")
+            datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+            ocr_image_path = os.path.join(ocr_dir, f"ocr_image_{datetime_str}.png")
             image.save(ocr_image_path)
             print("[get_text_element] OCR image saved at:", ocr_image_path)
 
