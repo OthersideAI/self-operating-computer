@@ -20,7 +20,7 @@ from operate.models.prompts import (
     get_user_prompt,
     get_system_prompt,
 )
-from operate.utils.ocr import get_text_element
+from operate.utils.ocr import get_text_element, get_text_coordinates
 
 
 from operate.utils.label import (
@@ -271,10 +271,16 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
                 result = reader.readtext(screenshot_filename)
 
                 text_element_index = get_text_element(result, text_to_click)
+                coordinates = get_text_coordinates(result, text_element_index)
+
                 if VERBOSE:
                     print(
                         "[call_gpt_4_vision_preview_ocr][click] text_element_index",
                         text_element_index,
+                    )
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] coordinates",
+                        coordinates,
                     )
 
             else:

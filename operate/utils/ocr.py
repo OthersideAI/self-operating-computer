@@ -30,3 +30,31 @@ def get_text_element(result, search_text):
 
             return index
     raise Exception("The text element was not found in the image")
+
+
+def get_text_coordinates(result, index):
+    """
+    Gets the center coordinates of the text element at the specified index.
+    Args:
+        result (list): The list of results returned by EasyOCR.
+        index (int): The index of the text element in the results list.
+
+    Returns:
+        dict: A dictionary containing the 'x' and 'y' coordinates of the center of the text element.
+    """
+    if index >= len(result):
+        raise Exception("Index out of range in OCR results")
+
+    # Get the bounding box of the text element
+    bounding_box = result[index][0]
+
+    # Calculate the center of the bounding box
+    min_x = min([coord[0] for coord in bounding_box])
+    max_x = max([coord[0] for coord in bounding_box])
+    min_y = min([coord[1] for coord in bounding_box])
+    max_y = max([coord[1] for coord in bounding_box])
+
+    center_x = (min_x + max_x) / 2
+    center_y = (min_y + max_y) / 2
+
+    return {"x": center_x, "y": center_y}
