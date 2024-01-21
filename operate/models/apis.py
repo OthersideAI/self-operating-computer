@@ -20,6 +20,7 @@ from operate.models.prompts import (
     get_user_prompt,
     get_system_prompt,
 )
+from operate.utils.ocr import get_text_element
 
 
 from operate.utils.label import (
@@ -62,7 +63,7 @@ async def get_next_action(model, messages, objective, session_id):
 
 def call_gpt_4_vision_preview(messages):
     if VERBOSE:
-        print("[Self Operating Computer][call_gpt_4_v]")
+        print("[call_gpt_4_v]")
     time.sleep(1)
     client = config.initialize_openai()
     try:
@@ -84,7 +85,7 @@ def call_gpt_4_vision_preview(messages):
 
         if VERBOSE:
             print(
-                "[Self Operating Computer][call_gpt_4_v] user_prompt",
+                "[call_gpt_4_v] user_prompt",
                 user_prompt,
             )
 
@@ -119,7 +120,7 @@ def call_gpt_4_vision_preview(messages):
         assistant_message = {"role": "assistant", "content": content}
         if VERBOSE:
             print(
-                "[Self Operating Computer][call_gpt_4_v] content",
+                "[call_gpt_4_v] content",
                 content,
             )
         content = json.loads(content)
@@ -161,25 +162,23 @@ def call_gemini_pro_vision(messages, objective):
         capture_screen_with_cursor(screenshot_filename)
         # sleep for a second
         time.sleep(1)
-        prompt = get_system_prompt(objective)
+        prompt = get_system_prompt("gemini-pro-vision", objective)
 
         model = config.initialize_google()
         if VERBOSE:
-            print("[Self Operating Computer][call_gemini_pro_vision] model", model)
+            print("[call_gemini_pro_vision] model", model)
 
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
         content = response.text[1:]
         if VERBOSE:
-            print(
-                "[Self Operating Computer][call_gemini_pro_vision] response", response
-            )
-            print("[Self Operating Computer][call_gemini_pro_vision] content", content)
+            print("[call_gemini_pro_vision] response", response)
+            print("[call_gemini_pro_vision] content", content)
 
         content = json.loads(content)
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gemini_pro_vision] content",
+                "[get_next_action][call_gemini_pro_vision] content",
                 content,
             )
 
@@ -195,7 +194,7 @@ def call_gemini_pro_vision(messages, objective):
 
 async def call_gpt_4_vision_preview_ocr(messages, objective):
     if VERBOSE:
-        print("[Self Operating Computer][call_gpt_4_vision_preview_ocr] extracted_text")
+        print("[call_gpt_4_vision_preview_ocr] extracted_text")
     time.sleep(1)
     client = config.initialize_openai()
 
@@ -212,19 +211,83 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        # Initialize EasyOCR Reader
-        reader = easyocr.Reader(["ch_sim", "en"])
+        img_base64_labeled, label_coordinates = add_labels(img_base64, yolo_model)
 
-        # Read the screenshot
-        result = reader.readtext(screenshot_filename)
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
 
-        # Process the result
-        extracted_text = " ".join([item[1] for item in result])
         if VERBOSE:
             print(
-                "[Self Operating Computer][call_gpt_4_vision_preview_ocr] extracted_text",
-                extracted_text,
+                "[call_gpt_4_vision_preview_labeled] user_prompt",
+                user_prompt,
             )
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{img_base64_labeled}"
+                    },
+                },
+            ],
+        }
+        messages.append(vision_message)
+
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=messages,
+            presence_penalty=1,
+            frequency_penalty=1,
+            temperature=0.7,
+            max_tokens=1000,
+        )
+
+        content = response.choices[0].message.content
+
+        if content.startswith("```json"):
+            content = content[len("```json") :]  # Remove starting ```json
+            if content.endswith("```"):
+                content = content[: -len("```")]  # Remove ending
+
+        content = json.loads(content)
+        if VERBOSE:
+            print("[call_gpt_4_vision_preview_ocr] content", content)
+
+        processed_content = []
+
+        for operation in content:
+            if operation.get("operation") == "click":
+                text_to_click = operation.get("text")
+                if VERBOSE:
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] text_to_click",
+                        text_to_click,
+                    )
+                text_element_index = get_text_element(result, search_text)
+                if VERBOSE:
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] text_element_index",
+                        text_element_index,
+                    )
+
+            else:
+                processed_content.append(operation)
+
+        # wait to append the assistant message so that if the `processed_content` step fails we don't append a message and mess up message history
+        assistant_message = {"role": "assistant", "content": content}
+        if VERBOSE:
+            print(
+                "[call_gpt_4_vision_preview_labeled] content",
+                content,
+            )
+        messages.append(assistant_message)
+
+        return processed_content
 
     except Exception as e:
         print(
@@ -262,7 +325,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
         if VERBOSE:
             print(
-                "[Self Operating Computer][call_gpt_4_vision_preview_labeled] user_prompt",
+                "[call_gpt_4_vision_preview_labeled] user_prompt",
                 user_prompt,
             )
 
@@ -299,7 +362,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         assistant_message = {"role": "assistant", "content": content}
         if VERBOSE:
             print(
-                "[Self Operating Computer][call_gpt_4_vision_preview_labeled] content",
+                "[call_gpt_4_vision_preview_labeled] content",
                 content,
             )
         messages.append(assistant_message)
