@@ -208,7 +208,7 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
-[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons and links with the text. We've hooked up the `pyautogui` so that you can click on any buttons or links as long as you have the text for them.
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons or links with text to click. If the button you want to click doesn't have text you can say `"no button"` for the text value and we'll try a different method.
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
@@ -233,7 +233,7 @@ Here a helpful example:
 # Go to a website (LinkedIn) when the browser is already open
 
 [
-    {{ "thought": "I can see that Google Chrome is open. I'll focus on the address bar to type ", "operation": "press", "keys": ["command", "l"] }},
+    {{ "thought": "I can see that Google Chrome is open. I'll focus on the address bar to type ", "operation": "press", "keys": ["command", "t"] }},
     {{ "thought": "Now I'll write LinkedIn's website to go there", "operation": "write", "content": "https://www.linkedin.com/feed/" }},
     {{ "thought": "Finally I'll press enter to go to LinkedIn", "operation": "press", "keys": ["enter"] }}
 ]
@@ -258,7 +258,7 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
-[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons and links with the text. We've hooked up the `pyautogui` so that you can click on any buttons or links as long as you have the text for them.
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons or links with text to click. If the button you want to click doesn't have text you can say `"no button"` for the text value and we'll try a different method.
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
@@ -283,7 +283,7 @@ Here are some helpful combinations:
 # Go to a website (LinkedIn) when the browser is already open
 
 [
-    {{ "thought": "I can see that Google Chrome is open. I'll focus on the address bar to type ", "operation": "press", "keys": ["ctrl", "l"] }},
+    {{ "thought": "I can see that Google Chrome is open. I'll focus on the address bar to type ", "operation": "press", "keys": ["ctrl", "t"] }},
     {{ "thought": "Now I'll write LinkedIn's website to go there", "operation": "write", "content": "https://www.linkedin.com/feed/" }},
     {{ "thought": "Finally I'll press enter to go to LinkedIn", "operation": "press", "keys": ["enter"] }}
 ]
