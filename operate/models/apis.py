@@ -51,7 +51,7 @@ async def get_next_action(model, messages, objective, session_id):
         operation = await call_gpt_4_vision_preview_labeled(messages, objective)
         return operation, None
     if model == "gpt-4-with-ocr":
-        operation = await call_gpt_4_vision_preview_ocr(messages, objective)
+        operation = await call_gpt_4_vision_preview_ocr(messages, objective, model)
         return operation, None
     elif model == "agent-1":
         return "coming soon"
@@ -192,14 +192,16 @@ def call_gemini_pro_vision(messages, objective):
         return call_gpt_4_vision_preview(messages)
 
 
-async def call_gpt_4_vision_preview_ocr(messages, objective):
+async def call_gpt_4_vision_preview_ocr(messages, objective, model):
     if VERBOSE:
-        print("[call_gpt_4_vision_preview_ocr] extracted_text")
-    time.sleep(1)
-    client = config.initialize_openai()
+        print("[call_gpt_4_vision_preview_ocr]")
 
     # Construct the path to the file within the package
     try:
+        time.sleep(1)
+        client = config.initialize_openai()
+
+        confirm_system_prompt(messages, objective, model)
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
@@ -312,7 +314,8 @@ async def call_gpt_4_vision_preview_ocr(messages, objective):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
             e,
         )
-        return call_gpt_4_vision_preview(messages)
+        traceback.print_exc()
+        return gpt_4_fallback(messages, objective, model)
 
 
 async def call_gpt_4_vision_preview_labeled(messages, objective):
@@ -447,6 +450,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
             e,
         )
+        traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 
@@ -462,3 +466,39 @@ def get_last_assistant_message(messages):
             else:
                 return messages[index]
     return None  # Return None if no assistant message is found
+
+
+def gpt_4_fallback(messages, objective, model):
+    if VERBOSE:
+        print("[gpt_4_fallback]")
+    system_prompt = get_system_prompt("gpt-4-vision-preview", objective)
+    new_system_message = {"role": "system", "content": system_prompt}
+    # remove and replace the first message in `messages` with `new_system_message`
+
+    messages[0] = new_system_message
+    if VERBOSE:
+        print("[gpt_4_fallback] new messages", messages)
+
+    if VERBOSE:
+        print("[gpt_4_fallback][updated]")
+        print("[gpt_4_fallback][updated] len(messages)", len(messages))
+
+    return call_gpt_4_vision_preview(messages)
+
+
+def confirm_system_prompt(messages, objective, model):
+    """
+    On `Exception` we default to `call_gpt_4_vision_preview` so we have this function to reassign system prompt in case of a previous failure
+    """
+    if VERBOSE:
+        print("[confirm_system_prompt]")
+
+    system_prompt = get_system_prompt(model, objective)
+    new_system_message = {"role": "system", "content": system_prompt}
+    # remove and replace the first message in `messages` with `new_system_message`
+
+    messages[0] = new_system_message
+
+    if VERBOSE:
+        print("[confirm_system_prompt][updated]")
+        print("[confirm_system_prompt][updated] len(messages)", len(messages))
