@@ -317,28 +317,43 @@ Action:"""
 
 def get_system_prompt(model, objective):
     """
-    Format the vision prompt
+    Format the vision prompt more efficiently and print the name of the prompt used
     """
-    if VERBOSE:
-        print("[get_system_prompt] model", model)
-    if model == "gpt-4-with-som":
-        if platform.system() == "Darwin":
-            prompt = SYSTEM_PROMPT_LABELED_MAC.format(objective=objective)
-        else:
-            prompt = SYSTEM_PROMPT_LABELED_WIN_LINUX.format(objective=objective)
-    elif model == "gpt-4-with-ocr":
-        if platform.system() == "Darwin":
-            prompt = SYSTEM_PROMPT_OCR_MAC.format(objective=objective)
-        else:
-            prompt = SYSTEM_PROMPT_OCR_WIN_LINUX.format(objective=objective)
-    else:
-        if platform.system() == "Darwin":
-            prompt = SYSTEM_PROMPT_MAC.format(objective=objective)
-        else:
-            prompt = SYSTEM_PROMPT_WIN_LINUX.format(objective=objective)
 
-    # if VERBOSE:
-    #     print("[get_system_prompt] prompt", prompt)
+    prompt_map = {
+        ("gpt-4-with-som", "Darwin"): (
+            SYSTEM_PROMPT_LABELED_MAC,
+            "SYSTEM_PROMPT_LABELED_MAC",
+        ),
+        ("gpt-4-with-som", "Other"): (
+            SYSTEM_PROMPT_LABELED_WIN_LINUX,
+            "SYSTEM_PROMPT_LABELED_WIN_LINUX",
+        ),
+        ("gpt-4-with-ocr", "Darwin"): (SYSTEM_PROMPT_OCR_MAC, "SYSTEM_PROMPT_OCR_MAC"),
+        ("gpt-4-with-ocr", "Other"): (
+            SYSTEM_PROMPT_OCR_WIN_LINUX,
+            "SYSTEM_PROMPT_OCR_WIN_LINUX",
+        ),
+        ("default", "Darwin"): (SYSTEM_PROMPT_MAC, "SYSTEM_PROMPT_MAC"),
+        ("default", "Other"): (SYSTEM_PROMPT_WIN_LINUX, "SYSTEM_PROMPT_WIN_LINUX"),
+    }
+
+    os_type = "Darwin" if platform.system() == "Darwin" else "Other"
+
+    # Fetching the prompt tuple (string and name) based on the model and OS
+    prompt_tuple = prompt_map.get((model, os_type), prompt_map[("default", os_type)])
+
+    # Extracting the prompt string and its name
+    prompt_string, prompt_name = prompt_tuple
+
+    # Formatting the prompt
+    prompt = prompt_string.format(objective=objective)
+
+    # Optional verbose output
+    if VERBOSE:
+        print("[get_system_prompt] model:", model)
+        print("[get_system_prompt] prompt name:", prompt_name)
+        # print("[get_system_prompt] prompt:", prompt)
 
     return prompt
 
