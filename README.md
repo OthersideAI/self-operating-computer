@@ -94,7 +94,9 @@ operate -m gemini-pro-vision
 ### Optical Character Recognition Mode `-m gpt-4-with-ocr`
 The Self-Operating Computer Framework now integrates Optical Character Recognition (OCR) capabilities with the `gpt-4-with-ocr` mode. This mode gives GPT-4 a hash map of clickable elements by coordinates. GPT-4 can decide to `click` elements by text and then the code references the hash map to get the coordinates for that element GPT-4 wanted to click. 
 
-Based on recent tests, OCR performs better than `som` and vanilla GPT-4 so we made it the default for the project. To use the OCR mode you can simply write `operate` or `operate -m gpt-4-with-ocr` will also work. 
+Based on recent tests, OCR performs better than `som` and vanilla GPT-4 so we made it the default for the project. To use the OCR mode you can simply write: 
+
+ `operate` or `operate -m gpt-4-with-ocr` will also work. 
 
 ### Set-of-Mark Prompting `-m gpt-4-with-som`
 The Self-Operating Computer Framework now supports Set-of-Mark (SoM) Prompting with the `gpt-4-with-som` command. This new visual prompting method enhances the visual grounding capabilities of large multimodal models.
