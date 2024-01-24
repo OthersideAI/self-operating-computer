@@ -26,7 +26,7 @@ class Config:
 
     def __init__(self):
         load_dotenv()
-        self.verbose = True
+        self.verbose = False
         self.openai_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
