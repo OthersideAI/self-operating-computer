@@ -479,8 +479,6 @@ def gpt_4_fallback(messages, objective, model):
     # remove and replace the first message in `messages` with `new_system_message`
 
     messages[0] = new_system_message
-    if VERBOSE:
-        print("[gpt_4_fallback] new messages", messages)
 
     if VERBOSE:
         print("[gpt_4_fallback][updated]")
