@@ -62,9 +62,10 @@ class Config:
                 print("[Config][initialize_google] using cached google_api_key")
             api_key = self.google_api_key
         else:
-            print(
-                "[Config][initialize_google] no cached google_api_key, try to get from env."
-            )
+            if self.verbose:
+                print(
+                    "[Config][initialize_google] no cached google_api_key, try to get from env."
+                )
             api_key = os.getenv("GOOGLE_API_KEY")
         genai.configure(api_key=api_key, transport="rest")
         model = genai.GenerativeModel("gemini-pro-vision")
