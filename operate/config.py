@@ -79,7 +79,10 @@ class Config:
         self.require_api_key(
             "OPENAI_API_KEY",
             "OpenAI API key",
-            model == "gpt-4" or voice_mode or model == "gpt-4-with-som",
+            model == "gpt-4"
+            or voice_mode
+            or model == "gpt-4-with-som"
+            or model == "gpt-4-with-ocr",
         )
         self.require_api_key(
             "GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision"
