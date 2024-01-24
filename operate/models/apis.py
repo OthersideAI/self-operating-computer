@@ -4,6 +4,7 @@ import json
 import base64
 import traceback
 import io
+import easyocr
 
 
 from PIL import Image
@@ -19,6 +20,7 @@ from operate.models.prompts import (
     get_user_prompt,
     get_system_prompt,
 )
+from operate.utils.ocr import get_text_element, get_text_coordinates
 
 
 from operate.utils.label import (
@@ -48,6 +50,9 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4-with-som":
         operation = await call_gpt_4_vision_preview_labeled(messages, objective)
         return operation, None
+    if model == "gpt-4-with-ocr":
+        operation = await call_gpt_4_vision_preview_ocr(messages, objective, model)
+        return operation, None
     elif model == "agent-1":
         return "coming soon"
     elif model == "gemini-pro-vision":
@@ -58,7 +63,7 @@ async def get_next_action(model, messages, objective, session_id):
 
 def call_gpt_4_vision_preview(messages):
     if VERBOSE:
-        print("[Self Operating Computer][get_next_action][call_gpt_4_v]")
+        print("[call_gpt_4_v]")
     time.sleep(1)
     client = config.initialize_openai()
     try:
@@ -80,7 +85,7 @@ def call_gpt_4_vision_preview(messages):
 
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_v] user_prompt",
+                "[call_gpt_4_v] user_prompt",
                 user_prompt,
             )
 
@@ -115,7 +120,7 @@ def call_gpt_4_vision_preview(messages):
         assistant_message = {"role": "assistant", "content": content}
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_v] content",
+                "[call_gpt_4_v] content",
                 content,
             )
         content = json.loads(content)
@@ -157,25 +162,23 @@ def call_gemini_pro_vision(messages, objective):
         capture_screen_with_cursor(screenshot_filename)
         # sleep for a second
         time.sleep(1)
-        prompt = get_system_prompt(objective)
+        prompt = get_system_prompt("gemini-pro-vision", objective)
 
         model = config.initialize_google()
         if VERBOSE:
-            print("[Self Operating Computer][call_gemini_pro_vision] model", model)
+            print("[call_gemini_pro_vision] model", model)
 
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
         content = response.text[1:]
         if VERBOSE:
-            print(
-                "[Self Operating Computer][call_gemini_pro_vision] response", response
-            )
-            print("[Self Operating Computer][call_gemini_pro_vision] content", content)
+            print("[call_gemini_pro_vision] response", response)
+            print("[call_gemini_pro_vision] content", content)
 
         content = json.loads(content)
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gemini_pro_vision] content",
+                "[get_next_action][call_gemini_pro_vision] content",
                 content,
             )
 
@@ -187,6 +190,132 @@ def call_gemini_pro_vision(messages, objective):
             e,
         )
         return call_gpt_4_vision_preview(messages)
+
+
+async def call_gpt_4_vision_preview_ocr(messages, objective, model):
+    if VERBOSE:
+        print("[call_gpt_4_vision_preview_ocr]")
+
+    # Construct the path to the file within the package
+    try:
+        time.sleep(1)
+        client = config.initialize_openai()
+
+        confirm_system_prompt(messages, objective, model)
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        if VERBOSE:
+            print(
+                "[call_gpt_4_vision_preview_ocr] user_prompt",
+                user_prompt,
+            )
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+        messages.append(vision_message)
+
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=messages,
+            presence_penalty=1,
+            frequency_penalty=1,
+            temperature=0.7,
+            max_tokens=1000,
+        )
+
+        content = response.choices[0].message.content
+
+        if content.startswith("```json"):
+            content = content[len("```json") :]  # Remove starting ```json
+            if content.endswith("```"):
+                content = content[: -len("```")]  # Remove ending
+
+        content_str = content
+
+        content = json.loads(content)
+        if VERBOSE:
+            print("[call_gpt_4_vision_preview_ocr] content", content)
+
+        processed_content = []
+
+        for operation in content:
+            if operation.get("operation") == "click":
+                text_to_click = operation.get("text")
+                if VERBOSE:
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] text_to_click",
+                        text_to_click,
+                    )
+                # Initialize EasyOCR Reader
+                reader = easyocr.Reader(["en"])
+
+                # Read the screenshot
+                result = reader.readtext(screenshot_filename)
+
+                text_element_index = get_text_element(
+                    result, text_to_click, screenshot_filename
+                )
+                coordinates = get_text_coordinates(
+                    result, text_element_index, screenshot_filename
+                )
+
+                # add `coordinates`` to `content`
+                operation["x"] = coordinates["x"]
+                operation["y"] = coordinates["y"]
+
+                if VERBOSE:
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] text_element_index",
+                        text_element_index,
+                    )
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] coordinates",
+                        coordinates,
+                    )
+                    print(
+                        "[call_gpt_4_vision_preview_ocr][click] final operation",
+                        operation,
+                    )
+                processed_content.append(operation)
+
+            else:
+                processed_content.append(operation)
+
+        # wait to append the assistant message so that if the `processed_content` step fails we don't append a message and mess up message history
+        assistant_message = {"role": "assistant", "content": content_str}
+        messages.append(assistant_message)
+
+        return processed_content
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
+            e,
+        )
+        traceback.print_exc()
+        return gpt_4_fallback(messages, objective, model)
 
 
 async def call_gpt_4_vision_preview_labeled(messages, objective):
@@ -217,7 +346,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] user_prompt",
+                "[call_gpt_4_vision_preview_labeled] user_prompt",
                 user_prompt,
             )
 
@@ -254,7 +383,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         assistant_message = {"role": "assistant", "content": content}
         if VERBOSE:
             print(
-                "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] content",
+                "[call_gpt_4_vision_preview_labeled] content",
                 content,
             )
         messages.append(assistant_message)
@@ -268,14 +397,14 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 label = operation.get("label")
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] label",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] label",
                         label,
                     )
 
                 coordinates = get_label_coordinates(label, label_coordinates)
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] coordinates",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] coordinates",
                         coordinates,
                     )
                 image = Image.open(
@@ -287,7 +416,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 )
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] click_position_percent",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] click_position_percent",
                         click_position_percent,
                     )
                 if not click_position_percent:
@@ -302,7 +431,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 operation["y"] = y_percent
                 if VERBOSE:
                     print(
-                        "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] new click operation",
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new click operation",
                         operation,
                     )
                 processed_content.append(operation)
@@ -311,7 +440,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
             if VERBOSE:
                 print(
-                    "[Self Operating Computer][get_next_action][call_gpt_4_vision_preview_labeled] new processed_content",
+                    "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new processed_content",
                     processed_content,
                 )
             return processed_content
@@ -321,6 +450,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
             e,
         )
+        traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 
@@ -336,3 +466,39 @@ def get_last_assistant_message(messages):
             else:
                 return messages[index]
     return None  # Return None if no assistant message is found
+
+
+def gpt_4_fallback(messages, objective, model):
+    if VERBOSE:
+        print("[gpt_4_fallback]")
+    system_prompt = get_system_prompt("gpt-4-vision-preview", objective)
+    new_system_message = {"role": "system", "content": system_prompt}
+    # remove and replace the first message in `messages` with `new_system_message`
+
+    messages[0] = new_system_message
+    if VERBOSE:
+        print("[gpt_4_fallback] new messages", messages)
+
+    if VERBOSE:
+        print("[gpt_4_fallback][updated]")
+        print("[gpt_4_fallback][updated] len(messages)", len(messages))
+
+    return call_gpt_4_vision_preview(messages)
+
+
+def confirm_system_prompt(messages, objective, model):
+    """
+    On `Exception` we default to `call_gpt_4_vision_preview` so we have this function to reassign system prompt in case of a previous failure
+    """
+    if VERBOSE:
+        print("[confirm_system_prompt]")
+
+    system_prompt = get_system_prompt(model, objective)
+    new_system_message = {"role": "system", "content": system_prompt}
+    # remove and replace the first message in `messages` with `new_system_message`
+
+    messages[0] = new_system_message
+
+    if VERBOSE:
+        print("[confirm_system_prompt][updated]")
+        print("[confirm_system_prompt][updated] len(messages)", len(messages))

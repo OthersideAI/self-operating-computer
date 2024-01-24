@@ -68,11 +68,11 @@ def add_labels(base64_data, yolo_model):
     )  # Create a separate draw object for the debug image
     font_size = 45
 
-    detections_dir = "detections"
+    labeled_images_dir = "labeled_images"
     label_coordinates = {}  # Dictionary to store coordinates
 
-    if not os.path.exists(detections_dir):
-        os.makedirs(detections_dir)
+    if not os.path.exists(labeled_images_dir):
+        os.makedirs(labeled_images_dir)
 
     counter = 0
     drawn_boxes = []  # List to keep track of boxes already drawn
@@ -116,9 +116,11 @@ def add_labels(base64_data, yolo_model):
     # Save the image
     timestamp = time.strftime("%Y%m%d-%H%M%S")
 
-    output_path = os.path.join(detections_dir, f"img_{timestamp}_labeled.png")
-    output_path_debug = os.path.join(detections_dir, f"img_{timestamp}_debug.png")
-    output_path_original = os.path.join(detections_dir, f"img_{timestamp}_original.png")
+    output_path = os.path.join(labeled_images_dir, f"img_{timestamp}_labeled.png")
+    output_path_debug = os.path.join(labeled_images_dir, f"img_{timestamp}_debug.png")
+    output_path_original = os.path.join(
+        labeled_images_dir, f"img_{timestamp}_original.png"
+    )
 
     image_labeled.save(output_path)
     image_debug.save(output_path_debug)

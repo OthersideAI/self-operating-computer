@@ -1,4 +1,8 @@
 import platform
+from operate.config import Config
+
+# Load configuration
+VERBOSE = Config().verbose
 
 # General user Prompts
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -46,7 +50,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 SYSTEM_PROMPT_WIN_LINUX = """
@@ -91,7 +95,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 
@@ -142,7 +146,7 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
 SYSTEM_PROMPT_LABELED_WIN_LINUX = """
@@ -192,9 +196,112 @@ A few important notes:
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
-Objective: {objective} # take the next best action for this objective
+Objective: {objective} 
 """
 
+
+SYSTEM_PROMPT_OCR_MAC = """
+You are operating a computer, using the same operating system as a human.
+
+From looking at the screen, the objective, and your previous actions, take the next best series of action. 
+
+You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+
+1. click - Move mouse and click
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons or links with text to click. If the button you want to click doesn't have text you can say `"no button"` for the text value and we'll try a different method.
+
+2. write - Write with your keyboard
+[{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
+
+3. press - Use a hotkey or press key to operate the computer
+[{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
+
+4. done - The objective is completed
+[{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+
+Return the actions in array format `[]`. You can take just one action or multiple actions.
+
+Here a helpful example:
+
+# Opens Spotlight Search on Mac and see if Google Chrome is available to use
+[
+    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["command", "space"] }},
+    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
+    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
+]
+
+# Go to a website (LinkedIn) when the browser is already open
+
+[
+    {{ "thought": "I can see that Google Chrome is open. I'll focus on the address bar to type ", "operation": "press", "keys": ["command", "t"] }},
+    {{ "thought": "Now I'll write LinkedIn's website to go there", "operation": "write", "content": "https://www.linkedin.com/feed/" }},
+    {{ "thought": "Finally I'll press enter to go to LinkedIn", "operation": "press", "keys": ["enter"] }}
+]
+
+# Search for someone on Linkedin when already on linkedin.com
+[
+    {{ "thought": "I can see the search field with the placeholder text 'search'. I click that field to search", "operation": "click", "text": "search" }},
+    {{ "thought": "Now that the field is active I can write the name of the person I'd like to search for", "operation": "write", "content": "John Doe" }},
+    {{ "thought": "Finally I'll submit the search form with enter", "operation": "presss", "keys": ["enter"] }},
+]
+
+A very important note, don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+
+Objective: {objective} 
+"""
+
+SYSTEM_PROMPT_OCR_WIN_LINUX = """
+You are operating a computer, using the same operating system as a human.
+
+From looking at the screen, the objective, and your previous actions, take the next best series of action. 
+
+You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+
+1. click - Move mouse and click
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons or links with text to click. If the button you want to click doesn't have text you can say `"no button"` for the text value and we'll try a different method.
+
+2. write - Write with your keyboard
+[{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
+
+3. press - Use a hotkey or press key to operate the computer
+[{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
+
+4. done - The objective is completed
+[{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+
+Return the actions in array format `[]`. You can take just one action or multiple actions.
+
+Here are some helpful combinations:
+
+# Opens Spotlight Search on Mac and see if Google Chrome is available to use
+[
+    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["win"] }},
+    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
+    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
+]
+
+# Go to a website (LinkedIn) when the browser is already open
+
+[
+    {{ "thought": "I can see that Google Chrome is open. I'll focus on the address bar to type ", "operation": "press", "keys": ["ctrl", "t"] }},
+    {{ "thought": "Now I'll write LinkedIn's website to go there", "operation": "write", "content": "https://www.linkedin.com/feed/" }},
+    {{ "thought": "Finally I'll press enter to go to LinkedIn", "operation": "press", "keys": ["enter"] }}
+]
+
+# Search for someone on Linkedin when already on linkedin.com
+[
+    {{ "thought": "I can see the search field with the placeholder text 'search'. I click that field to search", "operation": "click", "text": "search" }},
+    {{ "thought": "Now that the field is active I can write the name of the person I'd like to search for", "operation": "write", "content": "John Doe" }},
+    {{ "thought": "Finally I'll submit the search form with enter", "operation": "presss", "keys": ["enter"] }},
+]
+
+A few important notes: 
+
+- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
+- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
+
+Objective: {objective} 
+"""
 
 OPERATE_FIRST_MESSAGE_PROMPT = """
 Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
@@ -208,26 +315,45 @@ Please take the next best action. The `pyautogui` library will be used to execut
 Action:"""
 
 
-def get_system_prompt(objective):
+def get_system_prompt(model, objective):
     """
-    Format the vision prompt
+    Format the vision prompt more efficiently and print the name of the prompt used
     """
-    if platform.system() == "Darwin":
-        prompt = SYSTEM_PROMPT_MAC.format(objective=objective)
-    else:
-        prompt = SYSTEM_PROMPT_WIN_LINUX.format(objective=objective)
 
-    return prompt
+    prompt_map = {
+        ("gpt-4-with-som", "Darwin"): (
+            SYSTEM_PROMPT_LABELED_MAC,
+            "SYSTEM_PROMPT_LABELED_MAC",
+        ),
+        ("gpt-4-with-som", "Other"): (
+            SYSTEM_PROMPT_LABELED_WIN_LINUX,
+            "SYSTEM_PROMPT_LABELED_WIN_LINUX",
+        ),
+        ("gpt-4-with-ocr", "Darwin"): (SYSTEM_PROMPT_OCR_MAC, "SYSTEM_PROMPT_OCR_MAC"),
+        ("gpt-4-with-ocr", "Other"): (
+            SYSTEM_PROMPT_OCR_WIN_LINUX,
+            "SYSTEM_PROMPT_OCR_WIN_LINUX",
+        ),
+        ("default", "Darwin"): (SYSTEM_PROMPT_MAC, "SYSTEM_PROMPT_MAC"),
+        ("default", "Other"): (SYSTEM_PROMPT_WIN_LINUX, "SYSTEM_PROMPT_WIN_LINUX"),
+    }
 
+    os_type = "Darwin" if platform.system() == "Darwin" else "Other"
 
-def get_system_prompt_labeled(objective):
-    """
-    Format the vision prompt
-    """
-    if platform.system() == "Darwin":
-        prompt = SYSTEM_PROMPT_LABELED_MAC.format(objective=objective)
-    else:
-        prompt = SYSTEM_PROMPT_LABELED_WIN_LINUX.format(objective=objective)
+    # Fetching the prompt tuple (string and name) based on the model and OS
+    prompt_tuple = prompt_map.get((model, os_type), prompt_map[("default", os_type)])
+
+    # Extracting the prompt string and its name
+    prompt_string, prompt_name = prompt_tuple
+
+    # Formatting the prompt
+    prompt = prompt_string.format(objective=objective)
+
+    # Optional verbose output
+    if VERBOSE:
+        print("[get_system_prompt] model:", model)
+        print("[get_system_prompt] prompt name:", prompt_name)
+        # print("[get_system_prompt] prompt:", prompt)
 
     return prompt
 

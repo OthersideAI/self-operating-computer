@@ -50,3 +50,4 @@ zipp==3.17.0
 google-generativeai==0.3.0
 aiohttp==3.9.1
 ultralytics==8.0.227
+easyocr==1.7.1
