@@ -248,12 +248,31 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
 
         content = response.choices[0].message.content
         if VERBOSE:
-            print("\n\n\n[call_gpt_4_vision_preview_ocr] response content", content)
+            print(
+                "\n\n\n[call_gpt_4_vision_preview_ocr] content before cleaning", content
+            )
 
+        # Remove starting and ending backticks
         if content.startswith("```json"):
-            content = content[len("```json") :]  # Remove starting ```json
-            if content.endswith("```"):
-                content = content[: -len("```")]  # Remove ending
+            content = content[
+                len("```json") :
+            ].strip()  # Remove starting ```json and trim whitespace
+        elif content.startswith("```"):
+            content = content[
+                len("```") :
+            ].strip()  # Remove starting ``` and trim whitespace
+        if content.endswith("```"):
+            content = content[
+                : -len("```")
+            ].strip()  # Remove ending ``` and trim whitespace
+
+        # Normalize line breaks and remove any unwanted characters
+        content = "\n".join(line.strip() for line in content.splitlines())
+
+        if VERBOSE:
+            print(
+                "\n\n\n[call_gpt_4_vision_preview_ocr] content after cleaning", content
+            )
 
         content_str = content
 
