@@ -247,6 +247,8 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         )
 
         content = response.choices[0].message.content
+        if VERBOSE:
+            print("[call_gpt_4_vision_preview_ocr] response content", content)
 
         if content.startswith("```json"):
             content = content[len("```json") :]  # Remove starting ```json
@@ -256,8 +258,6 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         content_str = content
 
         content = json.loads(content)
-        if VERBOSE:
-            print("[call_gpt_4_vision_preview_ocr] content", content)
 
         processed_content = []
 

@@ -208,7 +208,7 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
-[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons or links with text to click. If the button you want to click doesn't have text you can say `"no button"` for the text value and we'll try a different method.
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}]  # Look for text to click. Try to find relevant text to click, but if there's nothing relevant enough you can return `"nothing to click"` for the text value and we'll try a different method.
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
@@ -258,7 +258,7 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
-[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}] # Look for buttons or links with text to click. If the button you want to click doesn't have text you can say `"no button"` for the text value and we'll try a different method.
+[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}]  # Look for text to click. Try to find relevant text to click, but if there's nothing relevant enough you can return `"nothing to click"` for the text value and we'll try a different method.
 
 2. write - Write with your keyboard
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
