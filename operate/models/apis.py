@@ -248,7 +248,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
 
         content = response.choices[0].message.content
         if VERBOSE:
-            print("[call_gpt_4_vision_preview_ocr] response content", content)
+            print("\n\n\n[call_gpt_4_vision_preview_ocr] response content", content)
 
         if content.startswith("```json"):
             content = content[len("```json") :]  # Remove starting ```json
@@ -492,7 +492,7 @@ def confirm_system_prompt(messages, objective, model):
     On `Exception` we default to `call_gpt_4_vision_preview` so we have this function to reassign system prompt in case of a previous failure
     """
     if VERBOSE:
-        print("[confirm_system_prompt]")
+        print("[confirm_system_prompt] model", model)
 
     system_prompt = get_system_prompt(model, objective)
     new_system_message = {"role": "system", "content": system_prompt}
@@ -501,5 +501,9 @@ def confirm_system_prompt(messages, objective, model):
     messages[0] = new_system_message
 
     if VERBOSE:
-        print("[confirm_system_prompt][updated]")
-        print("[confirm_system_prompt][updated] len(messages)", len(messages))
+        print("[confirm_system_prompt]")
+        print("[confirm_system_prompt] len(messages)", len(messages))
+        for m in messages:
+            if m["role"] != "user":
+                print("[confirm_system_prompt][message] role", m["role"])
+                print("[confirm_system_prompt][message] system", m["content"])
