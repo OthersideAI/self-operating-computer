@@ -22,9 +22,6 @@
 - **Integration**: Currently integrated with **GPT-4v** as the default model, with extended support for Gemini Pro Vision.
 - **Future Plans**: Support for additional models.
 
-## Current Challenges
-> **Note:** GPT-4V's error rate in estimating XY mouse click locations is currently quite high. This framework aims to track the progress of multimodal models over time, aspiring to achieve human-level performance in computer operation.
-
 ## Ongoing Development
 At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
 
