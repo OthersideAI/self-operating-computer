@@ -259,8 +259,9 @@ A few important notes:
 
 - Default to Google Chrome as the browser
 - Go to websites by opening a new tab with `press` and then `write` the URL
-- Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked
-- If the screenshot doesn't look as expected after clicking then the click action did not work as expected, try something new such as clicking a different element or another method
+- For a new Google document you can visit the URL: https://docs.new/
+- Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked. 
+- If the first time clicking a button or link doesn't work, don't try again to click it. Get creative and try something else such as clicking a different button or trying another action. 
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 Objective: {objective} 
@@ -325,8 +326,9 @@ A few important notes:
 
 - Default to Google Chrome as the browser
 - Go to websites by opening a new tab with `press` and then `write` the URL
+- For a new Google document you can visit the URL: https://docs.new/
 - Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked
-- If the screenshot doesn't look as expected after clicking then the click action did not work as expected, try something new such as clicking a different element or another method
+- If the first time clicking a button or link doesn't work, don't try again to click it. Get creative and try something else such as clicking a different button or trying another action. 
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 Objective: {objective} 

@@ -515,3 +515,4 @@ def confirm_system_prompt(messages, objective, model):
                 print("--------------------[message]--------------------")
                 print("[confirm_system_prompt][message] role", m["role"])
                 print("[confirm_system_prompt][message] content", m["content"])
+                print("------------------[end message]------------------")
