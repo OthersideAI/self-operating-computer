@@ -239,10 +239,6 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         )
 
         content = response.choices[0].message.content
-        if VERBOSE:
-            print(
-                "\n\n\n[call_gpt_4_vision_preview_ocr] content before cleaning", content
-            )
 
         # Remove starting and ending backticks
         if content.startswith("```json"):
@@ -516,5 +512,6 @@ def confirm_system_prompt(messages, objective, model):
         print("[confirm_system_prompt] len(messages)", len(messages))
         for m in messages:
             if m["role"] != "user":
+                print("--------------------[message]--------------------")
                 print("[confirm_system_prompt][message] role", m["role"])
-                print("[confirm_system_prompt][message] system", m["content"])
+                print("[confirm_system_prompt][message] content", m["content"])
