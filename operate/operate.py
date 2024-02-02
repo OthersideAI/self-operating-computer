@@ -180,10 +180,10 @@ def operate(operations):
             return True
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Operate] Thought {ANSI_RESET} {operate_thought}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] Thought {ANSI_RESET} {operate_thought}"
         )
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA} [Operate] {operate_type} {ANSI_RESET} {operate_detail}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] {operate_type} {ANSI_RESET} {operate_detail}"
         )
 
     return False
