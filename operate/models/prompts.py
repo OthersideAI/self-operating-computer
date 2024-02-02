@@ -237,11 +237,11 @@ Example 1: Opens Spotlight Search on Mac and open Google Chrome
 ]
 ```
 
-Example 2: Focuses on the address bar in a browser before typing a website
+Example 2: Open a new Google Docs when the browser is already open
 ```
 [
     {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["command", "t"] }},
-    {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
+    {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://docs.new/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
 ```
@@ -259,7 +259,6 @@ A few important notes:
 
 - Default to Google Chrome as the browser
 - Go to websites by opening a new tab with `press` and then `write` the URL
-- For a new Google document you can visit the URL: https://docs.new/
 - Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked. 
 - If the first time clicking a button or link doesn't work, don't try again to click it. Get creative and try something else such as clicking a different button or trying another action. 
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
@@ -304,11 +303,11 @@ Example 1: Opens Spotlight Search on Mac and see if Google Chrome is available t
 ]
 ```
 
-Example 2: Go to a website (LinkedIn) when the browser is already open
+Example 2: Open a new Google Docs when the browser is already open
 ```
 [
     {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["ctrl", "t"] }},
-    {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
+    {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://docs.new/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
 ```
@@ -322,11 +321,11 @@ Example 3: Search for someone on Linkedin when already on linkedin.com
 ]
 ```
 
+
 A few important notes: 
 
 - Default to Google Chrome as the browser
 - Go to websites by opening a new tab with `press` and then `write` the URL
-- For a new Google document you can visit the URL: https://docs.new/
 - Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked
 - If the first time clicking a button or link doesn't work, don't try again to click it. Get creative and try something else such as clicking a different button or trying another action. 
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
