@@ -259,6 +259,8 @@ A few important notes:
 
 - Default to Google Chrome as the browser
 - Go to websites by opening a new tab with `press` and then `write` the URL
+- Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked
+- If the screenshot doesn't look as expected after clicking then the click action did not work as expected, try something new such as clicking a different element or another method
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 Objective: {objective} 
@@ -323,6 +325,8 @@ A few important notes:
 
 - Default to Google Chrome as the browser
 - Go to websites by opening a new tab with `press` and then `write` the URL
+- Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked
+- If the screenshot doesn't look as expected after clicking then the click action did not work as expected, try something new such as clicking a different element or another method
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 Objective: {objective} 
@@ -331,7 +335,7 @@ Objective: {objective}
 OPERATE_FIRST_MESSAGE_PROMPT = """
 Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
 
-You just started so you are in the terminal app. To leave the terminal search for a new program on the  OS, otherwise to use the terminal you need to start a new tab first because your code is running in this first terminal tab.
+You just started so you are in the terminal app and your code is running in this terminal tab. To leave the terminal, search for a new program on the OS. 
 
 Action:"""
 

@@ -28,11 +28,7 @@ from operate.utils.label import (
     get_click_position_in_percent,
     get_label_coordinates,
 )
-from operate.utils.style import (
-    ANSI_GREEN,
-    ANSI_RED,
-    ANSI_RESET,
-)
+from operate.utils.style import ANSI_GREEN, ANSI_RED, ANSI_RESET, ANSI_BRIGHT_MAGENTA
 import pkg_resources
 
 
@@ -131,7 +127,7 @@ def call_gpt_4_vision_preview(messages):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying again {ANSI_RESET}",
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying again {ANSI_RESET}",
             e,
         )
         print(
@@ -187,9 +183,11 @@ def call_gemini_pro_vision(messages, objective):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
-            e,
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
         )
+        if VERBOSE:
+            print("[Self-Operating Computer][Operate] error", e)
+            traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 
@@ -218,12 +216,6 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
             user_prompt = get_user_first_message_prompt()
         else:
             user_prompt = get_user_prompt()
-
-        if VERBOSE:
-            print(
-                "[call_gpt_4_vision_preview_ocr] user_prompt",
-                user_prompt,
-            )
 
         vision_message = {
             "role": "user",
@@ -331,10 +323,10 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
-            e,
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
         )
         if VERBOSE:
+            print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
         return gpt_4_fallback(messages, objective, model)
 
@@ -468,10 +460,10 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] Something went wrong. Trying another method {ANSI_RESET}",
-            e,
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
         )
         if VERBOSE:
+            print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
