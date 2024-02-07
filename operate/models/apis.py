@@ -527,6 +527,12 @@ def call_ollama_llava(messages):
 
         return content
 
+    except ollama.ResponseError as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull llava` then `ollama serve`{ANSI_RESET}",
+            e,
+        )
+        
     except Exception as e:
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying again {ANSI_RESET}",
