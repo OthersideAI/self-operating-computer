@@ -53,7 +53,7 @@ async def get_next_action(model, messages, objective, session_id):
         return "coming soon"
     elif model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective), None
-    elif model == "ollama-llava":
+    elif model == "llava":
         operation = call_ollama_llava(messages), None
         return operation
 
