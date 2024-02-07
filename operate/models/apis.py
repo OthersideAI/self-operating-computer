@@ -479,9 +479,6 @@ def call_ollama_llava(messages):
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
-        
-        with open(screenshot_filename, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
         if len(messages) == 1:
             user_prompt = get_user_first_message_prompt()
