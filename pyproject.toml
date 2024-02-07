@@ -1,0 +1,41 @@
+[project]
+name = "self-operating-computer"
+version = "1.2.9"
+description = "Default template for PDM package"
+authors = [{ name = "Josh Bickett", email = "josh@bickett.net" }]
+dependencies = [
+    "openai>=1.11.1",
+    "setuptools>=69.0.3",
+    "pillow>=10.2.0",
+    "easyocr>=1.7.1",
+    "ultralytics>=8.1.10",
+    "pyautogui>=0.9.54",
+    "python-dotenv>=1.0.1",
+    "google-generativeai>=0.3.2",
+    "prompt-toolkit>=3.0.43",
+    "python3-xlib>=0.15",
+]
+requires-python = ">=3.12"
+readme = "README.md"
+license = { text = "MIT" }
+
+[project.scripts]
+operate = "operate.main:main_entry"
+
+[project.optional-dependencies]
+audio = [
+    "whisper-mic>=1.4.0",
+]
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+"operate.models.weights" = ["best.pt"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.pdm]
+distribution = true
