@@ -40,48 +40,52 @@ If you're interested in gaining access to this API, sign up [here](https://other
 
 1. **Install the project**
 
-```
-pip install self-operating-computer
-```
+    ```bash
+    pip install self-operating-computer
+    ```
 
 2. **Run the project**
 
-```
-operate
-```
+    ```bash
+    operate
+    ```
 
 3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)
 
-<div align="center">
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
-</div>
+    <div align="center">
+    <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
+    </div>
 
 4. **Give Terminal app the required permissions**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
-<div align="center">
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
-</div>
+    <div align="center">
+    <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
+    <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
+    </div>
 
 ### Alternatively installation with `.sh`
 
 1. **Clone the repo** to a directory on your computer:
 
-```
-git clone https://github.com/OthersideAI/self-operating-computer.git
-```
+    ```bash
+    git clone https://github.com/OthersideAI/self-operating-computer.git
+    ```
 
 2. **Cd into directory**:
 
-```
-cd self-operating-computer
-```
+    ```bash
+    cd self-operating-computer
+    ```
 
 3. **Run the installation script**:
 
-```
-./run.sh
-```
+    ```bash
+    ./run.sh
+    ```
+
+## Development
+
+We use [PDM](https://pdm-project.org/latest/) as our package and dependency manager. You can find instructions for insallation and usage [here](https://pdm-project.org/latest/#recommended-installation-method).
 
 ## Using `operate` Modes
 
@@ -91,7 +95,7 @@ An additional model is now compatible with the Self Operating Computer Framework
 
 Start `operate` with the Gemini model
 
-```
+```bash
 operate -m gemini-pro-vision
 ```
 
@@ -115,7 +119,7 @@ For this initial version, a simple YOLOv8 model is trained for button detection,
 
 Start `operate` with the SoM model
 
-```
+```bash
 operate -m gpt-4-with-som
 ```
 
@@ -124,38 +128,38 @@ operate -m gpt-4-with-som
 The framework supports voice inputs for the objective. Try voice by following the instructions below.
 **Clone the repo** to a directory on your computer:
 
-```
+```bash
 git clone https://github.com/OthersideAI/self-operating-computer.git
 ```
 
 **Cd into directory**:
 
-```
+```bash
 cd self-operating-computer
 ```
 
 Install the additional `requirements-audio.txt`
 
-```
+```bash
 pip install -r requirements-audio.txt
 ```
 
 **Install device requirements**
 For mac users:
 
-```
+```bash
 brew install portaudio
 ```
 
 For Linux users:
 
-```
+```bash
 sudo apt install portaudio19-dev python3-pyaudio
 ```
 
 Run with voice mode
 
-```
+```bash
 operate --voice
 ```
 
