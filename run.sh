@@ -108,9 +108,6 @@ run_script "python3 -m venv venv"
 # Activate the virtual environment
 source venv/bin/activate || { log_error "Unable to activate the virtual environment."; exit 1; }
 
-# Install project requirements
-run_script "pip install -r requirements.txt"
-
 # Install Project and Command-Line Interface
 run_script "pip install ."
 
