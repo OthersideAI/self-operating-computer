@@ -19,7 +19,7 @@
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4v** as the default model, with extended support for Gemini Pro Vision.
+- **Integration**: Currently integrated with **GPT-4v, Gemini Pro Vision, and LLaVa.**
 - **Future Plans**: Support for additional models.
 
 ## Ongoing Development
