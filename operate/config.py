@@ -11,7 +11,7 @@ class Config:
     Configuration class for managing settings.
 
     Attributes:
-        debug (bool): Flag indicating whether debug mode is enabled.
+        verbose (bool): Flag indicating whether verbose mode is enabled.
         openai_api_key (str): API key for OpenAI.
         google_api_key (str): API key for Google.
     """

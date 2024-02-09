@@ -34,11 +34,9 @@ import pkg_resources
 
 # Load configuration
 config = Config()
-VERBOSE = config.verbose
-
 
 async def get_next_action(model, messages, objective, session_id):
-    if VERBOSE:
+    if config.verbose:
         print("[Self-Operating Computer][get_next_action]")
         print("[Self-Operating Computer][get_next_action] model", model)
     if model == "gpt-4":
@@ -61,7 +59,7 @@ async def get_next_action(model, messages, objective, session_id):
 
 
 def call_gpt_4_vision_preview(messages):
-    if VERBOSE:
+    if config.verbose:
         print("[call_gpt_4_v]")
     time.sleep(1)
     client = config.initialize_openai()
@@ -82,7 +80,7 @@ def call_gpt_4_vision_preview(messages):
         else:
             user_prompt = get_user_prompt()
 
-        if VERBOSE:
+        if config.verbose:
             print(
                 "[call_gpt_4_v] user_prompt",
                 user_prompt,
@@ -117,7 +115,7 @@ def call_gpt_4_vision_preview(messages):
                 content = content[: -len("```")]  # Remove ending
 
         assistant_message = {"role": "assistant", "content": content}
-        if VERBOSE:
+        if config.verbose:
             print(
                 "[call_gpt_4_v] content",
                 content,
@@ -137,7 +135,7 @@ def call_gpt_4_vision_preview(messages):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
             content,
         )
-        if VERBOSE:
+        if config.verbose:
             traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
@@ -146,7 +144,7 @@ def call_gemini_pro_vision(messages, objective):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
-    if VERBOSE:
+    if config.verbose:
         print(
             "[Self Operating Computer][call_gemini_pro_vision]",
         )
@@ -165,18 +163,18 @@ def call_gemini_pro_vision(messages, objective):
         prompt = get_system_prompt("gemini-pro-vision", objective)
 
         model = config.initialize_google()
-        if VERBOSE:
+        if config.verbose:
             print("[call_gemini_pro_vision] model", model)
 
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
         content = response.text[1:]
-        if VERBOSE:
+        if config.verbose:
             print("[call_gemini_pro_vision] response", response)
             print("[call_gemini_pro_vision] content", content)
 
         content = json.loads(content)
-        if VERBOSE:
+        if config.verbose:
             print(
                 "[get_next_action][call_gemini_pro_vision] content",
                 content,
@@ -188,14 +186,14 @@ def call_gemini_pro_vision(messages, objective):
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
         )
-        if VERBOSE:
+        if config.verbose:
             print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 
 async def call_gpt_4_vision_preview_ocr(messages, objective, model):
-    if VERBOSE:
+    if config.verbose:
         print("[call_gpt_4_vision_preview_ocr]")
 
     # Construct the path to the file within the package
@@ -260,7 +258,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         # Normalize line breaks and remove any unwanted characters
         content = "\n".join(line.strip() for line in content.splitlines())
 
-        if VERBOSE:
+        if config.verbose:
             print(
                 "\n\n\n[call_gpt_4_vision_preview_ocr] content after cleaning", content
             )
@@ -274,7 +272,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         for operation in content:
             if operation.get("operation") == "click":
                 text_to_click = operation.get("text")
-                if VERBOSE:
+                if config.verbose:
                     print(
                         "[call_gpt_4_vision_preview_ocr][click] text_to_click",
                         text_to_click,
@@ -296,7 +294,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
                 operation["x"] = coordinates["x"]
                 operation["y"] = coordinates["y"]
 
-                if VERBOSE:
+                if config.verbose:
                     print(
                         "[call_gpt_4_vision_preview_ocr][click] text_element_index",
                         text_element_index,
@@ -324,7 +322,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
         )
-        if VERBOSE:
+        if config.verbose:
             print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
         return gpt_4_fallback(messages, objective, model)
@@ -356,7 +354,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         else:
             user_prompt = get_user_prompt()
 
-        if VERBOSE:
+        if config.verbose:
             print(
                 "[call_gpt_4_vision_preview_labeled] user_prompt",
                 user_prompt,
@@ -393,7 +391,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 content = content[: -len("```")]  # Remove ending
 
         assistant_message = {"role": "assistant", "content": content}
-        if VERBOSE:
+        if config.verbose:
             print(
                 "[call_gpt_4_vision_preview_labeled] content",
                 content,
@@ -407,14 +405,14 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         for operation in content:
             if operation.get("operation") == "click":
                 label = operation.get("label")
-                if VERBOSE:
+                if config.verbose:
                     print(
                         "[Self Operating Computer][call_gpt_4_vision_preview_labeled] label",
                         label,
                     )
 
                 coordinates = get_label_coordinates(label, label_coordinates)
-                if VERBOSE:
+                if config.verbose:
                     print(
                         "[Self Operating Computer][call_gpt_4_vision_preview_labeled] coordinates",
                         coordinates,
@@ -426,7 +424,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 click_position_percent = get_click_position_in_percent(
                     coordinates, image_size
                 )
-                if VERBOSE:
+                if config.verbose:
                     print(
                         "[Self Operating Computer][call_gpt_4_vision_preview_labeled] click_position_percent",
                         click_position_percent,
@@ -441,7 +439,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
                 y_percent = f"{click_position_percent[1]:.2f}"
                 operation["x"] = x_percent
                 operation["y"] = y_percent
-                if VERBOSE:
+                if config.verbose:
                     print(
                         "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new click operation",
                         operation,
@@ -450,7 +448,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
             else:
                 processed_content.append(operation)
 
-            if VERBOSE:
+            if config.verbose:
                 print(
                     "[Self Operating Computer][call_gpt_4_vision_preview_labeled] new processed_content",
                     processed_content,
@@ -461,14 +459,14 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
         )
-        if VERBOSE:
+        if config.verbose:
             print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
 
 
 def call_ollama_llava(messages):
-    if VERBOSE:
+    if config.verbose:
         print("[call_ollama_llava]")
     time.sleep(1)
     try:
@@ -485,7 +483,7 @@ def call_ollama_llava(messages):
         else:
             user_prompt = get_user_prompt()
 
-        if VERBOSE:
+        if config.verbose:
             print(
                 "[call_ollama_llava] user_prompt",
                 user_prompt,
@@ -516,7 +514,7 @@ def call_ollama_llava(messages):
                 content = content[: -len("```")]  # Remove ending
 
         assistant_message = {"role": "assistant", "content": content}
-        if VERBOSE:
+        if config.verbose:
             print(
                 "[call_ollama_llava] content",
                 content,
@@ -542,7 +540,7 @@ def call_ollama_llava(messages):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
             content,
         )
-        if VERBOSE:
+        if config.verbose:
             traceback.print_exc()
         return call_ollama_llava(messages)
 
@@ -562,7 +560,7 @@ def get_last_assistant_message(messages):
 
 
 def gpt_4_fallback(messages, objective, model):
-    if VERBOSE:
+    if config.verbose:
         print("[gpt_4_fallback]")
     system_prompt = get_system_prompt("gpt-4-vision-preview", objective)
     new_system_message = {"role": "system", "content": system_prompt}
@@ -570,7 +568,7 @@ def gpt_4_fallback(messages, objective, model):
 
     messages[0] = new_system_message
 
-    if VERBOSE:
+    if config.verbose:
         print("[gpt_4_fallback][updated]")
         print("[gpt_4_fallback][updated] len(messages)", len(messages))
 
@@ -581,7 +579,7 @@ def confirm_system_prompt(messages, objective, model):
     """
     On `Exception` we default to `call_gpt_4_vision_preview` so we have this function to reassign system prompt in case of a previous failure
     """
-    if VERBOSE:
+    if config.verbose:
         print("[confirm_system_prompt] model", model)
 
     system_prompt = get_system_prompt(model, objective)
@@ -590,7 +588,7 @@ def confirm_system_prompt(messages, objective, model):
 
     messages[0] = new_system_message
 
-    if VERBOSE:
+    if config.verbose:
         print("[confirm_system_prompt]")
         print("[confirm_system_prompt] len(messages)", len(messages))
         for m in messages:

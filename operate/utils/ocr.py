@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 # Load configuration
-VERBOSE = Config().verbose
+config = Config()
 
 
 def get_text_element(result, search_text, image_path):
@@ -21,7 +21,7 @@ def get_text_element(result, search_text, image_path):
     Raises:
         Exception: If the text element is not found in the results.
     """
-    if VERBOSE:
+    if config.verbose:
         print("[get_text_element]")
         print("[get_text_element] search_text", search_text)
         # Create /ocr directory if it doesn't exist
@@ -38,17 +38,17 @@ def get_text_element(result, search_text, image_path):
         text = element[1]
         box = element[0]
 
-        if VERBOSE:
+        if config.verbose:
             # Draw bounding box in blue
             draw.polygon([tuple(point) for point in box], outline="blue")
 
         if search_text in text:
             found_index = index
-            if VERBOSE:
+            if config.verbose:
                 print("[get_text_element][loop] found search_text, index:", index)
 
     if found_index is not None:
-        if VERBOSE:
+        if config.verbose:
             # Draw bounding box of the found text in red
             box = result[found_index][0]
             draw.polygon([tuple(point) for point in box], outline="red")
