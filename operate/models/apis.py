@@ -35,6 +35,7 @@ import pkg_resources
 # Load configuration
 config = Config()
 
+
 async def get_next_action(model, messages, objective, session_id):
     if config.verbose:
         print("[Self-Operating Computer][get_next_action]")
@@ -42,7 +43,7 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "gpt-4":
         return call_gpt_4_vision_preview(messages), None
     if model == "gpt-4-with-som":
-        operation = await call_gpt_4_vision_preview_labeled(messages, objective)
+        operation = await call_gpt_4_vision_preview_labeled(messages, objective, model)
         return operation, None
     if model == "gpt-4-with-ocr":
         operation = await call_gpt_4_vision_preview_ocr(messages, objective, model)
@@ -328,12 +329,13 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         return gpt_4_fallback(messages, objective, model)
 
 
-async def call_gpt_4_vision_preview_labeled(messages, objective):
+async def call_gpt_4_vision_preview_labeled(messages, objective, model):
     time.sleep(1)
-    client = config.initialize_openai()
 
-    # Construct the path to the file within the package
     try:
+        client = config.initialize_openai()
+
+        confirm_system_prompt(messages, objective, model)
         file_path = pkg_resources.resource_filename("operate.models.weights", "best.pt")
         yolo_model = YOLO(file_path)  # Load your trained model
         screenshots_dir = "screenshots"
@@ -500,13 +502,13 @@ def call_ollama_llava(messages):
             model="llava",
             messages=messages,
         )
-        
+
         # Important: Remove the image path from the message history.
         # Ollama will attempt to load each image reference and will
         # eventually timeout.
         messages[-1]["images"] = None
-        
-        content = response['message']['content'].strip()
+
+        content = response["message"]["content"].strip()
 
         if content.startswith("```json"):
             content = content[len("```json") :]  # Remove starting ```json
@@ -530,7 +532,7 @@ def call_ollama_llava(messages):
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull llava` then `ollama serve`{ANSI_RESET}",
             e,
         )
-        
+
     except Exception as e:
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying again {ANSI_RESET}",
