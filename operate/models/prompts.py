@@ -200,7 +200,7 @@ Objective: {objective}
 """
 
 SYSTEM_PROMPT_OCR = """
-You are operating a computer, using the same operating system as a human.
+You are operating a {operating_system} computer, using the same operating system as a human.
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
 
@@ -227,7 +227,7 @@ Return the actions in array format `[]`. You can take just one action or multipl
 
 Here a helpful example:
 
-Example 1: Opens Spotlight Search on Mac and open Google Chrome
+Example 1: Searches for Google Chrome on the OS and opens it
 ```
 [
     {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
@@ -285,9 +285,15 @@ def get_system_prompt(model, objective):
     if platform.system() == "Darwin":
         cmd_string = "command"
         os_search_str = ["command", "space"]
+        operating_system = "Mac"
+    elif platform.system() == "Windows":
+        cmd_string = "ctrl"
+        os_search_str = ["win"]
+        operating_system = "Windows"
     else:
         cmd_string = "ctrl"
         os_search_str = ["win"]
+        operating_system = "Linux"
 
     if model == "gpt-4-with-som":
         if platform.system() == "Darwin":
@@ -296,7 +302,10 @@ def get_system_prompt(model, objective):
             prompt = SYSTEM_PROMPT_LABELED_WIN_LINUX.format(objective=objective)
     elif model == "gpt-4-with-ocr":
         prompt = SYSTEM_PROMPT_OCR.format(
-            objective=objective, cmd_string=cmd_string, os_search_str=os_search_str
+            objective=objective,
+            cmd_string=cmd_string,
+            os_search_str=os_search_str,
+            operating_system=operating_system,
         )
     else:
         if platform.system() == "Darwin":
@@ -307,7 +316,6 @@ def get_system_prompt(model, objective):
     # Optional verbose output
     if config.verbose:
         print("[get_system_prompt] model:", model)
-        print("\n\n\n\n[get_system_prompt] prompt:", prompt, "\n\n\n\n")
 
     return prompt
 
