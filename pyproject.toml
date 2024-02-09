@@ -16,7 +16,7 @@ dependencies = [
     "python3-xlib>=0.15",
     "ollama>=0.1.6",
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 readme = "README.md"
 license = { text = "MIT" }
 
@@ -31,10 +31,16 @@ where = ["."]
 [tool.setuptools.package-data]
 "operate.models.weights" = ["best.pt"]
 
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 
-[tool.pdm]
-distribution = true

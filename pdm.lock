@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "audio"]
+groups = ["default", "audio", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:d419d17a051f382b2713012efc93591deb2087a2e02b360ce74b8fe6f271c4c3"
+content_hash = "sha256:5cb92dace5e3b963ef2e80f2a54b422c1fc285bd5489411fa0f70a1a50e583de"
 
 [[package]]
 name = "annotated-types"
@@ -25,8 +25,10 @@ requires_python = ">=3.8"
 summary = "High level compatibility layer for multiple asynchronous event loop implementations"
 groups = ["default"]
 dependencies = [
+    "exceptiongroup>=1.0.2; python_version < \"3.11\"",
     "idna>=2.8",
     "sniffio>=1.1",
+    "typing-extensions>=4.1; python_version < \"3.11\"",
 ]
 files = [
     {file = "anyio-4.2.0-py3-none-any.whl", hash = "sha256:745843b39e829e108e518c489b31dc757de7d2131d53fac32bd8df268227bfee"},
@@ -111,8 +113,8 @@ name = "colorama"
 version = "0.4.6"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 summary = "Cross-platform colored terminal text."
-groups = ["audio", "default"]
-marker = "platform_system == \"Windows\""
+groups = ["audio", "default", "dev"]
+marker = "sys_platform == \"win32\" or platform_system == \"Windows\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
@@ -197,6 +199,18 @@ groups = ["audio"]
 marker = "\"linux\" in sys_platform"
 files = [
     {file = "evdev-1.6.1.tar.gz", hash = "sha256:299db8628cc73b237fc1cc57d3c2948faa0756e2a58b6194b5bf81dc2081f1e3"},
+]
+
+[[package]]
+name = "exceptiongroup"
+version = "1.2.0"
+requires_python = ">=3.7"
+summary = "Backport of PEP 654 (exception groups)"
+groups = ["default", "dev"]
+marker = "python_version < \"3.11\""
+files = [
+    {file = "exceptiongroup-1.2.0-py3-none-any.whl", hash = "sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14"},
+    {file = "exceptiongroup-1.2.0.tar.gz", hash = "sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68"},
 ]
 
 [[package]]
@@ -504,6 +518,32 @@ files = [
 ]
 
 [[package]]
+name = "importlib-resources"
+version = "6.1.1"
+requires_python = ">=3.8"
+summary = "Read resources from Python packages"
+groups = ["default"]
+marker = "python_version < \"3.10\""
+dependencies = [
+    "zipp>=3.1.0; python_version < \"3.10\"",
+]
+files = [
+    {file = "importlib_resources-6.1.1-py3-none-any.whl", hash = "sha256:e8bf90d8213b486f428c9c39714b920041cb02c184686a3dee24905aaa8105d6"},
+    {file = "importlib_resources-6.1.1.tar.gz", hash = "sha256:3893a00122eafde6894c59914446a512f728a0c1a45f9bb9b63721b6bacf0b4a"},
+]
+
+[[package]]
+name = "iniconfig"
+version = "2.0.0"
+requires_python = ">=3.7"
+summary = "brain-dead simple config-ini parsing"
+groups = ["dev"]
+files = [
+    {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
+    {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
+]
+
+[[package]]
 name = "jinja2"
 version = "3.1.3"
 requires_python = ">=3.7"
@@ -627,6 +667,7 @@ dependencies = [
     "contourpy>=1.0.1",
     "cycler>=0.10",
     "fonttools>=4.22.0",
+    "importlib-resources>=3.2.0; python_version < \"3.10\"",
     "kiwisolver>=1.3.1",
     "numpy<2,>=1.21",
     "packaging>=20.0",
@@ -983,6 +1024,7 @@ dependencies = [
     "numpy>=1.17.3; python_version >= \"3.8\"",
     "numpy>=1.19.3; python_version >= \"3.6\" and platform_system == \"Linux\" and platform_machine == \"aarch64\"",
     "numpy>=1.19.3; python_version >= \"3.9\"",
+    "numpy>=1.21.0; python_version <= \"3.9\" and platform_system == \"Darwin\" and platform_machine == \"arm64\"",
     "numpy>=1.21.2; python_version >= \"3.10\"",
     "numpy>=1.21.4; python_version >= \"3.10\" and platform_system == \"Darwin\"",
     "numpy>=1.23.5; python_version >= \"3.11\"",
@@ -1009,6 +1051,7 @@ dependencies = [
     "numpy>=1.17.3; python_version >= \"3.8\"",
     "numpy>=1.19.3; python_version >= \"3.6\" and platform_system == \"Linux\" and platform_machine == \"aarch64\"",
     "numpy>=1.19.3; python_version >= \"3.9\"",
+    "numpy>=1.21.0; python_version <= \"3.9\" and platform_system == \"Darwin\" and platform_machine == \"arm64\"",
     "numpy>=1.21.2; python_version >= \"3.10\"",
     "numpy>=1.21.4; python_version >= \"3.10\" and platform_system == \"Darwin\"",
     "numpy>=1.23.5; python_version >= \"3.11\"",
@@ -1029,7 +1072,7 @@ name = "packaging"
 version = "23.2"
 requires_python = ">=3.7"
 summary = "Core utilities for Python packages"
-groups = ["audio", "default"]
+groups = ["audio", "default", "dev"]
 files = [
     {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
     {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
@@ -1042,6 +1085,8 @@ requires_python = ">=3.9"
 summary = "Powerful data structures for data analysis, time series, and statistics"
 groups = ["default"]
 dependencies = [
+    "numpy<2,>=1.22.4; python_version < \"3.11\"",
+    "numpy<2,>=1.23.2; python_version == \"3.11\"",
     "numpy<2,>=1.26.0; python_version >= \"3.12\"",
     "python-dateutil>=2.8.2",
     "pytz>=2020.1",
@@ -1090,6 +1135,17 @@ files = [
     {file = "pillow-10.2.0-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:d1b35bcd6c5543b9cb547dee3150c93008f8dd0f1fef78fc0cd2b141c5baf58a"},
     {file = "pillow-10.2.0-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:fe4c15f6c9285dc54ce6553a3ce908ed37c8f3825b5a51a15c91442bb955b868"},
     {file = "pillow-10.2.0.tar.gz", hash = "sha256:e87f0b2c78157e12d7686b27d63c070fd65d994e8ddae6f328e0dcf4a0cd007e"},
+]
+
+[[package]]
+name = "pluggy"
+version = "1.4.0"
+requires_python = ">=3.8"
+summary = "plugin and hook calling mechanisms for python"
+groups = ["dev"]
+files = [
+    {file = "pluggy-1.4.0-py3-none-any.whl", hash = "sha256:7db9f7b503d67d1c5b95f59773ebb58a8c1c288129a88665838012cfb07b8981"},
+    {file = "pluggy-1.4.0.tar.gz", hash = "sha256:8c85c2876142a764e5b7548e7d9a0e0ddb46f5185161049a79b7e974454223be"},
 ]
 
 [[package]]
@@ -1464,8 +1520,32 @@ name = "pyscreeze"
 version = "0.1.30"
 summary = "A simple, cross-platform screenshot module for Python 2 and 3."
 groups = ["default"]
+dependencies = [
+    "Pillow>=9.2.0; python_version == \"3.10\"",
+    "Pillow>=9.2.0; python_version == \"3.9\"",
+    "Pillow>=9.3.0; python_version == \"3.11\"",
+]
 files = [
     {file = "PyScreeze-0.1.30.tar.gz", hash = "sha256:74098ad048e76a6231dcfa6243343af94459b8c829f9ccb7a44a5d3b147a67d1"},
+]
+
+[[package]]
+name = "pytest"
+version = "8.0.0"
+requires_python = ">=3.8"
+summary = "pytest: simple powerful testing with Python"
+groups = ["dev"]
+dependencies = [
+    "colorama; sys_platform == \"win32\"",
+    "exceptiongroup>=1.0.0rc8; python_version < \"3.11\"",
+    "iniconfig",
+    "packaging",
+    "pluggy<2.0,>=1.3.0",
+    "tomli>=1.0.0; python_version < \"3.11\"",
+]
+files = [
+    {file = "pytest-8.0.0-py3-none-any.whl", hash = "sha256:50fb9cbe836c3f20f0dfa99c565201fb75dc54c8d76373cd1bde06b06657bdb6"},
+    {file = "pytest-8.0.0.tar.gz", hash = "sha256:249b1b0864530ba251b7438274c4d251c58d868edaaec8762893ad4a0d71c36c"},
 ]
 
 [[package]]
@@ -1971,6 +2051,18 @@ files = [
 ]
 
 [[package]]
+name = "tomli"
+version = "2.0.1"
+requires_python = ">=3.7"
+summary = "A lil' TOML parser"
+groups = ["dev"]
+marker = "python_version < \"3.11\""
+files = [
+    {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
+    {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+
+[[package]]
 name = "torch"
 version = "2.2.0"
 requires_python = ">=3.8.0"
@@ -2180,8 +2272,7 @@ name = "zipp"
 version = "3.17.0"
 requires_python = ">=3.8"
 summary = "Backport of pathlib-compatible object wrapper for zip files"
-groups = ["audio"]
-marker = "python_version > \"3.9\""
+groups = ["audio", "default"]
 files = [
     {file = "zipp-3.17.0-py3-none-any.whl", hash = "sha256:0e923e726174922dce09c53c59ad483ff7bbb8e572e00c7f7c46b88556409f31"},
     {file = "zipp-3.17.0.tar.gz", hash = "sha256:84e64a1c28cf7e91ed2078bb8cc8c259cb19b76942096c8d7b84947690cabaf0"},
