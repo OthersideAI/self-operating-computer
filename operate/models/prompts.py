@@ -8,7 +8,7 @@ config = Config()
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
 
 
-SYSTEM_PROMPT_MAC = """
+SYSTEM_PROMPT_STANDARD = """
 You are operating a {operating_system} computer, using the same operating system as a human.
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
@@ -216,7 +216,7 @@ def get_system_prompt(model, objective):
             operating_system=operating_system,
         )
     else:
-        prompt = SYSTEM_PROMPT_MAC.format(
+        prompt = SYSTEM_PROMPT_STANDARD.format(
             objective=objective,
             cmd_string=cmd_string,
             os_search_str=os_search_str,
