@@ -199,8 +199,7 @@ A few important notes:
 Objective: {objective} 
 """
 
-
-SYSTEM_PROMPT_OCR_MAC = """
+SYSTEM_PROMPT_OCR = """
 You are operating a computer, using the same operating system as a human.
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
@@ -231,7 +230,7 @@ Here a helpful example:
 Example 1: Opens Spotlight Search on Mac and open Google Chrome
 ```
 [
-    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["command", "space"] }},
+    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
     {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
     {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
 ]
@@ -240,7 +239,7 @@ Example 1: Opens Spotlight Search on Mac and open Google Chrome
 Example 2: Open a new Google Docs when the browser is already open
 ```
 [
-    {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["command", "t"] }},
+    {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": [{cmd_string}, "t"] }},
     {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://docs.new/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
@@ -266,73 +265,6 @@ A few important notes:
 Objective: {objective} 
 """
 
-SYSTEM_PROMPT_OCR_WIN_LINUX = """
-You are operating a computer, using the same operating system as a human.
-
-From looking at the screen, the objective, and your previous actions, take the next best series of action. 
-
-You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
-
-1. click - Move mouse and click - Look for text to click. Try to find relevant text to click, but if there's nothing relevant enough you can return `"nothing to click"` for the text value and we'll try a different method.
-```
-[{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}]  
-```
-2. write - Write with your keyboard
-```
-[{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
-```
-3. press - Use a hotkey or press key to operate the computer
-```
-[{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
-```
-4. done - The objective is completed
-```
-[{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
-```
-
-Return the actions in array format `[]`. You can take just one action or multiple actions.
-
-Here a helpful example:
-
-Example 1: Opens Spotlight Search on Mac and see if Google Chrome is available to use
-```
-[
-    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": ["win"] }},
-    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
-    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
-]
-```
-
-Example 2: Open a new Google Docs when the browser is already open
-```
-[
-    {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": ["ctrl", "t"] }},
-    {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://docs.new/" }},
-    {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
-]
-```
-
-Example 3: Search for someone on Linkedin when already on linkedin.com
-```
-[
-    {{ "thought": "I can see the search field with the placeholder text 'search'. I click that field to search", "operation": "click", "text": "search" }},
-    {{ "thought": "Now that the field is active I can write the name of the person I'd like to search for", "operation": "write", "content": "John Doe" }},
-    {{ "thought": "Finally I'll submit the search form with enter", "operation": "press", "keys": ["enter"] }}
-]
-```
-
-
-A few important notes: 
-
-- Default to Google Chrome as the browser
-- Go to websites by opening a new tab with `press` and then `write` the URL
-- Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked
-- If the first time clicking a button or link doesn't work, don't try again to click it. Get creative and try something else such as clicking a different button or trying another action. 
-- Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
-
-Objective: {objective} 
-"""
-
 OPERATE_FIRST_MESSAGE_PROMPT = """
 Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
 
@@ -350,40 +282,32 @@ def get_system_prompt(model, objective):
     Format the vision prompt more efficiently and print the name of the prompt used
     """
 
-    prompt_map = {
-        ("gpt-4-with-som", "Darwin"): (
-            SYSTEM_PROMPT_LABELED_MAC,
-            "SYSTEM_PROMPT_LABELED_MAC",
-        ),
-        ("gpt-4-with-som", "Other"): (
-            SYSTEM_PROMPT_LABELED_WIN_LINUX,
-            "SYSTEM_PROMPT_LABELED_WIN_LINUX",
-        ),
-        ("gpt-4-with-ocr", "Darwin"): (SYSTEM_PROMPT_OCR_MAC, "SYSTEM_PROMPT_OCR_MAC"),
-        ("gpt-4-with-ocr", "Other"): (
-            SYSTEM_PROMPT_OCR_WIN_LINUX,
-            "SYSTEM_PROMPT_OCR_WIN_LINUX",
-        ),
-        ("default", "Darwin"): (SYSTEM_PROMPT_MAC, "SYSTEM_PROMPT_MAC"),
-        ("default", "Other"): (SYSTEM_PROMPT_WIN_LINUX, "SYSTEM_PROMPT_WIN_LINUX"),
-    }
+    if platform.system() == "Darwin":
+        cmd_string = "command"
+        os_search_str = ["command", "space"]
+    else:
+        cmd_string = "ctrl"
+        os_search_str = ["win"]
 
-    os_type = "Darwin" if platform.system() == "Darwin" else "Other"
-
-    # Fetching the prompt tuple (string and name) based on the model and OS
-    prompt_tuple = prompt_map.get((model, os_type), prompt_map[("default", os_type)])
-
-    # Extracting the prompt string and its name
-    prompt_string, prompt_name = prompt_tuple
-
-    # Formatting the prompt
-    prompt = prompt_string.format(objective=objective)
+    if model == "gpt-4-with-som":
+        if platform.system() == "Darwin":
+            prompt = SYSTEM_PROMPT_LABELED_MAC.format(objective=objective)
+        else:
+            prompt = SYSTEM_PROMPT_LABELED_WIN_LINUX.format(objective=objective)
+    elif model == "gpt-4-with-ocr":
+        prompt = SYSTEM_PROMPT_OCR.format(
+            objective=objective, cmd_string=cmd_string, os_search_str=os_search_str
+        )
+    else:
+        if platform.system() == "Darwin":
+            prompt = SYSTEM_PROMPT_MAC.format(objective=objective)
+        else:
+            prompt = SYSTEM_PROMPT_WIN_LINUX.format(objective=objective)
 
     # Optional verbose output
     if config.verbose:
         print("[get_system_prompt] model:", model)
-        print("[get_system_prompt] prompt name:", prompt_name)
-        # print("[get_system_prompt] prompt:", prompt)
+        print("\n\n\n\n[get_system_prompt] prompt:", prompt, "\n\n\n\n")
 
     return prompt
 
