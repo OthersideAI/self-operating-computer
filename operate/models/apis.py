@@ -5,7 +5,7 @@ import base64
 import traceback
 import io
 import easyocr
-
+import ollama
 
 from PIL import Image
 from ultralytics import YOLO
@@ -53,6 +53,9 @@ async def get_next_action(model, messages, objective, session_id):
         return "coming soon"
     elif model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective), None
+    elif model == "llava":
+        operation = call_ollama_llava(messages), None
+        return operation
 
     raise ModelNotRecognizedException(model)
 
@@ -462,6 +465,86 @@ async def call_gpt_4_vision_preview_labeled(messages, objective):
             print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
         return call_gpt_4_vision_preview(messages)
+
+
+def call_ollama_llava(messages):
+    if VERBOSE:
+        print("[call_ollama_llava]")
+    time.sleep(1)
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        if VERBOSE:
+            print(
+                "[call_ollama_llava] user_prompt",
+                user_prompt,
+            )
+
+        vision_message = {
+            "role": "user",
+            "content": user_prompt,
+            "images": [screenshot_filename],
+        }
+        messages.append(vision_message)
+
+        response = ollama.chat(
+            model="llava",
+            messages=messages,
+        )
+        
+        # Important: Remove the image path from the message history.
+        # Ollama will attempt to load each image reference and will
+        # eventually timeout.
+        messages[-1]["images"] = None
+        
+        content = response['message']['content'].strip()
+
+        if content.startswith("```json"):
+            content = content[len("```json") :]  # Remove starting ```json
+            if content.endswith("```"):
+                content = content[: -len("```")]  # Remove ending
+
+        assistant_message = {"role": "assistant", "content": content}
+        if VERBOSE:
+            print(
+                "[call_ollama_llava] content",
+                content,
+            )
+        content = json.loads(content)
+
+        messages.append(assistant_message)
+
+        return content
+
+    except ollama.ResponseError as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull llava` then `ollama serve`{ANSI_RESET}",
+            e,
+        )
+        
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying again {ANSI_RESET}",
+            e,
+        )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
+            content,
+        )
+        if VERBOSE:
+            traceback.print_exc()
+        return call_ollama_llava(messages)
 
 
 def get_last_assistant_message(messages):
