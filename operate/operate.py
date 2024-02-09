@@ -29,10 +29,7 @@ from operate.models.apis import get_next_action
 config = Config()
 operating_system = OperatingSystem()
 
-VERBOSE = config.verbose
-
-
-def main(model, terminal_prompt, voice_mode=False):
+def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     """
     Main function for the Self-Operating Computer.
 
@@ -48,6 +45,7 @@ def main(model, terminal_prompt, voice_mode=False):
     mic = None
     # Initialize `WhisperMic`, if `voice_mode` is True
 
+    config.verbose = verbose_mode
     config.validation(model, voice_mode)
 
     if voice_mode:
@@ -104,7 +102,7 @@ def main(model, terminal_prompt, voice_mode=False):
     session_id = None
 
     while True:
-        if VERBOSE:
+        if config.verbose:
             print("[Self Operating Computer] loop_count", loop_count)
         try:
             operations, session_id = asyncio.run(
@@ -131,17 +129,17 @@ def main(model, terminal_prompt, voice_mode=False):
 
 
 def operate(operations):
-    if VERBOSE:
+    if config.verbose:
         print("[Self Operating Computer][operate]")
     for operation in operations:
-        if VERBOSE:
+        if config.verbose:
             print("[Self Operating Computer][operate] operation", operation)
         # wait one second
         time.sleep(1)
         operate_type = operation.get("operation").lower()
         operate_thought = operation.get("thought")
         operate_detail = ""
-        if VERBOSE:
+        if config.verbose:
             print("[Self Operating Computer][operate] operate_type", operate_type)
 
         if operate_type == "press" or operate_type == "hotkey":
