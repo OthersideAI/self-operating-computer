@@ -1,9 +1,10 @@
 import os
 import sys
+
+import google.generativeai as genai
 from dotenv import load_dotenv
 from openai import OpenAI
 from prompt_toolkit.shortcuts import input_dialog
-import google.generativeai as genai
 
 
 class Config:
@@ -72,7 +73,7 @@ class Config:
 
         return model
 
-    def validation(self, model, voice_mode):
+    def validation(self, model: str, voice_mode):
         """
         Validate the input parameters for the dialog operation.
         """
@@ -118,4 +119,5 @@ class Config:
     @staticmethod
     def save_api_key_to_env(key_name, key_value):
         with open(".env", "a") as file:
+            file.write(f"\n{key_name}='{key_value}'")
             file.write(f"\n{key_name}='{key_value}'")
