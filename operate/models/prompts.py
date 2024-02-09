@@ -2,7 +2,7 @@ import platform
 from operate.config import Config
 
 # Load configuration
-VERBOSE = Config().verbose
+config = Config()
 
 # General user Prompts
 USER_QUESTION = "Hello, I can help you with anything. What would you like done?"
@@ -380,7 +380,7 @@ def get_system_prompt(model, objective):
     prompt = prompt_string.format(objective=objective)
 
     # Optional verbose output
-    if VERBOSE:
+    if config.verbose:
         print("[get_system_prompt] model:", model)
         print("[get_system_prompt] prompt name:", prompt_name)
         # print("[get_system_prompt] prompt:", prompt)

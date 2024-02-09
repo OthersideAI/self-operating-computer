@@ -24,6 +24,14 @@ def main_entry():
         help="Use voice input mode",
         action="store_true",
     )
+    
+    # Add a flag for verbose mode
+    parser.add_argument(
+        "--verbose",
+        help="Run operate in verbose mode",
+        action="store_true",
+    )
+    
     # Allow for direct input of prompt
     parser.add_argument(
         "--prompt",
@@ -38,6 +46,7 @@ def main_entry():
             args.model,
             terminal_prompt=args.prompt,
             voice_mode=args.voice,
+            verbose_mode=args.verbose
         )
     except KeyboardInterrupt:
         print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")
