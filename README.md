@@ -108,6 +108,31 @@ Start `operate` with the SoM model
 operate -m gpt-4-with-som
 ```
 
+### Locally Hosted LLaVA Through Ollama
+If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
+*Note: Ollama currently only supports MacOS and Linux*   
+
+First, install Ollama on your machine from https://ollama.ai/download.   
+
+Once Ollama is installed, pull the LLaVA model:
+```
+ollama pull llava
+```
+This will download the model on your machine which takes approximately 5 GB of storage.   
+
+When Ollama has finished pulling LLaVA, start the server:
+```
+ollama serve
+```
+
+That's it! Now start `operate` and select the LLaVA model:
+```
+operate -m llava
+```   
+**Important:** Error rates when using LLaVA are very high. This is simply intended to be a base to build off of as local multimodal models improve over time.
+
+Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
+
 ### Voice Mode `--voice`
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
 **Clone the repo** to a directory on your computer:
