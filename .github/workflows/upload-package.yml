@@ -1,34 +1,44 @@
 name: Upload Python Package
 
 on:
-  push:
-    tags:
-      - 'v*'
+    push:
+        tags:
+            - "v*"
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
+    test:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                python-version: [3.9, 3.10, 3.11, 3.12]
+                os: [ubuntu-latest, macOS-latest, windows-latest]
 
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.8'
+        steps:
+            - uses: actions/checkout@v3
+            - name: Set up PDM
+              uses: pdm-project/setup-pdm@v3
+              with:
+                  python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel twine
+            - name: Install dependencies
+              run: |
+                  pdm sync -d
+            - name: Run Tests
+              run: |
+                  pdm run -v pytest tests
 
-    - name: Build and check package
-      run: |
-        python setup.py sdist bdist_wheel
-        twine check dist/*
-        
-    - name: Upload to PyPi
-      uses: pypa/gh-action-pypi-publish@v1.4.2
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+    pypi-publish:
+        name: upload release to PyPI
+        runs-on: ubuntu-latest
+        permissions:
+            # This permission is needed for private repositories.
+            contents: read
+            # IMPORTANT: this permission is mandatory for trusted publishing
+            id-token: write
+        steps:
+            - uses: actions/checkout@v3
 
+            - uses: pdm-project/setup-pdm@v3
+
+            - name: Publish package distributions to PyPI
+              run: pdm publish
