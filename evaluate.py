@@ -5,12 +5,13 @@ import platform
 import base64
 import json
 import openai
+import argparse
 
 from dotenv import load_dotenv
 
 # "Objective for `operate`" : "Guideline for passing this test case given to GPT-4v"
 TEST_CASES = {
-    "Go to Github.com": "The Github home page is visible.",
+    "Go to Github.com": "A Github page is visible.",
     "Go to Youtube.com and play a video": "The YouTube video player is visible.",
 }
 
@@ -124,10 +125,29 @@ def run_test_case(objective, guideline):
     return result
 
 
+def get_test_model():
+    parser = argparse.ArgumentParser(
+        description="Run the self-operating-computer with a specified model."
+    )
+    
+    parser.add_argument(
+        "-m",
+        "--model",
+        help="Specify the model to evaluate.",
+        required=False,
+        default="gpt-4-with-ocr",
+    )
+    
+    return parser.parse_args().model
+
+
 def main():
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
     
+    model = get_test_model()
+    
+    print(f"{ANSI_BLUE}[EVALUATING MODEL `{model}`]{ANSI_RESET}")
     print(f"{ANSI_BRIGHT_MAGENTA}[STARTING EVALUATION]{ANSI_RESET}")
 
     passed = 0; failed = 0
