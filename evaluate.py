@@ -111,10 +111,10 @@ def evaluate_final_screenshot(guideline):
         return parse_eval_content(eval_content)
 
 
-def run_test_case(objective, guideline):
-    '''Returns True if the result of the test with the given prompt meets the given guideline.'''
-    # Run `operate` with the test case prompt
-    subprocess.run(['operate', '--prompt', f'"{objective}"'], stdout=subprocess.DEVNULL)
+def run_test_case(objective, guideline, model):
+    '''Returns True if the result of the test with the given prompt meets the given guideline for the given model.'''
+    # Run `operate` with the model to evaluate and the test case prompt
+    subprocess.run(['operate', '-m', model, '--prompt', f'"{objective}"'], stdout=subprocess.DEVNULL)
     
     try:
         result = evaluate_final_screenshot(guideline)
@@ -154,7 +154,7 @@ def main():
     for objective, guideline in TEST_CASES.items():
         print(f"{ANSI_BLUE}[EVALUATING]{ANSI_RESET} '{objective}'")
         
-        result = run_test_case(objective, guideline)
+        result = run_test_case(objective, guideline, model)
         if result:
             print(f"{ANSI_GREEN}[PASSED]{ANSI_RESET} '{objective}'")
             passed += 1
