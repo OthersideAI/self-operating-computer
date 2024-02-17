@@ -232,7 +232,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
             model="gpt-4-vision-preview",
             messages=messages,
             temperature=0.7,
-            max_tokens=1000,
+            max_tokens=3000,
         )
 
         content = response.choices[0].message.content
@@ -358,7 +358,7 @@ async def call_gpt_4_vision_preview_labeled(messages, objective, model):
             presence_penalty=1,
             frequency_penalty=1,
             temperature=0.7,
-            max_tokens=1000,
+            max_tokens=3000,
         )
 
         content = response.choices[0].message.content
