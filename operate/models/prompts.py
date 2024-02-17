@@ -16,34 +16,46 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
+```
 [{{ "thought": "write a thought here", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
+```
 
 2. write - Write with your keyboard
+```
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
+```
 
 3. press - Use a hotkey or press key to operate the computer
+```
 [{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
+```
 
 4. done - The objective is completed
+```
 [{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
 
 Here are some helpful combinations:
 
 # Opens Spotlight Search on Mac 
+```
 [
     {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
     {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
     {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
 ]
+```
 
 # Focuses on the address bar in a browser before typing a website
+```
 [
     {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": [{cmd_string}, "l"] }},
     {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
+```
 
 A few important notes: 
 
@@ -62,39 +74,50 @@ From looking at the screen, the objective, and your previous actions, take the n
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click - We labeled the clickable elements with red bounding boxes and IDs. Label IDs are in the following format with `x` being a number: `~x`
+```
 [{{ "thought": "write a thought here", "operation": "click", "label": "~x" }}]  # 'percent' refers to the percentage of the screen's dimensions in decimal format
-
+```
 2. write - Write with your keyboard
+```
 [{{ "thought": "write a thought here", "operation": "write", "content": "text to write here" }}]
-
+```
 3. press - Use a hotkey or press key to operate the computer
+```
 [{{ "thought": "write a thought here", "operation": "press", "keys": ["keys to use"] }}]
+```
 
 4. done - The objective is completed
+```
 [{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
-
+```
 Return the actions in array format `[]`. You can take just one action or multiple actions.
 
 Here are some helpful combinations:
 
 # Opens Spotlight Search on Mac 
+```
 [
     {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
     {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
 ]
+```
 
 # Focuses on the address bar in a browser before typing a website
+```
 [
     {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": [{cmd_string}, "l"] }},
     {{ "thought": "Now that the address bar is in focus I can type the URL", "operation": "write", "content": "https://news.ycombinator.com/" }},
     {{ "thought": "I'll need to press enter to go the URL now", "operation": "press", "keys": ["enter"] }}
 ]
+```
 
 # Send a "Hello World" message in the chat
+```
 [
     {{ "thought": "I see a messsage field on this page near the button. It looks like it has a label", "operation": "click", "label": "~34" }},
     {{ "thought": "Now that I am focused on the message field, I'll go ahead and write ", "operation": "write", "content": "Hello World" }},
 ]
+```
 
 A few important notes: 
 
@@ -226,7 +249,7 @@ def get_system_prompt(model, objective):
     # Optional verbose output
     if config.verbose:
         print("[get_system_prompt] model:", model)
-        print("[get_system_prompt] prompt:", prompt)
+    # print("[get_system_prompt] prompt:", prompt)
 
     return prompt
 
