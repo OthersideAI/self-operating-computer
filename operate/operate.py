@@ -29,6 +29,7 @@ from operate.models.apis import get_next_action
 config = Config()
 operating_system = OperatingSystem()
 
+
 def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     """
     Main function for the Self-Operating Computer.
@@ -89,7 +90,9 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
             print(f"{ANSI_RED}Error in capturing voice input: {e}{ANSI_RESET}")
             return  # Exit if voice input fails
     else:
-        print(f"{ANSI_GREEN}[Self-Operating Computer]\n{ANSI_RESET}{USER_QUESTION}")
+        print(
+            f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]\n{USER_QUESTION}"
+        )
         print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
         objective = prompt(style=style)
 
@@ -109,7 +112,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
                 get_next_action(model, messages, objective, session_id)
             )
 
-            stop = operate(operations)
+            stop = operate(operations, model)
             if stop:
                 break
 
@@ -128,7 +131,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
             break
 
 
-def operate(operations):
+def operate(operations, model):
     if config.verbose:
         print("[Self Operating Computer][operate]")
     for operation in operations:
@@ -161,11 +164,9 @@ def operate(operations):
             summary = operation.get("summary")
 
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Objective Completed {ANSI_RESET}"
+                f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]"
             )
-            print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BLUE} Summary {ANSI_RESET}{summary}"
-            )
+            print(f"{ANSI_BLUE}Objective Complete: {ANSI_RESET}{summary}\n")
             return True
 
         else:
@@ -178,10 +179,9 @@ def operate(operations):
             return True
 
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] Thought {ANSI_RESET} {operate_thought}"
+            f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]"
         )
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] {operate_type} {ANSI_RESET} {operate_detail}"
-        )
+        print(f"{operate_thought}")
+        print(f"{ANSI_BLUE}Action: {ANSI_RESET}{operate_type} {operate_detail}\n")
 
     return False
