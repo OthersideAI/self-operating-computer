@@ -233,7 +233,6 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
             messages=messages,
             temperature=0.7,
             max_tokens=1000,
-            stream=True,
         )
 
         content = response.choices[0].message.content
