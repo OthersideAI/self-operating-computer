@@ -37,9 +37,9 @@ You have 4 possible operation actions available to you. The `pyautogui` library 
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
 
-Here are some helpful combinations:
+Here a helpful example:
 
-# Opens Spotlight Search on Mac 
+Example 1: Searches for Google Chrome on the OS and opens it
 ```
 [
     {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
@@ -48,7 +48,7 @@ Here are some helpful combinations:
 ]
 ```
 
-# Focuses on the address bar in a browser before typing a website
+Example 2: Focuses on the address bar in a browser before typing a website
 ```
 [
     {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": [{cmd_string}, "l"] }},
@@ -92,9 +92,9 @@ You have 4 possible operation actions available to you. The `pyautogui` library 
 ```
 Return the actions in array format `[]`. You can take just one action or multiple actions.
 
-Here are some helpful combinations:
+Here a helpful example:
 
-# Opens Spotlight Search on Mac 
+Example 1: Searches for Google Chrome on the OS and opens it
 ```
 [
     {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
@@ -102,7 +102,7 @@ Here are some helpful combinations:
 ]
 ```
 
-# Focuses on the address bar in a browser before typing a website
+Example 2: Focuses on the address bar in a browser before typing a website
 ```
 [
     {{ "thought": "I'll focus on the address bar in the browser. I can see the browser is open so this should be safe to try", "operation": "press", "keys": [{cmd_string}, "l"] }},
@@ -111,7 +111,7 @@ Here are some helpful combinations:
 ]
 ```
 
-# Send a "Hello World" message in the chat
+Example 3: Send a "Hello World" message in the chat
 ```
 [
     {{ "thought": "I see a messsage field on this page near the button. It looks like it has a label", "operation": "click", "label": "~34" }},
