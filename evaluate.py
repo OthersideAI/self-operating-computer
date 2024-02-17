@@ -5,12 +5,13 @@ import platform
 import base64
 import json
 import openai
+import argparse
 
 from dotenv import load_dotenv
 
 # "Objective for `operate`" : "Guideline for passing this test case given to GPT-4v"
 TEST_CASES = {
-    "Go to Github.com": "The Github home page is visible.",
+    "Go to Github.com": "A Github page is visible.",
     "Go to Youtube.com and play a video": "The YouTube video player is visible.",
 }
 
@@ -110,10 +111,10 @@ def evaluate_final_screenshot(guideline):
         return parse_eval_content(eval_content)
 
 
-def run_test_case(objective, guideline):
-    '''Returns True if the result of the test with the given prompt meets the given guideline.'''
-    # Run `operate` with the test case prompt
-    subprocess.run(['operate', '--prompt', f'"{objective}"'], stdout=subprocess.DEVNULL)
+def run_test_case(objective, guideline, model):
+    '''Returns True if the result of the test with the given prompt meets the given guideline for the given model.'''
+    # Run `operate` with the model to evaluate and the test case prompt
+    subprocess.run(['operate', '-m', model, '--prompt', f'"{objective}"'], stdout=subprocess.DEVNULL)
     
     try:
         result = evaluate_final_screenshot(guideline)
@@ -124,17 +125,36 @@ def run_test_case(objective, guideline):
     return result
 
 
+def get_test_model():
+    parser = argparse.ArgumentParser(
+        description="Run the self-operating-computer with a specified model."
+    )
+    
+    parser.add_argument(
+        "-m",
+        "--model",
+        help="Specify the model to evaluate.",
+        required=False,
+        default="gpt-4-with-ocr",
+    )
+    
+    return parser.parse_args().model
+
+
 def main():
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
     
+    model = get_test_model()
+    
+    print(f"{ANSI_BLUE}[EVALUATING MODEL `{model}`]{ANSI_RESET}")
     print(f"{ANSI_BRIGHT_MAGENTA}[STARTING EVALUATION]{ANSI_RESET}")
 
     passed = 0; failed = 0
     for objective, guideline in TEST_CASES.items():
         print(f"{ANSI_BLUE}[EVALUATING]{ANSI_RESET} '{objective}'")
         
-        result = run_test_case(objective, guideline)
+        result = run_test_case(objective, guideline, model)
         if result:
             print(f"{ANSI_GREEN}[PASSED]{ANSI_RESET} '{objective}'")
             passed += 1
