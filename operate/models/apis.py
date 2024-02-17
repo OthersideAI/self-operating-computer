@@ -110,10 +110,7 @@ def call_gpt_4_vision_preview(messages):
 
         content = response.choices[0].message.content
 
-        if content.startswith("```json"):
-            content = content[len("```json") :]  # Remove starting ```json
-            if content.endswith("```"):
-                content = content[: -len("```")]  # Remove ending
+        content = clean_json(content)
 
         assistant_message = {"role": "assistant", "content": content}
         if config.verbose:
@@ -234,36 +231,16 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
         response = client.chat.completions.create(
             model="gpt-4-vision-preview",
             messages=messages,
-            presence_penalty=1,
-            frequency_penalty=1,
             temperature=0.7,
             max_tokens=1000,
+            stream=True,
         )
 
         content = response.choices[0].message.content
 
-        # Remove starting and ending backticks
-        if content.startswith("```json"):
-            content = content[
-                len("```json") :
-            ].strip()  # Remove starting ```json and trim whitespace
-        elif content.startswith("```"):
-            content = content[
-                len("```") :
-            ].strip()  # Remove starting ``` and trim whitespace
-        if content.endswith("```"):
-            content = content[
-                : -len("```")
-            ].strip()  # Remove ending ``` and trim whitespace
+        content = clean_json(content)
 
-        # Normalize line breaks and remove any unwanted characters
-        content = "\n".join(line.strip() for line in content.splitlines())
-
-        if config.verbose:
-            print(
-                "\n\n\n[call_gpt_4_vision_preview_ocr] content after cleaning", content
-            )
-
+        # used later for the messages
         content_str = content
 
         content = json.loads(content)
@@ -387,24 +364,26 @@ async def call_gpt_4_vision_preview_labeled(messages, objective, model):
 
         content = response.choices[0].message.content
 
-        if content.startswith("```json"):
-            content = content[len("```json") :]  # Remove starting ```json
-            if content.endswith("```"):
-                content = content[: -len("```")]  # Remove ending
+        content = clean_json(content)
 
         assistant_message = {"role": "assistant", "content": content}
+
+        messages.append(assistant_message)
+
+        content = json.loads(content)
         if config.verbose:
             print(
                 "[call_gpt_4_vision_preview_labeled] content",
                 content,
             )
-        messages.append(assistant_message)
-
-        content = json.loads(content)
 
         processed_content = []
 
         for operation in content:
+            print(
+                "[call_gpt_4_vision_preview_labeled] for operation in content",
+                operation,
+            )
             if operation.get("operation") == "click":
                 label = operation.get("label")
                 if config.verbose:
@@ -448,6 +427,12 @@ async def call_gpt_4_vision_preview_labeled(messages, objective, model):
                     )
                 processed_content.append(operation)
             else:
+                if config.verbose:
+                    print(
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] .append none click operation",
+                        operation,
+                    )
+
                 processed_content.append(operation)
 
             if config.verbose:
@@ -510,10 +495,7 @@ def call_ollama_llava(messages):
 
         content = response["message"]["content"].strip()
 
-        if content.startswith("```json"):
-            content = content[len("```json") :]  # Remove starting ```json
-            if content.endswith("```"):
-                content = content[: -len("```")]  # Remove ending
+        content = clean_json(content)
 
         assistant_message = {"role": "assistant", "content": content}
         if config.verbose:
@@ -599,3 +581,28 @@ def confirm_system_prompt(messages, objective, model):
                 print("[confirm_system_prompt][message] role", m["role"])
                 print("[confirm_system_prompt][message] content", m["content"])
                 print("------------------[end message]------------------")
+
+
+def clean_json(content):
+    if config.verbose:
+        print("\n\n[clean_json] content before cleaning", content)
+    if content.startswith("```json"):
+        content = content[
+            len("```json") :
+        ].strip()  # Remove starting ```json and trim whitespace
+    elif content.startswith("```"):
+        content = content[
+            len("```") :
+        ].strip()  # Remove starting ``` and trim whitespace
+    if content.endswith("```"):
+        content = content[
+            : -len("```")
+        ].strip()  # Remove ending ``` and trim whitespace
+
+    # Normalize line breaks and remove any unwanted characters
+    content = "\n".join(line.strip() for line in content.splitlines())
+
+    if config.verbose:
+        print("\n\n[clean_json] content after cleaning", content)
+
+    return content
