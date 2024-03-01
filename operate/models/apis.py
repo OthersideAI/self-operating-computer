@@ -1,36 +1,31 @@
+import base64
+import io
+import json
 import os
 import time
-import json
-import base64
 import traceback
-import io
+
 import easyocr
 import ollama
-
+import pkg_resources
 from PIL import Image
 from ultralytics import YOLO
 
 from operate.config import Config
 from operate.exceptions import ModelNotRecognizedException
-from operate.utils.screenshot import (
-    capture_screen_with_cursor,
-)
 from operate.models.prompts import (
+    get_system_prompt,
     get_user_first_message_prompt,
     get_user_prompt,
-    get_system_prompt,
 )
-from operate.utils.ocr import get_text_element, get_text_coordinates
-
-
 from operate.utils.label import (
     add_labels,
     get_click_position_in_percent,
     get_label_coordinates,
 )
-from operate.utils.style import ANSI_GREEN, ANSI_RED, ANSI_RESET, ANSI_BRIGHT_MAGENTA
-import pkg_resources
-
+from operate.utils.ocr import get_text_coordinates, get_text_element
+from operate.utils.screenshot import capture_screen_with_cursor
+from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
 
 # Load configuration
 config = Config()
@@ -456,6 +451,7 @@ def call_ollama_llava(messages):
         print("[call_ollama_llava]")
     time.sleep(1)
     try:
+        model = config.initialize_ollama()
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
@@ -482,7 +478,7 @@ def call_ollama_llava(messages):
         }
         messages.append(vision_message)
 
-        response = ollama.chat(
+        response = model.chat(
             model="llava",
             messages=messages,
         )
