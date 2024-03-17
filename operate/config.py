@@ -2,6 +2,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from openai import OpenAI
+import anthropic
 from prompt_toolkit.shortcuts import input_dialog
 import google.generativeai as genai
 
@@ -33,6 +34,10 @@ class Config:
         self.google_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
+        self.anthropic_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
+
 
     def initialize_openai(self):
         if self.verbose:
@@ -71,6 +76,14 @@ class Config:
         model = genai.GenerativeModel("gemini-pro-vision")
 
         return model
+    
+    def initialize_anthropic(self):
+        if self.anthropic_api_key:
+            api_key = self.anthropic_api_key
+        else:
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+        return anthropic.Anthropic(api_key=api_key)
+
 
     def validation(self, model, voice_mode):
         """
@@ -86,6 +99,9 @@ class Config:
         )
         self.require_api_key(
             "GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision"
+        )
+        self.require_api_key(
+            "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3-with-ocr"
         )
 
     def require_api_key(self, key_name, key_description, is_required):
