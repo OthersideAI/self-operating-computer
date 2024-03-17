@@ -263,7 +263,7 @@ async def call_gpt_4_vision_preview_ocr(messages, objective, model):
                 result = reader.readtext(screenshot_filename)
 
                 text_element_index = get_text_element(
-                    result, text_to_click[:3], screenshot_filename
+                    result, text_to_click, screenshot_filename
                 )
                 coordinates = get_text_coordinates(
                     result, text_element_index, screenshot_filename
@@ -546,6 +546,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
         capture_screen_with_cursor(screenshot_filename)
 
+        # downsize screenshot due to 5MB size limit
         with open(screenshot_filename, "rb") as img_file:
             img = Image.open(img_file)
             
@@ -582,7 +583,8 @@ async def call_claude_3_with_ocr(messages, objective, model):
                         "data": img_data,
                     },
                 },
-                {"type": "text", "text": user_prompt + "**REMEMBER** Only output json format, do not append any other text."},
+                {"type": "text", "text": user_prompt + 
+                 "**REMEMBER** Only output json format, do not append any other text."},
             ],
         }
         messages.append(vision_message)
@@ -600,6 +602,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
         content_str = content
         try:
             content = json.loads(content)
+        # rework for json mode output
         except json.JSONDecodeError as e:
             if config.verbose:
                 print(
@@ -609,7 +612,8 @@ async def call_claude_3_with_ocr(messages, objective, model):
                 model="claude-3-opus-20240229",
                 max_tokens=3000,
                 system=f"This json string is not valid, when using with json.loads(content) \
-                it throws the following error: {e}, return correct json string. **REMEMBER** Only output json format, do not append any other text.",
+                it throws the following error: {e}, return correct json string. \
+                **REMEMBER** Only output json format, do not append any other text.",
                 messages=[{"role": "user", "content": content}],
             )
             content = response.content[0].text
@@ -637,6 +641,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
                 # Read the screenshot
                 result = reader.readtext(screenshot_filename)
 
+                # limit the text to extract has a higher success rate
                 text_element_index = get_text_element(
                     result, text_to_click[:3], screenshot_filename
                 )
@@ -679,8 +684,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
         if config.verbose:
             print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
-        raise Exception(e)
-        #return gpt_4_fallback(messages, objective, model)
+        return gpt_4_fallback(messages, objective, model)
     
 
 def get_last_assistant_message(messages):
