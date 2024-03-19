@@ -549,21 +549,21 @@ async def call_claude_3_with_ocr(messages, objective, model):
         # downsize screenshot due to 5MB size limit
         with open(screenshot_filename, "rb") as img_file:
             img = Image.open(img_file)
-            
+
             # Calculate the new dimensions while maintaining the aspect ratio
             original_width, original_height = img.size
             aspect_ratio = original_width / original_height
             new_width = 2560  # Adjust this value to achieve the desired file size
             new_height = int(new_width / aspect_ratio)
-            
+
             # Resize the image
             img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-            
+
             # Save the resized image to a BytesIO object
             img_buffer = io.BytesIO()
-            img_resized.save(img_buffer, format='PNG')
+            img_resized.save(img_buffer, format="PNG")
             img_buffer.seek(0)
-            
+
             # Encode the resized image as base64
             img_data = base64.b64encode(img_buffer.getvalue()).decode("utf-8")
 
@@ -583,8 +583,11 @@ async def call_claude_3_with_ocr(messages, objective, model):
                         "data": img_data,
                     },
                 },
-                {"type": "text", "text": user_prompt + 
-                 "**REMEMBER** Only output json format, do not append any other text."},
+                {
+                    "type": "text",
+                    "text": user_prompt
+                    + "**REMEMBER** Only output json format, do not append any other text.",
+                },
             ],
         }
         messages.append(vision_message)
@@ -671,7 +674,6 @@ async def call_claude_3_with_ocr(messages, objective, model):
             else:
                 processed_content.append(operation)
 
-
         assistant_message = {"role": "assistant", "content": content_str}
         messages.append(assistant_message)
 
@@ -684,8 +686,35 @@ async def call_claude_3_with_ocr(messages, objective, model):
         if config.verbose:
             print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
-        return gpt_4_fallback(messages, objective, model)
-    
+            print("message before convertion ", messages)
+
+        # Convert the messages to the GPT-4 format
+        gpt4_messages = [messages[0]]  # Include the system message
+        for message in messages[1:]:
+            if message["role"] == "user":
+                # Update the image type format from "source" to "url"
+                updated_content = []
+                for item in message["content"]:
+                    if isinstance(item, dict) and "type" in item:
+                        if item["type"] == "image":
+                            updated_content.append(
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/png;base64,{item['source']['data']}"
+                                    },
+                                }
+                            )
+                        else:
+                            updated_content.append(item)
+
+                gpt4_messages.append({"role": "user", "content": updated_content})
+            elif message["role"] == "assistant":
+                gpt4_messages.append(
+                    {"role": "assistant", "content": message["content"]}
+                )
+
+        return gpt_4_fallback(gpt4_messages, objective, model)
 
 def get_last_assistant_message(messages):
     """
