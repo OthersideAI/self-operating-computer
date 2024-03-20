@@ -55,7 +55,7 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "llava":
         operation = call_ollama_llava(messages)
         return operation, None
-    if model == "claude-3-with-ocr":
+    if model == "claude-3":
         operation = await call_claude_3_with_ocr(messages, objective, model)
         return operation, None
     raise ModelNotRecognizedException(model)
@@ -715,6 +715,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
                 )
 
         return gpt_4_fallback(gpt4_messages, objective, model)
+
 
 def get_last_assistant_message(messages):
     """
