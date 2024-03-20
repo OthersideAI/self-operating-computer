@@ -70,6 +70,13 @@ operate -m gemini-pro-vision
 
 **Enter your Google AI Studio API key when terminal prompts you for it** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR.
 
+#### Try Claude `-m claude`
+Use Claude 3 with Vision to see how it stacks up to GPT-4-Vision at operating a computer. Navigate to the [Claude dashboard](https://console.anthropic.com/dashboard) to get an API key and run the command below to try it. 
+
+```
+operate -m claude
+```
+
 ### Locally Hosted LLaVA Through Ollama
 If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
 *Note: Ollama currently only supports MacOS and Linux*   
