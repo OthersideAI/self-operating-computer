@@ -58,24 +58,6 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
-### Alternatively installation with `.sh`
-
-1. **Clone the repo** to a directory on your computer:
-```
-git clone https://github.com/OthersideAI/self-operating-computer.git
-```
-2. **Cd into directory**:
-
-```
-cd self-operating-computer
-```
-
-3. **Run the installation script**: 
-
-```
-./run.sh
-```
-
 ## Using `operate` Modes
 
 ### Multimodal Models  `-m`
