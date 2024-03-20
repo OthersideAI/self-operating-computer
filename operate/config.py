@@ -38,7 +38,6 @@ class Config:
             None  # instance variables are backups in case saving to a `.env` fails
         )
 
-
     def initialize_openai(self):
         if self.verbose:
             print("[Config][initialize_openai]")
@@ -76,14 +75,13 @@ class Config:
         model = genai.GenerativeModel("gemini-pro-vision")
 
         return model
-    
+
     def initialize_anthropic(self):
         if self.anthropic_api_key:
             api_key = self.anthropic_api_key
         else:
             api_key = os.getenv("ANTHROPIC_API_KEY")
         return anthropic.Anthropic(api_key=api_key)
-
 
     def validation(self, model, voice_mode):
         """
@@ -101,7 +99,7 @@ class Config:
             "GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision"
         )
         self.require_api_key(
-            "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3-with-ocr"
+            "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
         )
 
     def require_api_key(self, key_name, key_description, is_required):
@@ -127,6 +125,8 @@ class Config:
                 self.openai_api_key = key_value
             elif key_name == "GOOGLE_API_KEY":
                 self.google_api_key = key_value
+            elif key_name == "ANTHROPIC_API_KEY":
+                self.anthropic_api_key = key_value
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
             # Update the instance attribute with the new key
