@@ -555,6 +555,8 @@ async def call_claude_3_with_ocr(messages, objective, model):
             aspect_ratio = original_width / original_height
             new_width = 2560  # Adjust this value to achieve the desired file size
             new_height = int(new_width / aspect_ratio)
+            if config.verbose:
+                print("[call_claude_3_with_ocr] resizing claude")
 
             # Resize the image
             img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)

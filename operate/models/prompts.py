@@ -72,7 +72,6 @@ You are operating a {operating_system} computer, using the same operating system
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
 
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
-**REMEMBER** Only output json format, do not append any other text.
 
 1. click - Move mouse and click - We labeled the clickable elements with red bounding boxes and IDs. Label IDs are in the following format with `x` being a number: `~x`
 ```
