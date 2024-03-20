@@ -128,6 +128,7 @@ Objective: {objective}
 """
 
 
+# TODO: Add an example or instruction about `Action: press ['pagedown']` to scroll
 SYSTEM_PROMPT_OCR = """
 You are operating a {operating_system} computer, using the same operating system as a human.
 
