@@ -238,6 +238,13 @@ def get_system_prompt(model, objective):
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
+    elif model == "claude-3-with-ocr":
+        prompt = SYSTEM_PROMPT_OCR.format(
+            objective=objective,
+            cmd_string=cmd_string,
+            os_search_str=os_search_str,
+            operating_system=operating_system,
+        )
     else:
         prompt = SYSTEM_PROMPT_STANDARD.format(
             objective=objective,
