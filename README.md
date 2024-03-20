@@ -77,7 +77,7 @@ Use Claude 3 with Vision to see how it stacks up to GPT-4-Vision at operating a 
 operate -m claude
 ```
 
-### Locally Hosted LLaVA Through Ollama
+#### Try LLaVa Hosted Through Ollama `-m llava`
 If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
 *Note: Ollama currently only supports MacOS and Linux*   
 
