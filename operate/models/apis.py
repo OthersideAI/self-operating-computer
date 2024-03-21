@@ -550,6 +550,10 @@ async def call_claude_3_with_ocr(messages, objective, model):
         with open(screenshot_filename, "rb") as img_file:
             img = Image.open(img_file)
 
+            # Convert RGBA to RGB
+            if img.mode == "RGBA":
+                img = img.convert("RGB")
+
             # Calculate the new dimensions while maintaining the aspect ratio
             original_width, original_height = img.size
             aspect_ratio = original_width / original_height
@@ -561,9 +565,11 @@ async def call_claude_3_with_ocr(messages, objective, model):
             # Resize the image
             img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
-            # Save the resized image to a BytesIO object
+            # Save the resized and converted image to a BytesIO object for JPEG format
             img_buffer = io.BytesIO()
-            img_resized.save(img_buffer, format="PNG")
+            img_resized.save(
+                img_buffer, format="JPEG", quality=85
+            )  # Adjust the quality parameter as needed
             img_buffer.seek(0)
 
             # Encode the resized image as base64
@@ -581,7 +587,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
                     "type": "image",
                     "source": {
                         "type": "base64",
-                        "media_type": "image/png",
+                        "media_type": "image/jpeg",
                         "data": img_data,
                     },
                 },
