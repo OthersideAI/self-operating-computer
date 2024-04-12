@@ -232,7 +232,7 @@ def get_system_prompt(model, objective):
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
-    elif model == "gpt-4-with-ocr":
+    elif model == "gpt-4-with-ocr" or model == "gpt-4-new-with-ocr":
         prompt = SYSTEM_PROMPT_OCR.format(
             objective=objective,
             cmd_string=cmd_string,
