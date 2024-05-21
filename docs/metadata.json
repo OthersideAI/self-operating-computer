@@ -1,0 +1,95 @@
+{
+    "url": {
+        "full": "https://github.com/OthersideAI/self-operating-computer",
+        "partial": "OthersideAI/self-operating-computer"
+    },
+    "file_mapping": {
+        "0": {
+            "filepath": "/README.md",
+            "entry_id": 0,
+            "language_id": "markdown"
+        },
+        "1": {
+            "filepath": "/evaluate.py",
+            "entry_id": 16,
+            "language_id": "python"
+        },
+        "2": {
+            "filepath": "/operate/actions.py",
+            "entry_id": 28,
+            "language_id": "python"
+        },
+        "3": {
+            "filepath": "/operate/dialog.py",
+            "entry_id": 56,
+            "language_id": "python"
+        },
+        "4": {
+            "filepath": "/operate/exceptions.py",
+            "entry_id": 70,
+            "language_id": "python"
+        },
+        "5": {
+            "filepath": "/operate/main.py",
+            "entry_id": 74,
+            "language_id": "python"
+        },
+        "6": {
+            "filepath": "/operate/prompts.py",
+            "entry_id": 78,
+            "language_id": "python"
+        },
+        "7": {
+            "filepath": "/operate/settings.py",
+            "entry_id": 98,
+            "language_id": "python"
+        },
+        "8": {
+            "filepath": "/operate/utils/label.py",
+            "entry_id": 104,
+            "language_id": "python"
+        },
+        "9": {
+            "filepath": "/operate/utils/misc.py",
+            "entry_id": 120,
+            "language_id": "python"
+        },
+        "10": {
+            "filepath": "/operate/utils/os.py",
+            "entry_id": 130,
+            "language_id": "python"
+        },
+        "11": {
+            "filepath": "/operate/utils/screenshot.py",
+            "entry_id": 140,
+            "language_id": "python"
+        },
+        "12": {
+            "filepath": "/operate/utils/style.py",
+            "entry_id": 156,
+            "language_id": "python"
+        },
+        "13": {
+            "filepath": "/requirements-audio.txt",
+            "entry_id": 162,
+            "language_id": "plain-text"
+        },
+        "14": {
+            "filepath": "/requirements.txt",
+            "entry_id": 166,
+            "language_id": "plain-text"
+        },
+        "15": {
+            "filepath": "/run.sh",
+            "entry_id": 172,
+            "language_id": "shell"
+        },
+        "16": {
+            "filepath": "/setup.py",
+            "entry_id": 184,
+            "language_id": "python"
+        }
+    },
+    "project_name": "self-operating-computer",
+    "split_count": 2
+}

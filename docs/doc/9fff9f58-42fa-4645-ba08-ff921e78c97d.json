@@ -1,0 +1,15 @@
+{
+    "summary": "The configuration class manages settings like debug mode, API keys, and monitor size. It loads environment variables from .env file and initializes OpenAI client with provided API key. The OpenAI API base URL is set using an environment variable or current value.",
+    "details": [
+        {
+            "comment": "This code defines a configuration class for managing settings such as debug mode, OpenAI and Google API keys, and monitor size. It loads environment variables from .env file using dotenv library, initializes OpenAI client if the API key is provided, and returns it or None otherwise.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/operate/settings.py\":0-35",
+            "content": "import os\nfrom dotenv import load_dotenv\nfrom openai import OpenAI\nclass Config:\n    \"\"\"\n    Configuration class for managing settings.\n    Attributes:\n        debug (bool): Flag indicating whether debug mode is enabled.\n        openai_api_key (str): API key for OpenAI.\n        google_api_key (str): API key for Google.\n        monitor_size (dict): Dictionary containing the width and height of the monitor.\n    \"\"\"\n    def __init__(self):\n        load_dotenv()\n        self.debug = False\n        self.openai_api_key = os.getenv(\"OPENAI_API_KEY\")\n        self.google_api_key = os.getenv(\"GOOGLE_API_KEY\")\n        self.monitor_size = {\n            \"width\": 1920,\n            \"height\": 1080,\n        }\n    def initialize_openai_client(self):\n        \"\"\"\n        Initializes and returns an OpenAI client with the configured API key.\n        Returns:\n            OpenAI or None: An instance of the OpenAI client if the API key is provided, else None.\n        \"\"\"\n        if self.openai_api_key:\n            client = OpenAI()\n            client.api_key = self.openai_api_key"
+        },
+        {
+            "comment": "Setting OpenAI API base URL from environment variable or using current value.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/operate/settings.py\":36-38",
+            "content": "            client.base_url = os.getenv(\"OPENAI_API_BASE_URL\", client.base_url)\n            return client\n        return None"
+        }
+    ]
+}
