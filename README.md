@@ -19,7 +19,7 @@
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4v, Gemini Pro Vision, Claude 3 and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, Gemini Pro Vision, Claude 3 and LLaVa.**
 - **Future Plans**: Support for additional models.
 
 ## Ongoing Development
