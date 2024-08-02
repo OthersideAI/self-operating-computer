@@ -27,7 +27,7 @@ jobs:
         twine check dist/*
         
     - name: Upload to PyPi
-      uses: pypa/gh-action-pypi-publish@v1.4.2
+      uses: pypa/gh-action-pypi-publish@auto
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
