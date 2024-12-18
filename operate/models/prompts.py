@@ -232,20 +232,15 @@ def get_system_prompt(model, objective):
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
-    elif model == "gpt-4-with-ocr":
+    elif model == "gpt-4-with-ocr" or model == "o1-with-ocr" or model == "claude-3":
+        print("adding SYSTEM_PROMPT_OCR")
         prompt = SYSTEM_PROMPT_OCR.format(
             objective=objective,
             cmd_string=cmd_string,
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
-    elif model == "claude-3":
-        prompt = SYSTEM_PROMPT_OCR.format(
-            objective=objective,
-            cmd_string=cmd_string,
-            os_search_str=os_search_str,
-            operating_system=operating_system,
-        )
+
     else:
         prompt = SYSTEM_PROMPT_STANDARD.format(
             objective=objective,
