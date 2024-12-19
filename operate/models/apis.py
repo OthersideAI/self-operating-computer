@@ -110,7 +110,6 @@ def call_gpt_4o(messages):
             presence_penalty=1,
             frequency_penalty=1,
             temperature=0.7,
-            max_tokens=3000,
         )
 
         content = response.choices[0].message.content
@@ -237,7 +236,6 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
             model="o1",
             messages=messages,
             temperature=0.7,
-            max_tokens=3000,
         )
 
         content = response.choices[0].message.content
@@ -352,7 +350,6 @@ async def call_o1_with_ocr(messages, objective, model):
             model="gpt-4o",
             messages=messages,
             temperature=0.7,
-            max_tokens=3000,
         )
 
         content = response.choices[0].message.content
@@ -478,7 +475,6 @@ async def call_gpt_4o_labeled(messages, objective, model):
             presence_penalty=1,
             frequency_penalty=1,
             temperature=0.7,
-            max_tokens=3000,
         )
 
         content = response.choices[0].message.content
