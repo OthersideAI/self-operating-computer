@@ -9,8 +9,8 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
     long_description = readme_file.read()
 
 setup(
-    name="self-operating-computer",
-    version="1.5.3",
+    name="self_operating_computer",
+    version="1.5.4",
     packages=find_packages(),
     install_requires=required,  # Add dependencies here
     entry_points={
