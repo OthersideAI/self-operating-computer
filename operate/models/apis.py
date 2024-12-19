@@ -109,7 +109,6 @@ def call_gpt_4o(messages):
             messages=messages,
             presence_penalty=1,
             frequency_penalty=1,
-            temperature=0.7,
         )
 
         content = response.choices[0].message.content
@@ -235,7 +234,6 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
         response = client.chat.completions.create(
             model="o1",
             messages=messages,
-            temperature=0.7,
         )
 
         content = response.choices[0].message.content
@@ -349,7 +347,6 @@ async def call_o1_with_ocr(messages, objective, model):
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
-            temperature=0.7,
         )
 
         content = response.choices[0].message.content
@@ -474,7 +471,6 @@ async def call_gpt_4o_labeled(messages, objective, model):
             messages=messages,
             presence_penalty=1,
             frequency_penalty=1,
-            temperature=0.7,
         )
 
         content = response.choices[0].message.content
