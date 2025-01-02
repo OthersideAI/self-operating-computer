@@ -5,6 +5,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from ollama import Client
 from openai import OpenAI
+import anthropic
 from prompt_toolkit.shortcuts import input_dialog
 
 
@@ -38,6 +39,10 @@ class Config:
         )
         self.ollama_host = (
             None # instance variables are backups in case savint to a `.env` fails
+
+        self.anthropic_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+
         )
 
     def initialize_openai(self):
@@ -91,6 +96,13 @@ class Config:
         model = Client(host=self.ollama_host)
         return model
 
+    def initialize_anthropic(self):
+        if self.anthropic_api_key:
+            api_key = self.anthropic_api_key
+        else:
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+        return anthropic.Anthropic(api_key=api_key)
+
     def validation(self, model, voice_mode):
         """
         Validate the input parameters for the dialog operation.
@@ -101,10 +113,14 @@ class Config:
             model == "gpt-4"
             or voice_mode
             or model == "gpt-4-with-som"
-            or model == "gpt-4-with-ocr",
+            or model == "gpt-4-with-ocr"
+            or model == "o1-with-ocr",
         )
         self.require_api_key(
             "GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision"
+        )
+        self.require_api_key(
+            "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
         )
 
     def require_api_key(self, key_name, key_description, is_required):
@@ -130,6 +146,8 @@ class Config:
                 self.openai_api_key = key_value
             elif key_name == "GOOGLE_API_KEY":
                 self.google_api_key = key_value
+            elif key_name == "ANTHROPIC_API_KEY":
+                self.anthropic_api_key = key_value
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
             # Update the instance attribute with the new key

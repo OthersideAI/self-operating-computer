@@ -128,6 +128,7 @@ Objective: {objective}
 """
 
 
+# TODO: Add an example or instruction about `Action: press ['pagedown']` to scroll
 SYSTEM_PROMPT_OCR = """
 You are operating a {operating_system} computer, using the same operating system as a human.
 
@@ -231,13 +232,15 @@ def get_system_prompt(model, objective):
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
-    elif model == "gpt-4-with-ocr":
+    elif model == "gpt-4-with-ocr" or model == "o1-with-ocr" or model == "claude-3":
+
         prompt = SYSTEM_PROMPT_OCR.format(
             objective=objective,
             cmd_string=cmd_string,
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
+
     else:
         prompt = SYSTEM_PROMPT_STANDARD.format(
             objective=objective,

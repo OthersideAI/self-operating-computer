@@ -12,14 +12,14 @@
 </div>
 
 <!--
-:rotating_light: **OUTAGE NOTIFICATION: gpt-4-vision-preview**
+:rotating_light: **OUTAGE NOTIFICATION: gpt-4o**
 **This model is currently experiencing an outage so the self-operating computer may not work as expected.**
 -->
 
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4v, Gemini Pro Vision, and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, Gemini Pro Vision, Claude 3 and LLaVa.**
 - **Future Plans**: Support for additional models.
 
 ## Ongoing Development
@@ -45,7 +45,7 @@ pip install self-operating-computer
 ```
 operate
 ```
-3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys)
+3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
 
 <div align="center">
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
@@ -57,24 +57,6 @@ operate
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
   <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
-
-### Alternatively installation with `.sh`
-
-1. **Clone the repo** to a directory on your computer:
-```
-git clone https://github.com/OthersideAI/self-operating-computer.git
-```
-2. **Cd into directory**:
-
-```
-cd self-operating-computer
-```
-
-3. **Run the installation script**: 
-
-```
-./run.sh
-```
 
 ## Using `operate` Modes
 
@@ -88,7 +70,14 @@ operate -m gemini-pro-vision
 
 **Enter your Google AI Studio API key when terminal prompts you for it** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR.
 
-### Locally Hosted LLaVA Through Ollama
+#### Try Claude `-m claude-3`
+Use Claude 3 with Vision to see how it stacks up to GPT-4-Vision at operating a computer. Navigate to the [Claude dashboard](https://console.anthropic.com/dashboard) to get an API key and run the command below to try it. 
+
+```
+operate -m claude-3
+```
+
+#### Try LLaVa Hosted Through Ollama `-m llava`
 If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
 *Note: Ollama currently only supports MacOS and Linux*   
 
@@ -187,5 +176,5 @@ Stay updated with the latest developments:
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
 
 ## OpenAI Rate Limiting Note
-The ```gpt-4-vision-preview``` model is required. To unlock access to this model, your account needs to spend at least \$5 in API credits. Pre-paying for these credits will unlock access if you haven't already spent the minimum \$5.   
+The ```gpt-4o``` model is required. To unlock access to this model, your account needs to spend at least \$5 in API credits. Pre-paying for these credits will unlock access if you haven't already spent the minimum \$5.   
 Learn more **[here](https://platform.openai.com/docs/guides/rate-limits?context=tier-one)**
