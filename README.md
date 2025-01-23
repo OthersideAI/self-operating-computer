@@ -52,7 +52,7 @@ operate
 
 ## Using `operate` Modes
 
-#### Try OpenAI models
+#### OpenAI models
 
 The default model for the project is gpt-4o. Which is run by simply typing `operate`. To try running OpenAI's new `o1` model, use the command below. 
 
