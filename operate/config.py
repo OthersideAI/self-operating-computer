@@ -1,10 +1,12 @@
 import os
 import sys
+
+import google.generativeai as genai
 from dotenv import load_dotenv
+from ollama import Client
 from openai import OpenAI
 import anthropic
 from prompt_toolkit.shortcuts import input_dialog
-import google.generativeai as genai
 
 
 class Config:
@@ -15,6 +17,7 @@ class Config:
         verbose (bool): Flag indicating whether verbose mode is enabled.
         openai_api_key (str): API key for OpenAI.
         google_api_key (str): API key for Google.
+        ollama_host (str): url to ollama running remotely.
     """
 
     _instance = None
@@ -33,6 +36,9 @@ class Config:
         )
         self.google_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
+        )
+        self.ollama_host = (
+            None  # instance variables are backups in case savint to a `.env` fails
         )
         self.anthropic_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
@@ -74,6 +80,19 @@ class Config:
         genai.configure(api_key=api_key, transport="rest")
         model = genai.GenerativeModel("gemini-pro-vision")
 
+        return model
+
+    def initialize_ollama(self):
+        if self.ollama_host:
+            if self.verbose:
+                print("[Config][initialize_ollama] using cached ollama host")
+        else:
+            if self.verbose:
+                print(
+                    "[Config][initialize_ollama] no cached ollama host. Assuming ollama running locally."
+                )
+            self.ollama_host = os.getenv("OLLAMA_HOST", None)
+        model = Client(host=self.ollama_host)
         return model
 
     def initialize_anthropic(self):
