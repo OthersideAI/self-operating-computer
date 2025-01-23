@@ -1,10 +1,11 @@
+ome
 <h1 align="center">Self-Operating Computer Framework</h1>
 
 <p align="center">
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
 <p align="center">
-  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. 
+  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Self-Operating Computer was the first project to use a VLM to operate a computer. 
 </p>
 
 <div align="center">
@@ -19,19 +20,10 @@
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4o, Gemini Pro Vision, Claude 3 and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, o1, Gemini Pro Vision, Claude 3 and LLaVa.**
 - **Future Plans**: Support for additional models.
 
-## Ongoing Development
-At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
-
-## Agent-1-Vision Model API Access
-We will soon be offering API access to our Agent-1-Vision model.
-
-If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
-
 ## Demo
-
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
@@ -60,10 +52,17 @@ operate
 
 ## Using `operate` Modes
 
-### Multimodal Models  `-m`
-An additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. 
+#### OpenAI models
 
-Start `operate` with the Gemini model
+The default model for the project is gpt-4o which you can use by simply typing `operate`. To try running OpenAI's new `o1` model, use the command below. 
+
+```
+operate -m o1-with-ocr
+```
+
+
+### Multimodal Models  `-m`
+Try Google's `gemini-pro-vision` by following the instructions below. Start `operate` with the Gemini model
 ```
 operate -m gemini-pro-vision
 ```
