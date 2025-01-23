@@ -38,11 +38,10 @@ class Config:
             None  # instance variables are backups in case saving to a `.env` fails
         )
         self.ollama_host = (
-            None # instance variables are backups in case savint to a `.env` fails
-
+            None  # instance variables are backups in case savint to a `.env` fails
+        )
         self.anthropic_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
-
         )
 
     def initialize_openai(self):
@@ -82,7 +81,7 @@ class Config:
         model = genai.GenerativeModel("gemini-pro-vision")
 
         return model
-    
+
     def initialize_ollama(self):
         if self.ollama_host:
             if self.verbose:
