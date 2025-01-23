@@ -1,3 +1,4 @@
+ome
 <h1 align="center">Self-Operating Computer Framework</h1>
 
 <p align="center">
@@ -19,7 +20,7 @@
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4o, Gemini Pro Vision, Claude 3 and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, o1,th Gemini Pro Vision, Claude 3 and LLaVa.**
 - **Future Plans**: Support for additional models.
 
 ## Ongoing Development
