@@ -5,7 +5,7 @@ ome
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
 <p align="center">
-  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. 
+  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Self-Operating Computer was the first example of using a VLM to operate a computer. 
 </p>
 
 <div align="center">
