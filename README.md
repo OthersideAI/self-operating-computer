@@ -78,7 +78,7 @@ operate -m claude-3
 
 #### Try LLaVa Hosted Through Ollama `-m llava`
 If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
-*Note: Ollama currently only supports MacOS and Linux*   
+*Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
 
 First, install Ollama on your machine from https://ollama.ai/download.   
 
