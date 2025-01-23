@@ -62,9 +62,7 @@ operate -m o1-with-ocr
 
 
 ### Multimodal Models  `-m`
-An additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. 
-
-Start `operate` with the Gemini model
+Try Google's `gemini-pro-vision` by following the instructions below. Start `operate` with the Gemini model
 ```
 operate -m gemini-pro-vision
 ```
