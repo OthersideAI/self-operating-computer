@@ -20,19 +20,10 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4o, o1,th Gemini Pro Vision, Claude 3 and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, o1, Gemini Pro Vision, Claude 3 and LLaVa.**
 - **Future Plans**: Support for additional models.
 
-## Ongoing Development
-At [HyperwriteAI](https://www.hyperwriteai.com/), we are developing Agent-1-Vision a multimodal model with more accurate click location predictions.
-
-## Agent-1-Vision Model API Access
-We will soon be offering API access to our Agent-1-Vision model.
-
-If you're interested in gaining access to this API, sign up [here](https://othersideai.typeform.com/to/FszaJ1k8?typeform-source=www.hyperwriteai.com).
-
 ## Demo
-
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
@@ -60,6 +51,15 @@ operate
 </div>
 
 ## Using `operate` Modes
+
+#### Try OpenAI models
+
+The default model for the project is gpt-4o. Which is run by simply typing `operate`. To try running OpenAI's new `o1` model, use the command below. 
+
+```
+operate -m o1-with-ocr
+```
+
 
 ### Multimodal Models  `-m`
 An additional model is now compatible with the Self Operating Computer Framework. Try Google's `gemini-pro-vision` by following the instructions below. 
