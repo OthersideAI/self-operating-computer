@@ -563,7 +563,7 @@ def call_ollama_llava(messages):
         print("[call_ollama_llava]")
     time.sleep(1)
     try:
-        model = config.initialize_ollama()
+        client = config.initialize_ollama()
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
@@ -590,7 +590,7 @@ def call_ollama_llava(messages):
         }
         messages.append(vision_message)
 
-        response = model.chat(
+        response = client.chat(
             model="llava",
             messages=messages,
         )
