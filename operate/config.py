@@ -85,15 +85,15 @@ class Config:
     def initialize_ollama(self):
         if self.ollama_host:
             if self.verbose:
-                print("[Config][initialize_ollama] using cached ollama host")
+                print("[Config][initialize_ollama] using ollama host", self.ollama_host)
         else:
             if self.verbose:
                 print(
                     "[Config][initialize_ollama] no cached ollama host. Assuming ollama running locally."
                 )
-            self.ollama_host = os.getenv("OLLAMA_HOST", None)
-        model = Client(host=self.ollama_host)
-        return model
+            self.ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+        client = Client(host=self.ollama_host)
+        return client
 
     def initialize_anthropic(self):
         if self.anthropic_api_key:
