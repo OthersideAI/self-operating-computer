@@ -137,7 +137,7 @@ def operate(operations, model):
     for operation in operations:
         if config.verbose:
             print("[Self Operating Computer][operate] operation", operation)
-        # wait one second
+        # wait one second before processing each operation
         time.sleep(1)
         operate_type = operation.get("operation").lower()
         operate_thought = operation.get("thought")
@@ -158,17 +158,19 @@ def operate(operations, model):
             y = operation.get("y")
             click_detail = {"x": x, "y": y}
             operate_detail = click_detail
-
             operating_system.mouse(click_detail)
         elif operate_type == "done":
             summary = operation.get("summary")
-
             print(
                 f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]"
             )
             print(f"{ANSI_BLUE}Objective Complete: {ANSI_RESET}{summary}\n")
             return True
-
+        elif operate_type == "wait" or operate_type == "none":
+            print(
+                f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BLUE} Waiting for 5 seconds...{ANSI_RESET}]"
+            )
+            time.sleep(5)
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"
