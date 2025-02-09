@@ -76,28 +76,28 @@ Use Claude 3 with Vision to see how it stacks up to GPT-4-Vision at operating a 
 operate -m claude-3
 ```
 
-#### Try LLaVa Hosted Through Ollama `-m llava`
-If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
+#### Try a model Hosted Through Ollama `-m llama3.2-vision`
+If you wish to experiment with the Self-Operating Computer Framework using e.g. LLaVA on your own machine, you can with Ollama!   
 *Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
 
 First, install Ollama on your machine from https://ollama.ai/download.   
 
-Once Ollama is installed, pull the LLaVA model:
+Once Ollama is installed, pull the vision model:
 ```
-ollama pull llava
+ollama pull llama3.2-vision
 ```
 This will download the model on your machine which takes approximately 5 GB of storage.   
 
-When Ollama has finished pulling LLaVA, start the server:
+When Ollama has finished pulling llama3.2-vision, start the server:
 ```
 ollama serve
 ```
 
-That's it! Now start `operate` and select the LLaVA model:
+That's it! Now start `operate` and select the model:
 ```
-operate -m llava
+operate -m llama3.2-vision
 ```   
-**Important:** Error rates when using LLaVA are very high. This is simply intended to be a base to build off of as local multimodal models improve over time.
+**Important:** Error rates when using self-hosted models are very high. This is simply intended to be a base to build off of as local multimodal models improve over time.
 
 Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
 

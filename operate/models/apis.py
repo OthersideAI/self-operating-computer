@@ -50,14 +50,11 @@ async def get_next_action(model, messages, objective, session_id):
         return "coming soon"
     if model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective), None
-    if model == "llava":
-        operation = call_ollama_llava(messages)
-        return operation, None
     if model == "claude-3":
         operation = await call_claude_3_with_ocr(messages, objective, model)
         return operation, None
-    raise ModelNotRecognizedException(model)
-
+    operation = call_ollama(model, messages)
+    return operation, None
 
 def call_gpt_4o(messages):
     if config.verbose:
@@ -557,10 +554,9 @@ async def call_gpt_4o_labeled(messages, objective, model):
             traceback.print_exc()
         return call_gpt_4o(messages)
 
-
-def call_ollama_llava(messages):
+def call_ollama(model, messages):
     if config.verbose:
-        print("[call_ollama_llava]")
+        print(f"[call_ollama] model {model}")
     time.sleep(1)
     try:
         model = config.initialize_ollama()
@@ -579,7 +575,7 @@ def call_ollama_llava(messages):
 
         if config.verbose:
             print(
-                "[call_ollama_llava] user_prompt",
+                "[call_ollama] user_prompt",
                 user_prompt,
             )
 
@@ -590,8 +586,8 @@ def call_ollama_llava(messages):
         }
         messages.append(vision_message)
 
-        response = model.chat(
-            model="llava",
+        response = ollama.chat(
+            model=model,
             messages=messages,
         )
 
@@ -607,7 +603,7 @@ def call_ollama_llava(messages):
         assistant_message = {"role": "assistant", "content": content}
         if config.verbose:
             print(
-                "[call_ollama_llava] content",
+                "[call_ollama] content",
                 content,
             )
         content = json.loads(content)
@@ -624,7 +620,7 @@ def call_ollama_llava(messages):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[llava] That did not work. Trying again {ANSI_RESET}",
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[{model}] That did not work. Trying again {ANSI_RESET}",
             e,
         )
         print(
@@ -633,7 +629,7 @@ def call_ollama_llava(messages):
         )
         if config.verbose:
             traceback.print_exc()
-        return call_ollama_llava(messages)
+        return call_ollama(model, messages)
 
 
 async def call_claude_3_with_ocr(messages, objective, model):
