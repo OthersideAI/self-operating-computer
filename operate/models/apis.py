@@ -626,7 +626,7 @@ def call_ollama_llava(messages, model):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[llava] That did not work. Trying again {ANSI_RESET}",
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[{model}] That did not work. Trying again {ANSI_RESET}",
             e,
         )
         print(
