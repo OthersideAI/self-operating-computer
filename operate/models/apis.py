@@ -50,8 +50,8 @@ async def get_next_action(model, messages, objective, session_id):
         return "coming soon"
     if model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective), None
-    if model == "llava":
-        operation = call_ollama_llava(messages)
+    if model == "llava" or model == "llava:13b" or "bakllava" or "llava-llama3":
+        operation = call_ollama_llava(messages, model)
         return operation, None
     if model == "claude-3":
         operation = await call_claude_3_with_ocr(messages, objective, model)
@@ -558,9 +558,11 @@ async def call_gpt_4o_labeled(messages, objective, model):
         return call_gpt_4o(messages)
 
 
-def call_ollama_llava(messages):
+def call_ollama_llava(messages, model):
+    if model == "":
+        model = "llava"
     if config.verbose:
-        print("[call_ollama_llava]")
+        print(f"[call_ollama_llava] model {model}")
     time.sleep(1)
     try:
         model = config.initialize_ollama()
@@ -590,8 +592,8 @@ def call_ollama_llava(messages):
         }
         messages.append(vision_message)
 
-        response = model.chat(
-            model="llava",
+        response = ollama.chat(
+            model=model,
             messages=messages,
         )
 
@@ -633,7 +635,7 @@ def call_ollama_llava(messages):
         )
         if config.verbose:
             traceback.print_exc()
-        return call_ollama_llava(messages)
+        return call_ollama_llava(messages, model)
 
 
 async def call_claude_3_with_ocr(messages, objective, model):
