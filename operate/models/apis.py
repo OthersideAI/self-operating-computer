@@ -50,7 +50,7 @@ async def get_next_action(model, messages, objective, session_id):
         return "coming soon"
     if model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective), None
-    if model == "llava" or model == "llava:13b" or "bakllava" or "llava-llama3":
+    if "llava" in model:
         operation = call_ollama_llava(messages, model)
         return operation, None
     if model == "claude-3":
