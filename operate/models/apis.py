@@ -53,7 +53,7 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "claude-3":
         operation = await call_claude_3_with_ocr(messages, objective, model)
         return operation, None
-    operation = call_ollama_llava(model, messages)
+    operation = call_ollama(model, messages)
     return operation, None
 
 def call_gpt_4o(messages):
@@ -554,9 +554,9 @@ async def call_gpt_4o_labeled(messages, objective, model):
             traceback.print_exc()
         return call_gpt_4o(messages)
 
-def call_ollama_llava(model, messages):
+def call_ollama(model, messages):
     if config.verbose:
-        print(f"[call_ollama_llava] model {model}")
+        print(f"[call_ollama] model {model}")
     time.sleep(1)
     try:
         model = config.initialize_ollama()
@@ -575,7 +575,7 @@ def call_ollama_llava(model, messages):
 
         if config.verbose:
             print(
-                "[call_ollama_llava] user_prompt",
+                "[call_ollama] user_prompt",
                 user_prompt,
             )
 
@@ -603,7 +603,7 @@ def call_ollama_llava(model, messages):
         assistant_message = {"role": "assistant", "content": content}
         if config.verbose:
             print(
-                "[call_ollama_llava] content",
+                "[call_ollama] content",
                 content,
             )
         content = json.loads(content)
@@ -629,7 +629,7 @@ def call_ollama_llava(model, messages):
         )
         if config.verbose:
             traceback.print_exc()
-        return call_ollama_llava(model, messages)
+        return call_ollama(model, messages)
 
 
 async def call_claude_3_with_ocr(messages, objective, model):
