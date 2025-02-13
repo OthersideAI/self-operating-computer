@@ -37,6 +37,9 @@ async def get_next_action(model, messages, objective, session_id):
         print("[Self-Operating Computer][get_next_action] model", model)
     if model == "gpt-4":
         return call_gpt_4o(messages), None
+    if model == "qwen-vl":
+        operation = await call_qwen_vl_with_ocr(messages, objective, model)
+        return operation, None
     if model == "gpt-4-with-som":
         operation = await call_gpt_4o_labeled(messages, objective, model)
         return operation, None
@@ -136,6 +139,118 @@ def call_gpt_4o(messages):
         return call_gpt_4o(messages)
 
 
+async def call_qwen_vl_with_ocr(messages, objective, model):
+    if config.verbose:
+        print("[call_qwen_vl_with_ocr]")
+
+    # Construct the path to the file within the package
+    try:
+        time.sleep(1)
+        client = config.initialize_qwen()
+
+        confirm_system_prompt(messages, objective, model)
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+        messages.append(vision_message)
+
+        response = client.chat.completions.create(
+            model="qwen2.5-vl-72b-instruct",
+            messages=messages,
+        )
+
+        content = response.choices[0].message.content
+
+        content = clean_json(content)
+
+        # used later for the messages
+        content_str = content
+
+        content = json.loads(content)
+
+        processed_content = []
+
+        for operation in content:
+            if operation.get("operation") == "click":
+                text_to_click = operation.get("text")
+                if config.verbose:
+                    print(
+                        "[call_qwen_vl_with_ocr][click] text_to_click",
+                        text_to_click,
+                    )
+                # Initialize EasyOCR Reader
+                reader = easyocr.Reader(["en"])
+
+                # Read the screenshot
+                result = reader.readtext(screenshot_filename)
+
+                text_element_index = get_text_element(
+                    result, text_to_click, screenshot_filename
+                )
+                coordinates = get_text_coordinates(
+                    result, text_element_index, screenshot_filename
+                )
+
+                # add `coordinates`` to `content`
+                operation["x"] = coordinates["x"]
+                operation["y"] = coordinates["y"]
+
+                if config.verbose:
+                    print(
+                        "[call_qwen_vl_with_ocr][click] text_element_index",
+                        text_element_index,
+                    )
+                    print(
+                        "[call_qwen_vl_with_ocr][click] coordinates",
+                        coordinates,
+                    )
+                    print(
+                        "[call_qwen_vl_with_ocr][click] final operation",
+                        operation,
+                    )
+                processed_content.append(operation)
+
+            else:
+                processed_content.append(operation)
+
+        # wait to append the assistant message so that if the `processed_content` step fails we don't append a message and mess up message history
+        assistant_message = {"role": "assistant", "content": content_str}
+        messages.append(assistant_message)
+
+        return processed_content
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[{model}] That did not work. Trying another method {ANSI_RESET}"
+        )
+        if config.verbose:
+            print("[Self-Operating Computer][Operate] error", e)
+            traceback.print_exc()
+        return gpt_4_fallback(messages, objective, model)
+
 def call_gemini_pro_vision(messages, objective):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
@@ -227,7 +342,7 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="o1",
+            model="gpt-4o",
             messages=messages,
         )
 
@@ -340,7 +455,7 @@ async def call_o1_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="o1",
             messages=messages,
         )
 

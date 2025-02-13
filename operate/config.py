@@ -43,6 +43,9 @@ class Config:
         self.anthropic_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
+        self.qwen_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
 
     def initialize_openai(self):
         if self.verbose:
@@ -64,6 +67,29 @@ class Config:
         )
         client.api_key = api_key
         client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+        return client
+
+    def initialize_qwen(self):
+        if self.verbose:
+            print("[Config][initialize_qwen]")
+
+        if self.qwen_api_key:
+            if self.verbose:
+                print("[Config][initialize_qwen] using cached qwen_api_key")
+            api_key = self.qwen_api_key
+        else:
+            if self.verbose:
+                print(
+                    "[Config][initialize_qwen] no cached qwen_api_key, try to get from env."
+                )
+            api_key = os.getenv("QWEN_API_KEY")
+
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+        )
+        client.api_key = api_key
+        client.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
         return client
 
     def initialize_google(self):
