@@ -24,7 +24,7 @@ from operate.utils.label import (
     get_label_coordinates,
 )
 from operate.utils.ocr import get_text_coordinates, get_text_element
-from operate.utils.screenshot import capture_screen_with_cursor
+from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
 from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
 
 # Load configuration
@@ -153,9 +153,13 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
 
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
         # Call the function to capture the screen with the cursor
-        capture_screen_with_cursor(screenshot_filename)
+        raw_screenshot_filename = os.path.join(screenshots_dir, "raw_screenshot.png")
+        capture_screen_with_cursor(raw_screenshot_filename)
+
+        # Compress screenshot image to make size be smaller
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.jpeg")
+        compress_screenshot(raw_screenshot_filename, screenshot_filename)
 
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
@@ -179,7 +183,7 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="qwen2.5-vl-7b-instruct",
+            model="qwen2.5-vl-72b-instruct",
             messages=messages,
         )
 
