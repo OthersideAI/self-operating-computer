@@ -213,16 +213,16 @@ def get_system_prompt(model, objective):
     """
 
     if platform.system() == "Darwin":
-        cmd_string = "command"
-        os_search_str = ["command", "space"]
+        cmd_string = "\"command\""
+        os_search_str = "[\"command\", \"space\"]"
         operating_system = "Mac"
     elif platform.system() == "Windows":
-        cmd_string = "ctrl"
-        os_search_str = ["win"]
+        cmd_string = "\"ctrl\""
+        os_search_str = "[\"win\"]"
         operating_system = "Windows"
     else:
-        cmd_string = "ctrl"
-        os_search_str = ["win"]
+        cmd_string = "\"ctrl\""
+        os_search_str = "[\"win\"]"
         operating_system = "Linux"
 
     if model == "gpt-4-with-som":
@@ -232,7 +232,7 @@ def get_system_prompt(model, objective):
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
-    elif model == "gpt-4-with-ocr" or model == "o1-with-ocr" or model == "claude-3":
+    elif model == "gpt-4-with-ocr" or model == "o1-with-ocr" or model == "claude-3" or model == "qwen-vl":
 
         prompt = SYSTEM_PROMPT_OCR.format(
             objective=objective,
