@@ -168,7 +168,8 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
         vision_message = {
             "role": "user",
             "content": [
-                {"type": "text", "text": user_prompt},
+                {"type": "text",
+                 "text": f"{user_prompt}**REMEMBER** Only output json format, do not append any other text."},
                 {
                     "type": "image_url",
                     "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
