@@ -179,7 +179,7 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="qwen2.5-vl-72b-instruct",
+            model="qwen2.5-vl-7b-instruct",
             messages=messages,
         )
 
