@@ -86,7 +86,7 @@ class Config:
 
         client = OpenAI(
             api_key=api_key,
-            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
         )
         client.api_key = api_key
         client.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
@@ -147,6 +147,7 @@ class Config:
         self.require_api_key(
             "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
         )
+        self.require_api_key("QWEN_API_KEY", "Qwen API key", model == "qwen-vl")
 
     def require_api_key(self, key_name, key_description, is_required):
         key_exists = bool(os.environ.get(key_name))
@@ -173,6 +174,8 @@ class Config:
                 self.google_api_key = key_value
             elif key_name == "ANTHROPIC_API_KEY":
                 self.anthropic_api_key = key_value
+            elif key_name == "QWEN_API_KEY":
+                self.qwen_api_key = key_value
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
             # Update the instance attribute with the new key
