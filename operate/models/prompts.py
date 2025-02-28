@@ -36,7 +36,7 @@ You have 5 possible operation actions available to you. The `pyautogui` library 
 ```
 5. wait - Wait some time for a page to load
 ```
-[{{ "thought": "write a thought here", "operation": "wait", "duration": ["seconds to wait (e.g. 5 seconds)"] }}]
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5 seconds)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -64,7 +64,7 @@ Example 2: Focuses on the address bar in a browser before typing a website
 Example 3: Waits to the page to load before proceeding to interact
 ```
 [
-    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "seconds": [5] }},
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "waiting 5 seconds"}},
     {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
 ]
 ```
@@ -105,7 +105,7 @@ You have 5 possible operation actions available to you. The `pyautogui` library 
 
 5. wait - Wait some time for a page to load
 ```
-[{{ "thought": "write a thought here", "operation": "wait", "duration": ["seconds to wait (e.g. 5 seconds)"] }}]
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5 seconds)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -140,7 +140,7 @@ Example 3: Send a "Hello World" message in the chat
 Example 4: Waits to the page to load before proceeding to interact
 ```
 [
-    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "seconds": [5] }},
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "Waiting 5 seconds" }},
     {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
 ]
 ```
@@ -181,7 +181,7 @@ You have 5 possible operation actions available to you. The `pyautogui` library 
 
 5. wait - Wait some time for a page to load
 ```
-[{{ "thought": "write a thought here", "operation": "wait", "duration": ["seconds to wait (e.g. 5 seconds)"] }}]
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5 seconds)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -217,7 +217,7 @@ Example 3: Search for someone on Linkedin when already on linkedin.com
 Example 4: Waits to the page to load before proceeding to interact
 ```
 [
-    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "seconds": [5] }},
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "Waiting 5 seconds" }},
     {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
 ]
 ```
@@ -234,14 +234,14 @@ Objective: {objective}
 """
 
 OPERATE_FIRST_MESSAGE_PROMPT = """
-Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
+Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 5 operations available: click, write, press, done, wait
 
 You just started so you are in the terminal app and your code is running in this terminal tab. To leave the terminal, search for a new program on the OS. 
 
 Action:"""
 
 OPERATE_PROMPT = """
-Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
+Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 5 operations available: click, write, press, done, wait
 Action:"""
 
 
