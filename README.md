@@ -20,7 +20,7 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4o, o1, Gemini Pro Vision, Claude 3 and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, o1, Gemini Pro Vision, Claude 3, Qwen-VL and LLaVa.**
 - **Future Plans**: Support for additional models.
 
 ## Demo
@@ -74,6 +74,13 @@ Use Claude 3 with Vision to see how it stacks up to GPT-4-Vision at operating a 
 
 ```
 operate -m claude-3
+```
+
+#### Try qwen `-m qwen-vl`
+Use Qwen-vl with Vision to see how it stacks up to GPT-4-Vision at operating a computer. Navigate to the [Qwen dashboard](https://bailian.console.aliyun.com/) to get an API key and run the command below to try it. 
+
+```
+operate -m qwen-vl
 ```
 
 #### Try LLaVa Hosted Through Ollama `-m llava`
