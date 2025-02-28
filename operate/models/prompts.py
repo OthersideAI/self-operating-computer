@@ -36,7 +36,7 @@ You have 5 possible operation actions available to you. The `pyautogui` library 
 ```
 5. wait - Wait some time for a page to load
 ```
-[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5 seconds)" }}]
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -64,8 +64,8 @@ Example 2: Focuses on the address bar in a browser before typing a website
 Example 3: Waits to the page to load before proceeding to interact
 ```
 [
-    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "waiting 5 seconds"}},
-    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "5"}},
+    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "0.10", "y": "0.13" }}]
 ]
 ```
 
@@ -105,7 +105,7 @@ You have 5 possible operation actions available to you. The `pyautogui` library 
 
 5. wait - Wait some time for a page to load
 ```
-[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5 seconds)" }}]
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -140,8 +140,8 @@ Example 3: Send a "Hello World" message in the chat
 Example 4: Waits to the page to load before proceeding to interact
 ```
 [
-    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "Waiting 5 seconds" }},
-    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "5" }},
+    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "0.10", "y": "0.13" }}]
 ]
 ```
 
@@ -181,7 +181,7 @@ You have 5 possible operation actions available to you. The `pyautogui` library 
 
 5. wait - Wait some time for a page to load
 ```
-[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5 seconds)" }}]
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -217,8 +217,8 @@ Example 3: Search for someone on Linkedin when already on linkedin.com
 Example 4: Waits to the page to load before proceeding to interact
 ```
 [
-    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "Waiting 5 seconds" }},
-    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "x percent (e.g. 0.10)", "y": "y percent (e.g. 0.13)" }}]  # "percent" refers to the percentage of the screen's dimensions in decimal format
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "5" }},
+    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "0.10", "y": "0.13" }}]
 ]
 ```
 
