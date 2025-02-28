@@ -13,7 +13,7 @@ You are operating a {operating_system} computer, using the same operating system
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
 
-You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+You have 5 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click
 ```
@@ -33,6 +33,10 @@ You have 4 possible operation actions available to you. The `pyautogui` library 
 4. done - The objective is completed
 ```
 [{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+```
+5. wait - Wait some time for a page to load
+```
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -57,6 +61,14 @@ Example 2: Focuses on the address bar in a browser before typing a website
 ]
 ```
 
+Example 3: Waits to the page to load before proceeding to interact
+```
+[
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "5"}},
+    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "0.10", "y": "0.13" }}]
+]
+```
+
 A few important notes: 
 
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
@@ -71,7 +83,7 @@ You are operating a {operating_system} computer, using the same operating system
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
 
-You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+You have 5 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click - We labeled the clickable elements with red bounding boxes and IDs. Label IDs are in the following format with `x` being a number: `~x`
 ```
@@ -90,6 +102,12 @@ You have 4 possible operation actions available to you. The `pyautogui` library 
 ```
 [{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
 ```
+
+5. wait - Wait some time for a page to load
+```
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5)" }}]
+```
+
 Return the actions in array format `[]`. You can take just one action or multiple actions.
 
 Here a helpful example:
@@ -119,6 +137,14 @@ Example 3: Send a "Hello World" message in the chat
 ]
 ```
 
+Example 4: Waits to the page to load before proceeding to interact
+```
+[
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "5" }},
+    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "0.10", "y": "0.13" }}]
+]
+```
+
 A few important notes: 
 
 - Go to Google Docs and Google Sheets by typing in the Chrome Address bar
@@ -134,7 +160,7 @@ You are operating a {operating_system} computer, using the same operating system
 
 From looking at the screen, the objective, and your previous actions, take the next best series of action. 
 
-You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
+You have 5 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
 1. click - Move mouse and click - Look for text to click. Try to find relevant text to click, but if there's nothing relevant enough you can return `"nothing to click"` for the text value and we'll try a different method.
 ```
@@ -151,6 +177,11 @@ You have 4 possible operation actions available to you. The `pyautogui` library 
 4. done - The objective is completed
 ```
 [{{ "thought": "write a thought here", "operation": "done", "summary": "summary of what was completed" }}]
+```
+
+5. wait - Wait some time for a page to load
+```
+[{{ "thought": "write a thought here", "operation": "wait", "duration": "seconds to wait (e.g. 5)" }}]
 ```
 
 Return the actions in array format `[]`. You can take just one action or multiple actions.
@@ -183,6 +214,13 @@ Example 3: Search for someone on Linkedin when already on linkedin.com
     {{ "thought": "Finally I'll submit the search form with enter", "operation": "press", "keys": ["enter"] }}
 ]
 ```
+Example 4: Waits to the page to load before proceeding to interact
+```
+[
+    {{ "thought": "It looks like the page I am trying to interact with didn't load yet", "operation": "wait", "duration": "5" }},
+    {{ "thought": "Now that the page is loaded and the button to click is in focus I will click the button", "operation": "click", "x": "0.10", "y": "0.13" }}]
+]
+```
 
 A few important notes: 
 
@@ -196,14 +234,14 @@ Objective: {objective}
 """
 
 OPERATE_FIRST_MESSAGE_PROMPT = """
-Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
+Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 5 operations available: click, write, press, done, wait
 
 You just started so you are in the terminal app and your code is running in this terminal tab. To leave the terminal, search for a new program on the OS. 
 
 Action:"""
 
 OPERATE_PROMPT = """
-Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 4 operations available: click, write, press, done
+Please take the next best action. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement. Remember you only have the following 5 operations available: click, write, press, done, wait
 Action:"""
 
 
