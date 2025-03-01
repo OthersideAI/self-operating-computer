@@ -173,9 +173,7 @@ def call_claude_37(messages):
             )
         
         # Initialize Anthropic client
-        # You'll need to configure this in your config module
-        client = anthropic.Anthropic(api_key=config.anthropic_api_key if config.anthropic_api_key else os.getenv("ANTHROPIC_API_KEY"))
-        
+        client = config.initialize_anthropic()
         # Convert previous messages to Anthropic format if needed
         anthropic_messages = []
         for msg in messages[:-1]:  # Skip the last message as we'll handle it specially
