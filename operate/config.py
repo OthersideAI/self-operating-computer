@@ -154,7 +154,7 @@ class Config:
         )
         self.require_api_key(
         "ANTHROPIC_API_KEY", "Anthropic API key", 
-        model == "claude-3" or model == "claude-3-7-sonnet-20250219"
+        model == "claude-3" or model == "claude-3.7"
     )
     self.require_api_key("QWEN_API_KEY", "Qwen API key", model == "qwen-vl")
 
