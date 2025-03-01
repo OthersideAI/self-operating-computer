@@ -166,13 +166,12 @@ def operate(operations, model):
             )
             print(f"{ANSI_BLUE}Objective Complete: {ANSI_RESET}{summary}\n")
             return True
-        elif operate_type == "wait" or operate_type == "none":
-            duration = operation.get("duration", 5)  # Default to 5 seconds if not specified
-            print(
-                f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BLUE} Waiting for {duration} seconds...{ANSI_RESET}]"
-            )
+        elif operate_type == "wait":
+            duration = operation["duration"]
+            if isinstance(duration, str):
+                duration = float(duration)  # Convert string to float/integer
+            print(f"{ANSI_GREEN}[Self-Operating Computer | Waiting for {duration} seconds...]{ANSI_RESET}")
             time.sleep(duration)
-            operate_detail = f"waiting {duration}s"
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"
