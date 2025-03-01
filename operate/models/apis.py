@@ -142,13 +142,373 @@ def call_gpt_4o(messages):
         return call_gpt_4o(messages)
 
 
+def extract_target_from_text(text):
+    """
+    Extract target file/folder names from text with intelligent priority.
+
+    Args:
+        text (str): Text to analyze (thought or operation text)
+
+    Returns:
+        str: The extracted target description
+    """
+    import re
+
+    # Priority 1: Look for quoted text which often indicates file/folder names
+    quoted_pattern = re.compile(r"['\"]([^'\"]+)['\"]")
+    quoted_matches = quoted_pattern.findall(text)
+    if quoted_matches:
+        return quoted_matches[0]
+
+    # Priority 2: Look for file/folder patterns (word-word or words with extensions)
+    file_pattern = re.compile(r"(\w+[-\.]\w+[-\.]\w+|\w+[-\.]\w+)")
+    file_matches = file_pattern.findall(text)
+    for match in file_matches:
+        # Filter out things that don't look like folder/file names
+        if any(x in match.lower() for x in ['-main', 'folder', 'file', 'image', 'doc', '.', 'sbc']):
+            return match
+
+    # Priority 3: Look for phrases after "click on X" or "open X"
+    click_phrases = ["click on ", "click the ", "clicking on ", "clicking the ", "open ", "opening "]
+    for phrase in click_phrases:
+        if phrase in text.lower():
+            parts = text.lower().split(phrase, 1)
+            if len(parts) > 1:
+                # Extract up to a period, comma, or space
+                target = parts[1].split(".")[0].split(",")[0].strip()
+                # Only return if it's not too long (likely not a file name if very long)
+                if 2 <= len(target.split()) <= 5:
+                    return target
+
+    # Priority 4: Look for capitalized words which might be file/folder names
+    cap_word_pattern = re.compile(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b')
+    cap_matches = cap_word_pattern.findall(text)
+    if cap_matches:
+        # Filter to likely file/folder names
+        likely_matches = [m for m in cap_matches if len(m) > 3]
+        if likely_matches:
+            return likely_matches[0]
+
+    # Default: just return the original text if nothing better found
+    return text
+
+
+def find_ui_element_by_text_and_vision(target_description, screenshot_filename):
+    """
+    Finds UI elements using multiple methods: text OCR, template matching, and shape detection.
+    Specialized for finding desktop icons, folders, and common UI elements.
+
+    Args:
+        target_description (str): Description of what we're trying to find (e.g., "sbc-images-main")
+        screenshot_filename (str): Path to screenshot file
+
+    Returns:
+        tuple: (x_percent, y_percent) coordinates as percentages of screen width/height, or None if not found
+    """
+    import cv2
+    import numpy as np
+    from PIL import Image
+    import easyocr
+    import os
+    import re
+
+    # Clean up the target description for better matching
+    target_words = target_description.lower().split()
+    # Remove common words that don't help with identification
+    stop_words = ['the', 'a', 'an', 'to', 'on', 'in', 'by', 'it', 'this', 'that', 'for', 'with', 'click', 'double']
+    target_words = [word for word in target_words if word not in stop_words]
+    clean_target = ' '.join(target_words)
+
+    print(f"[Target Finder] Looking for: '{clean_target}'")
+
+    # Load the screenshot
+    screenshot = Image.open(screenshot_filename)
+    screenshot_np = np.array(screenshot)
+    screenshot_rgb = cv2.cvtColor(screenshot_np, cv2.COLOR_RGB2BGR)
+
+    # Create a debug image to visualize findings
+    debug_img = screenshot_rgb.copy()
+
+    # Results will store all potential matches with their confidence scores
+    results = []
+
+    # APPROACH 1: Template matching with saved templates
+    icon_folder = "icon_templates"
+    if os.path.exists(icon_folder) and any(os.listdir(icon_folder)):
+        for filename in os.listdir(icon_folder):
+            if filename.endswith(('.png', '.jpg')):
+                # Extract the template name for matching
+                template_name = filename.replace('_', ' ').replace('.png', '').replace('.jpg', '')
+
+                # Check if template name matches any part of the target
+                if any(word in template_name.lower() for word in target_words) or \
+                        any(word in clean_target for word in template_name.lower().split()):
+
+                    template_path = os.path.join(icon_folder, filename)
+                    template = cv2.imread(template_path)
+
+                    if template is None:
+                        continue
+
+                    # Apply template matching
+                    res = cv2.matchTemplate(screenshot_rgb, template, cv2.TM_CCOEFF_NORMED)
+                    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+
+                    if max_val > 0.7:  # Good match
+                        template_h, template_w = template.shape[:2]
+                        top_left = max_loc
+                        bottom_right = (top_left[0] + template_w, top_left[1] + template_h)
+                        center_x = top_left[0] + template_w // 2
+                        center_y = top_left[1] + template_h // 2
+
+                        # Add to results with high confidence since it's a template match
+                        match_score = max_val * 1.5  # Boost template matches
+                        results.append({
+                            "type": "template",
+                            "confidence": match_score,
+                            "center": (center_x, center_y),
+                            "bbox": (top_left[0], top_left[1], bottom_right[0], bottom_right[1])
+                        })
+
+                        # Draw on debug image
+                        cv2.rectangle(debug_img, top_left, bottom_right, (0, 255, 0), 2)
+                        cv2.putText(debug_img, f"Template: {template_name} ({match_score:.2f})",
+                                    (top_left[0], top_left[1] - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    # APPROACH 2: OCR text detection
+    try:
+        # Initialize EasyOCR Reader
+        reader = easyocr.Reader(["en"])
+
+        # Read the screenshot
+        ocr_results = reader.readtext(screenshot_filename)
+
+        for idx, (bbox, text, conf) in enumerate(ocr_results):
+            text_lower = text.lower()
+
+            # Check for any word match
+            word_match = False
+            for word in target_words:
+                if len(word) > 2 and word in text_lower:  # Avoid matching very short words
+                    word_match = True
+                    break
+
+            # Calculate match score based on text similarity
+            if word_match or clean_target in text_lower or text_lower in clean_target:
+                # Calculate match score
+                from difflib import SequenceMatcher
+                similarity = SequenceMatcher(None, clean_target, text_lower).ratio()
+                match_score = similarity * conf
+
+                # Especially boost exact matches or strong partial matches
+                if similarity > 0.8:
+                    match_score *= 1.5
+
+                # Get center of text bounding box
+                bbox_points = np.array(bbox).astype(int)
+                center_x = np.mean([p[0] for p in bbox_points])
+                center_y = np.mean([p[1] for p in bbox_points])
+
+                # Calculate bounding box rectangle
+                x_points = [p[0] for p in bbox_points]
+                y_points = [p[1] for p in bbox_points]
+                bbox_rect = (min(x_points), min(y_points), max(x_points), max(y_points))
+
+                # Add to results
+                results.append({
+                    "type": "text",
+                    "text": text,
+                    "confidence": match_score,
+                    "center": (center_x, center_y),
+                    "bbox": bbox_rect
+                })
+
+                # Draw on debug image
+                top_left = (int(bbox_rect[0]), int(bbox_rect[1]))
+                bottom_right = (int(bbox_rect[2]), int(bbox_rect[3]))
+                cv2.rectangle(debug_img, top_left, bottom_right, (0, 0, 255), 2)
+                cv2.putText(debug_img, f"OCR: {text} ({match_score:.2f})",
+                            (top_left[0], top_left[1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+                # For text results, look for potential UI elements above (desktop icon case)
+                # If this looks like a desktop icon label, the actual icon is likely above it
+                if any(word in text_lower for word in ['folder', 'file', 'image', 'doc']) or \
+                        re.search(r'\w+[-\.]\w+', text_lower) or \
+                        "sbc" in text_lower:
+                    # Define a region above the text to look for the icon
+                    icon_area_width = bbox_rect[2] - bbox_rect[0]
+                    icon_area_height = icon_area_width  # Make it square
+                    icon_area_top = max(0, bbox_rect[1] - icon_area_height - 10)  # Above text with a small gap
+                    icon_area_left = bbox_rect[0]
+
+                    icon_center_x = icon_area_left + icon_area_width // 2
+                    icon_center_y = icon_area_top + icon_area_height // 2
+
+                    # Add this as a potential icon location with boosted confidence
+                    icon_match_score = match_score * 1.2  # Boost confidence for icon targets
+                    results.append({
+                        "type": "icon",
+                        "confidence": icon_match_score,
+                        "center": (icon_center_x, icon_center_y),
+                        "bbox": (icon_area_left, icon_area_top,
+                                 icon_area_left + icon_area_width, icon_area_top + icon_area_height)
+                    })
+
+                    # Draw the potential icon area
+                    cv2.rectangle(debug_img,
+                                  (int(icon_area_left), int(icon_area_top)),
+                                  (int(icon_area_left + icon_area_width), int(icon_area_top + icon_area_height)),
+                                  (255, 0, 0), 2)
+                    cv2.putText(debug_img, f"Icon target ({icon_match_score:.2f})",
+                                (int(icon_area_left), int(icon_area_top) - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
+    except Exception as e:
+        print(f"[Target Finder] OCR detection error: {e}")
+
+    # APPROACH 3: Folder icon detection (color/shape based)
+    if "folder" in clean_target or "file" in clean_target or "sbc" in clean_target:
+        try:
+            # Convert to HSV for better color segmentation
+            hsv = cv2.cvtColor(screenshot_rgb, cv2.COLOR_BGR2HSV)
+
+            # Define color ranges for common folder icons (yellow folders in Windows)
+            lower_yellow = np.array([20, 100, 100])
+            upper_yellow = np.array([40, 255, 255])
+
+            # Create mask for yellow color
+            mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+
+            # Find contours in the mask
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Filter contours by size (folder icons are usually of similar size)
+            min_area = 100
+            max_area = 5000
+
+            for contour in contours:
+                area = cv2.contourArea(contour)
+                if min_area < area < max_area:
+                    # Get center of contour
+                    M = cv2.moments(contour)
+                    if M["m00"] > 0:
+                        center_x = int(M["m10"] / M["m00"])
+                        center_y = int(M["m01"] / M["m00"])
+
+                        # Get bounding box
+                        x, y, w, h = cv2.boundingRect(contour)
+
+                        # Add to results with lower confidence for shape-based detection
+                        match_score = 0.5  # Base confidence for shape detection
+                        results.append({
+                            "type": "shape",
+                            "confidence": match_score,
+                            "center": (center_x, center_y),
+                            "bbox": (x, y, x + w, y + h)
+                        })
+
+                        # Draw on debug image
+                        cv2.rectangle(debug_img, (x, y), (x + w, y + h), (255, 255, 0), 2)
+                        cv2.putText(debug_img, f"Shape ({match_score:.2f})",
+                                    (x, y - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+        except Exception as e:
+            print(f"[Target Finder] Shape detection error: {e}")
+
+    # Save the debug image
+    cv2.imwrite("debug_target_detection.jpg", debug_img)
+
+    if results:
+        # Sort by confidence
+        results.sort(key=lambda x: x.get("confidence", 0), reverse=True)
+        best_match = results[0]
+
+        # Print debug info
+        print(f"[Target Finder] Best match: {best_match['type']} with confidence {best_match['confidence']:.2f}")
+
+        # Get the center point
+        center_x, center_y = best_match["center"]
+
+        # Convert to percentage of screen size
+        screen_width, screen_height = screenshot.size
+        x_percent = center_x / screen_width
+        y_percent = center_y / screen_height
+
+        # Mark the final target on the debug image
+        result_img = cv2.circle(debug_img, (int(center_x), int(center_y)), 10, (0, 255, 255), -1)
+        cv2.imwrite("debug_final_target.jpg", result_img)
+
+        return (x_percent, y_percent)
+
+    print(f"[Target Finder] No match found for '{clean_target}'")
+    return None
+
+
+def verify_success(screenshot_before, task_type="open_folder"):
+    """
+    Verifies if an operation was successful by comparing before/after screenshots.
+
+    Args:
+        screenshot_before: Screenshot taken before the operation
+        task_type: Type of task we're verifying (open_folder, click_button, etc.)
+
+    Returns:
+        bool: True if operation appears successful, False otherwise
+    """
+    import cv2
+    import numpy as np
+    import pyautogui
+
+    # Take a screenshot after the operation
+    screenshot_after = pyautogui.screenshot()
+
+    # Convert to numpy arrays for comparison
+    before_np = np.array(screenshot_before)
+    after_np = np.array(screenshot_after)
+
+    # Resize if dimensions don't match
+    if before_np.shape != after_np.shape:
+        after_np = cv2.resize(after_np, (before_np.shape[1], before_np.shape[0]))
+
+    # For opening a folder, check for significant window change
+    if task_type == "open_folder":
+        # Calculate difference between images
+        diff = cv2.absdiff(before_np, after_np)
+        gray_diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+        _, thresholded = cv2.threshold(gray_diff, 30, 255, cv2.THRESH_BINARY)
+
+        # Calculate percentage of changed pixels
+        changed_pixels = np.count_nonzero(thresholded)
+        total_pixels = thresholded.size
+        change_percentage = (changed_pixels / total_pixels) * 100
+
+        # Save debug images
+        cv2.imwrite("debug_before.jpg", cv2.cvtColor(before_np, cv2.COLOR_RGB2BGR))
+        cv2.imwrite("debug_after.jpg", cv2.cvtColor(after_np, cv2.COLOR_RGB2BGR))
+        cv2.imwrite("debug_diff.jpg", thresholded)
+
+        print(f"[Verification] Screen change: {change_percentage:.2f}%")
+
+        # If significant portion of screen changed, likely a new window opened
+        return change_percentage > 15
+
+    return False
+
+
 def call_claude_37(messages):
     if config.verbose:
         print("[call_claude_37]")
     time.sleep(1)
 
-    # Import the anthropic module inside the function to ensure it's available
+    # Import all required modules
     import anthropic
+    import cv2
+    import numpy as np
+    import re
+    import pyautogui
+    from PIL import Image
 
     try:
         screenshots_dir = "screenshots"
@@ -243,17 +603,129 @@ def call_claude_37(messages):
 
         # Extract the content from the response
         content = response.content[0].text
-        content = clean_json(content)
 
-        # Create assistant message
-        assistant_message = {"role": "assistant", "content": content}
+        # Check if Claude added text before the JSON
+        if content.strip().startswith("[") or content.strip().startswith("{"):
+            # Content is already in JSON format, just clean it
+            content = clean_json(content)
+        else:
+            # Claude might have added a message before the JSON
+            # Try to find JSON in the content
+            json_match = re.search(r'(\[.*\]|\{.*\})', content, re.DOTALL)
+            if json_match:
+                # Extract the JSON part
+                content = clean_json(json_match.group(1))
+            else:
+                # If no JSON found, try to create a done operation
+                if "done" in content.lower() or "complete" in content.lower():
+                    content = '[{"thought": "Task complete", "operation": "done"}]'
+                else:
+                    # Create a fallback operation
+                    content = '[{"thought": "Continuing task", "operation": "wait", "duration": 1}]'
 
+        # Log the cleaned content
         if config.verbose:
-            print("[call_claude_37] content", content)
+            print("[call_claude_37] cleaned content", content)
 
-        content = json.loads(content)
+        # Create assistant message with the original response
+        assistant_message = {"role": "assistant", "content": response.content[0].text}
+
+        try:
+            # Try to parse as JSON
+            parsed_content = json.loads(content)
+            if config.verbose:
+                print("[call_claude_37] Successfully parsed content as JSON")
+        except json.JSONDecodeError as e:
+            # If JSON parsing fails, create a simple operation
+            print(f"[call_claude_37] JSON parsing failed: {e}. Creating fallback operation.")
+            parsed_content = [{"thought": "Continuing with task", "operation": "wait", "duration": 1}]
+
+        # Process the operations with enhanced handling
+        processed_content = []
+
+        # Check if Claude is trying to do a double-click
+        need_double_click = False
+        for operation in parsed_content:
+            if operation.get("double_click", False):
+                need_double_click = True
+                break
+            if "thought" in operation:
+                if "double" in operation["thought"].lower() and "click" in operation["thought"].lower():
+                    need_double_click = True
+                    break
+
+        for i, operation in enumerate(parsed_content):
+            if operation.get("operation") == "click":
+                # Extract target description
+                target_description = ""
+                if "text" in operation:
+                    target_description = operation.get("text")
+                elif "thought" in operation:
+                    # Try to extract what we're clicking on from the thought
+                    thought = operation.get("thought", "")
+
+                    # Look for quoted text first
+                    quoted_match = re.search(r'[\'"]([^\'\"]+)[\'"]', thought)
+                    if quoted_match:
+                        target_description = quoted_match.group(1)
+                    else:
+                        # Look for instances of "sbc-images-main" or similar patterns
+                        pattern_match = re.search(r'(\b\w+-\w+-\w+\b|\bsbc[- ]\w+\b)', thought, re.IGNORECASE)
+                        if pattern_match:
+                            target_description = pattern_match.group(1)
+                        else:
+                            # Fall back to looking for phrases after click indicators
+                            click_indicators = ["click on", "click the", "clicking on", "clicking the"]
+                            for indicator in click_indicators:
+                                if indicator in thought.lower():
+                                    parts = thought.lower().split(indicator, 1)
+                                    if len(parts) > 1:
+                                        target_description = parts[1].split(".")[0].split(",")[0].strip()
+                                        break
+
+                if not target_description:
+                    target_description = f"target at position ({operation['x']}, {operation['y']})"
+
+                if config.verbose:
+                    print(f"[call_claude_37] Target description: {target_description}")
+
+                # Handle double-clicking if detected
+                if need_double_click and i == 0:  # Only process the first click for double-click
+                    # Extract coordinates
+                    try:
+                        x = operation["x"]
+                        y = operation["y"]
+
+                        # Add a special marker to signal double-click
+                        operation["double_click"] = True
+
+                        # Log the double-click intention
+                        print(
+                            f"[call_claude_37] Detected double-click operation on '{target_description}' at ({x}, {y})")
+                    except Exception as e:
+                        print(f"[call_claude_37] Error processing double-click: {e}")
+
+                # For double-click operations, we only need to add the first click
+                # Skip adding second clicks to avoid duplicate operations
+                if need_double_click and i > 0:
+                    if config.verbose:
+                        print("[call_claude_37] Skipping duplicate click for double-click operation")
+                    continue
+
+                # Add the operation
+                if config.verbose:
+                    print(f"[call_claude_37] Adding operation: {operation}")
+
+                processed_content.append(operation)
+            else:
+                # For non-click operations, just append as is
+                processed_content.append(operation)
+
+        # Add the assistant message to the history
         messages.append(assistant_message)
-        return content
+
+        # Return the processed content
+        return processed_content if processed_content else [{"operation": "wait", "duration": 1}]
 
     except Exception as e:
         error_msg = str(e)
@@ -275,9 +747,8 @@ def call_claude_37(messages):
         if config.verbose:
             traceback.print_exc()
 
-        # Fall back to GPT-4o
-        return call_gpt_4o(messages)
-
+        # If an exception occurs, return a simple operation to keep things moving
+        return [{"thought": "Continuing task after error", "operation": "wait", "duration": 1}]
 async def call_qwen_vl_with_ocr(messages, objective, model):
     if config.verbose:
         print("[call_qwen_vl_with_ocr]")
