@@ -141,53 +141,76 @@ def call_gpt_4o(messages):
             traceback.print_exc()
         return call_gpt_4o(messages)
 
+
 def call_claude_37(messages):
     if config.verbose:
         print("[call_claude_37]")
     time.sleep(1)
-    
-    # We'll need to import Anthropic's client library
+
+    # Import the anthropic module inside the function to ensure it's available
     import anthropic
-    
+
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
-        
-        with open(screenshot_filename, "rb") as img_file:
+
+        # Convert PNG to JPEG format to ensure compatibility
+        img = Image.open(screenshot_filename)
+        if img.mode in ('RGBA', 'LA'):
+            # Remove alpha channel for JPEG compatibility
+            background = Image.new("RGB", img.size, (255, 255, 255))
+            background.paste(img, mask=img.split()[3])  # 3 is the alpha channel
+            img = background
+
+        # Save as JPEG
+        jpeg_filename = os.path.join(screenshots_dir, "screenshot.jpg")
+        img.save(jpeg_filename, "JPEG", quality=95)
+
+        with open(jpeg_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-        
+
         # Determine which prompt to use
         if len(messages) == 1:
             user_prompt = get_user_first_message_prompt()
         else:
             user_prompt = get_user_prompt()
-            
+
         if config.verbose:
-            print(
-                "[call_claude_37] user_prompt",
-                user_prompt,
-            )
-        
-        # Initialize Anthropic client
-        client = config.initialize_anthropic()
-        # Convert previous messages to Anthropic format if needed
+            print("[call_claude_37] user_prompt", user_prompt)
+
+        # Initialize Anthropic client directly with the environment variable
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            api_key = config.anthropic_api_key  # Fallback to instance variable
+
+        if config.verbose:
+            print("[call_claude_37] Using Anthropic API key (masked):", "*" * len(api_key) if api_key else "None")
+
+        client = anthropic.Anthropic(api_key=api_key)
+
+        # Extract system message
+        system_content = None
+        if messages and messages[0]["role"] == "system":
+            system_content = messages[0]["content"]
+            user_messages = messages[1:-1] if len(messages) > 1 else []  # Skip system message and last message
+        else:
+            user_messages = messages[:-1] if messages else []  # No system message, include all but last
+
+        # Convert previous messages to Anthropic format
         anthropic_messages = []
-        for msg in messages[:-1]:  # Skip the last message as we'll handle it specially
-            if msg["role"] == "system":
-                # System messages are handled differently in Anthropic API
-                system_content = msg["content"]
-            else:
+        for msg in user_messages:
+            if msg["role"] in ["user", "assistant"]:  # Only include user and assistant messages
                 anthropic_messages.append({
                     "role": msg["role"],
                     "content": msg["content"]
                 })
-        
+
         # Create vision message for Claude
-        # Claude uses a different format for media than OpenAI
         vision_message = {
             "role": "user",
             "content": [
@@ -202,47 +225,58 @@ def call_claude_37(messages):
                 }
             ]
         }
-        
-        # Add the vision message to our anthropic messages
+
+        # Add the vision message
         anthropic_messages.append(vision_message)
-        
+
+        if config.verbose:
+            print("[call_claude_37] System content length:", len(system_content) if system_content else 0)
+            print("[call_claude_37] Number of messages:", len(anthropic_messages))
+
         # Create the message request
         response = client.messages.create(
-            model="claude-3-7-sonnet-20250219",  # Claude 3.7 Sonnet model ID
+            model="claude-3-7-sonnet-20250219",
             messages=anthropic_messages,
-            system=system_content if 'system_content' in locals() else None,
+            system=system_content,
             max_tokens=2048,
         )
-        
+
         # Extract the content from the response
         content = response.content[0].text
         content = clean_json(content)
-        
+
         # Create assistant message
         assistant_message = {"role": "assistant", "content": content}
-        
+
         if config.verbose:
-            print(
-                "[call_claude_37] content",
-                content,
-            )
-        
+            print("[call_claude_37] content", content)
+
         content = json.loads(content)
         messages.append(assistant_message)
         return content
-        
+
     except Exception as e:
+        error_msg = str(e)
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying again {ANSI_RESET}",
-            e,
+            error_msg,
         )
+
+        # Define content_str before using it to avoid the "referenced before assignment" error
+        content_str = "No content received"
+        if 'content' in locals():
+            content_str = content
+
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
-            content if 'content' in locals() else "No content received",
+            content_str,
         )
+
         if config.verbose:
             traceback.print_exc()
-        return call_claude_37(messages)
+
+        # Fall back to GPT-4o
+        return call_gpt_4o(messages)
 
 async def call_qwen_vl_with_ocr(messages, objective, model):
     if config.verbose:
