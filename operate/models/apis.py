@@ -38,8 +38,8 @@ async def get_next_action(model, messages, objective, session_id):
         print("[Self-Operating Computer][get_next_action] model", model)
     if model == "gpt-4":
         return call_gpt_4o(messages), None
-    if model == "Claude-3.7":
-        return call_claude_3_7(messages), None
+    if model == "claude-3.7":
+        return call_claude_37(messages), None
     if model == "qwen-vl":
         operation = await call_qwen_vl_with_ocr(messages, objective, model)
         return operation, None
