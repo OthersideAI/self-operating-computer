@@ -20,7 +20,7 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4o, o1, Gemini Pro Vision, Claude 3 and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, o1, Claude 3.7, Gemini Pro Vision, Claude 3, qwuen-VL and LLaVa.**
 - **Future Plans**: Support for additional models.
 
 ## Demo
@@ -62,6 +62,14 @@ operate -m o1-with-ocr
 
 
 ### Multimodal Models  `-m`
+
+#### Try claude 3.7 `-m claude-3.7`
+Use Clude 3.7 with Vision to see how it stacks up to GPT-4-Vision at operating a computer. Navigate to the [Antheopic dashboard](https://console.anthropic.com/dashboard) to get an API key and run the command below to try it. 
+
+```
+operate -m claude-3.7
+```
+
 Try Google's `gemini-pro-vision` by following the instructions below. Start `operate` with the Gemini model
 ```
 operate -m gemini-pro-vision
@@ -74,6 +82,13 @@ Use Claude 3 with Vision to see how it stacks up to GPT-4-Vision at operating a 
 
 ```
 operate -m claude-3
+```
+
+#### Try qwen `-m qwen-vl`
+Use Qwen-vl with Vision to see how it stacks up to GPT-4-Vision at operating a computer. Navigate to the [Qwen dashboard](https://bailian.console.aliyun.com/) to get an API key and run the command below to try it. 
+
+```
+operate -m qwen-vl
 ```
 
 #### Try LLaVa Hosted Through Ollama `-m llava`
