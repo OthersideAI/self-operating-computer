@@ -133,7 +133,8 @@ class Config:
                     "[Config][initialize_anthropic] no cached google_api_key, try to get from env."
                 )
             api_key = os.getenv("ANTHROPIC_API_KEY")
-        return anthropic.Anthropic(api_key=api_key)
+            
+            return anthropic.Anthropic(api_key=api_key)
 
     def validation(self, model, voice_mode):
         """
