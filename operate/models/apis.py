@@ -25,6 +25,7 @@ from operate.utils.label import (
 )
 from operate.utils.ocr import get_text_coordinates, get_text_element
 from operate.utils.screenshot import capture_screen_with_cursor
+from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
 from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
 
 # Load configuration
@@ -37,6 +38,11 @@ async def get_next_action(model, messages, objective, session_id):
         print("[Self-Operating Computer][get_next_action] model", model)
     if model == "gpt-4":
         return call_gpt_4o(messages), None
+    if model == "Claude-3.7":
+        return call_claude_3_7(messages), None
+    if model == "qwen-vl":
+        operation = await call_qwen_vl_with_ocr(messages, objective, model)
+        return operation, None
     if model == "gpt-4-with-som":
         operation = await call_gpt_4o_labeled(messages, objective, model)
         return operation, None
@@ -134,6 +140,228 @@ def call_gpt_4o(messages):
         if config.verbose:
             traceback.print_exc()
         return call_gpt_4o(messages)
+
+def call_claude_37(messages):
+    if config.verbose:
+        print("[call_claude_37]")
+    time.sleep(1)
+    
+    # We'll need to import Anthropic's client library
+    import anthropic
+    
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+        
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+        
+        # Determine which prompt to use
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+            
+        if config.verbose:
+            print(
+                "[call_claude_37] user_prompt",
+                user_prompt,
+            )
+        
+        # Initialize Anthropic client
+        # You'll need to configure this in your config module
+        client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
+        
+        # Convert previous messages to Anthropic format if needed
+        anthropic_messages = []
+        for msg in messages[:-1]:  # Skip the last message as we'll handle it specially
+            if msg["role"] == "system":
+                # System messages are handled differently in Anthropic API
+                system_content = msg["content"]
+            else:
+                anthropic_messages.append({
+                    "role": msg["role"],
+                    "content": msg["content"]
+                })
+        
+        # Create vision message for Claude
+        # Claude uses a different format for media than OpenAI
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_prompt},
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/jpeg",
+                        "data": img_base64
+                    }
+                }
+            ]
+        }
+        
+        # Add the vision message to our anthropic messages
+        anthropic_messages.append(vision_message)
+        
+        # Create the message request
+        response = client.messages.create(
+            model="claude-3-7-sonnet-20250219",  # Claude 3.7 Sonnet model ID
+            messages=anthropic_messages,
+            system=system_content if 'system_content' in locals() else None,
+            max_tokens=2048,
+        )
+        
+        # Extract the content from the response
+        content = response.content[0].text
+        content = clean_json(content)
+        
+        # Create assistant message
+        assistant_message = {"role": "assistant", "content": content}
+        
+        if config.verbose:
+            print(
+                "[call_claude_37] content",
+                content,
+            )
+        
+        content = json.loads(content)
+        messages.append(assistant_message)
+        return content
+        
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying again {ANSI_RESET}",
+            e,
+        )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
+            content if 'content' in locals() else "No content received",
+        )
+        if config.verbose:
+            traceback.print_exc()
+        return call_claude_37(messages)
+
+async def call_qwen_vl_with_ocr(messages, objective, model):
+    if config.verbose:
+        print("[call_qwen_vl_with_ocr]")
+
+    # Construct the path to the file within the package
+    try:
+        time.sleep(1)
+        client = config.initialize_qwen()
+
+        confirm_system_prompt(messages, objective, model)
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        # Call the function to capture the screen with the cursor
+        raw_screenshot_filename = os.path.join(screenshots_dir, "raw_screenshot.png")
+        capture_screen_with_cursor(raw_screenshot_filename)
+
+        # Compress screenshot image to make size be smaller
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.jpeg")
+        compress_screenshot(raw_screenshot_filename, screenshot_filename)
+
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text",
+                 "text": f"{user_prompt}**REMEMBER** Only output json format, do not append any other text."},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+        messages.append(vision_message)
+
+        response = client.chat.completions.create(
+            model="qwen2.5-vl-72b-instruct",
+            messages=messages,
+        )
+
+        content = response.choices[0].message.content
+
+        content = clean_json(content)
+
+        # used later for the messages
+        content_str = content
+
+        content = json.loads(content)
+
+        processed_content = []
+
+        for operation in content:
+            if operation.get("operation") == "click":
+                text_to_click = operation.get("text")
+                if config.verbose:
+                    print(
+                        "[call_qwen_vl_with_ocr][click] text_to_click",
+                        text_to_click,
+                    )
+                # Initialize EasyOCR Reader
+                reader = easyocr.Reader(["en"])
+
+                # Read the screenshot
+                result = reader.readtext(screenshot_filename)
+
+                text_element_index = get_text_element(
+                    result, text_to_click, screenshot_filename
+                )
+                coordinates = get_text_coordinates(
+                    result, text_element_index, screenshot_filename
+                )
+
+                # add `coordinates`` to `content`
+                operation["x"] = coordinates["x"]
+                operation["y"] = coordinates["y"]
+
+                if config.verbose:
+                    print(
+                        "[call_qwen_vl_with_ocr][click] text_element_index",
+                        text_element_index,
+                    )
+                    print(
+                        "[call_qwen_vl_with_ocr][click] coordinates",
+                        coordinates,
+                    )
+                    print(
+                        "[call_qwen_vl_with_ocr][click] final operation",
+                        operation,
+                    )
+                processed_content.append(operation)
+
+            else:
+                processed_content.append(operation)
+
+        # wait to append the assistant message so that if the `processed_content` step fails we don't append a message and mess up message history
+        assistant_message = {"role": "assistant", "content": content_str}
+        messages.append(assistant_message)
+
+        return processed_content
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[{model}] That did not work. Trying another method {ANSI_RESET}"
+        )
+        if config.verbose:
+            print("[Self-Operating Computer][Operate] error", e)
+            traceback.print_exc()
+        return gpt_4_fallback(messages, objective, model)
 
 
 def call_gemini_pro_vision(messages, objective):
