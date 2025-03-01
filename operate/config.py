@@ -124,8 +124,14 @@ class Config:
 
     def initialize_anthropic(self):
         if self.anthropic_api_key:
+            if self.verbose:
+                print("[Config][initialize_anthropic] using cached anthropic_api_key")
             api_key = self.anthropic_api_key
         else:
+             if self.verbose:
+                print(
+                    "[Config][initialize_anthropic] no cached google_api_key, try to get from env."
+                )
             api_key = os.getenv("ANTHROPIC_API_KEY")
         return anthropic.Anthropic(api_key=api_key)
 
