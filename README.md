@@ -64,7 +64,7 @@ operate -m o1-with-ocr
 ### Multimodal Models  `-m`
 
 #### Try claude 3.7 `-m claude-3.7`
-Use Clude 3.7 with Vision to see how it stacks up to GPT-4-Vision at operating a computer. Navigate to the [Antheopic dashboard](https://console.anthropic.com/dashboard) to get an API key and run the command below to try it. 
+Use Clude 3.7 with Vision to see how it stacks up to GPT-4-Vision at operating a computer. Navigate to the [Anthropic dashboard](https://console.anthropic.com/dashboard) to get an API key and run the command below to try it. 
 
 ```
 operate -m claude-3.7
