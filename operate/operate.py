@@ -5,31 +5,9 @@ import asyncio
 import pyautogui
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
-from operate.exceptions import ModelNotRecognizedException
 import platform
 
 # from operate.models.prompts import USER_QUESTION, get_system_prompt
-from operate.models.prompts import (
-    USER_QUESTION,
-    get_system_prompt,
-)
-from operate.config import Config
-from operate.utils.style import (
-    ANSI_GREEN,
-    ANSI_RESET,
-    ANSI_YELLOW,
-    ANSI_RED,
-    ANSI_BRIGHT_MAGENTA,
-    ANSI_BLUE,
-    style,
-)
-from operate.utils.operating_system import OperatingSystem
-from operate.models.apis import get_next_action
-
-# Load configuration
-config = Config()
-operating_system = OperatingSystem()
-
 
 def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     """
@@ -43,93 +21,127 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     Returns:
     None
     """
+    from operate.config import Config
+    from operate.exceptions import ModelNotRecognizedException
+    
+    from operate.utils.style import (
+        ANSI_GREEN,
+        ANSI_RESET,
+        ANSI_YELLOW,
+        ANSI_RED,
+        ANSI_BRIGHT_MAGENTA,
+        ANSI_BLUE,
+        style,
+    )
 
-    mic = None
-    # Initialize `WhisperMic`, if `voice_mode` is True
+    from operate.utils.operating_system import OperatingSystem
+    from operate.models.prompts import (
+        USER_QUESTION,
+        get_system_prompt,
+    )
 
-    config.verbose = verbose_mode
-    config.validation(model, voice_mode)
+    # Load configuration
+    config = Config()
+    operating_system = OperatingSystem()
+    
+    from operate.models.apis import get_next_action
 
-    if voice_mode:
-        try:
-            from whisper_mic import WhisperMic
+    while True:  # Add outer loop to enable restarting after completion
+        mic = None
+        # Initialize `WhisperMic`, if `voice_mode` is True
 
-            # Initialize WhisperMic if import is successful
-            mic = WhisperMic()
-        except ImportError:
+        config.verbose = verbose_mode
+        config.validation(model, voice_mode)
+
+        if voice_mode:
+            try:
+                from whisper_mic import WhisperMic
+
+                # Initialize WhisperMic if import is successful
+                mic = WhisperMic()
+            except ImportError:
+                print(
+                    "Voice mode requires the 'whisper_mic' module. Please install it using 'pip install -r requirements-audio.txt'"
+                )
+                sys.exit(1)
+
+        # Skip message dialog if prompt was given directly
+        if not terminal_prompt:
+            message_dialog(
+                title="Self-Operating Computer",
+                text="An experimental framework to enable multimodal models to operate computers",
+                style=style,
+            ).run()
+
+        else:
+            print("Running direct prompt...")
+
+        # # Clear the console
+        if platform.system() == "Windows":
+            os.system("cls")
+        else:
+            print("\033c", end="")
+
+        if terminal_prompt and not hasattr(main, 'first_run_complete'):
+            # Only use the terminal prompt on the first iteration
+            objective = terminal_prompt
+            main.first_run_complete = True
+        elif voice_mode:
             print(
-                "Voice mode requires the 'whisper_mic' module. Please install it using 'pip install -r requirements-audio.txt'"
+                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Listening for your command... (speak now)"
             )
-            sys.exit(1)
-
-    # Skip message dialog if prompt was given directly
-    if not terminal_prompt:
-        message_dialog(
-            title="Self-Operating Computer",
-            text="An experimental framework to enable multimodal models to operate computers",
-            style=style,
-        ).run()
-
-    else:
-        print("Running direct prompt...")
-
-    # # Clear the console
-    if platform.system() == "Windows":
-        os.system("cls")
-    else:
-        print("\033c", end="")
-
-    if terminal_prompt:  # Skip objective prompt if it was given as an argument
-        objective = terminal_prompt
-    elif voice_mode:
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Listening for your command... (speak now)"
-        )
-        try:
-            objective = mic.listen()
-        except Exception as e:
-            print(f"{ANSI_RED}Error in capturing voice input: {e}{ANSI_RESET}")
-            return  # Exit if voice input fails
-    else:
-        print(
-            f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]\n{USER_QUESTION}"
-        )
-        print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
-        objective = prompt(style=style)
-
-    system_prompt = get_system_prompt(model, objective)
-    system_message = {"role": "system", "content": system_prompt}
-    messages = [system_message]
-
-    loop_count = 0
-
-    session_id = None
-
-    while True:
-        if config.verbose:
-            print("[Self Operating Computer] loop_count", loop_count)
-        try:
-            operations, session_id = asyncio.run(
-                get_next_action(model, messages, objective, session_id)
-            )
-
-            stop = operate(operations, session_id, model)
-            if stop:
-                break
-
-            loop_count += 1
-            if loop_count > 10:
-                break
-        except ModelNotRecognizedException as e:
+            try:
+                objective = mic.listen()
+            except Exception as e:
+                print(f"{ANSI_RED}Error in capturing voice input: {e}{ANSI_RESET}")
+                return  # Exit if voice input fails
+        else:
             print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
+                f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]\n{USER_QUESTION}"
             )
-            break
-        except Exception as e:
-            print(
-                f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
-            )
-            break
+            print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+            objective = prompt(style=style)
+
+        system_prompt = get_system_prompt(model, objective)
+        system_message = {"role": "system", "content": system_prompt}
+        messages = [system_message]
+
+        loop_count = 0
+
+        session_id = None
+
+        task_completed = False  # Flag to indicate if the task was completed
+        while not task_completed:
+            if config.verbose:
+                print("[Self Operating Computer] loop_count", loop_count)
+            try:
+                operations, session_id = asyncio.run(
+                    get_next_action(model, messages, objective, session_id)
+                )
+
+                # Instead of breaking out of the whole program, we set a flag if "done" is reached
+                task_completed = operate(operations, session_id, model)
+
+                loop_count += 1
+                if loop_count > 10:
+                    task_completed = True  # Force completion if loop count exceeds 10
+                    print(
+                        f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_YELLOW} Max loop count reached. Moving to next task.{ANSI_RESET}")
+            except ModelNotRecognizedException as e:
+                print(
+                    f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
+                )
+                task_completed = True  # Exit inner loop and start over
+            except Exception as e:
+                print(
+                    f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] -> {e} {ANSI_RESET}"
+                )
+                task_completed = True  # Exit inner loop and start over
+
+        print(f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RESET} Task completed. Ready for a new task.")
+        if terminal_prompt:
+            # If the session was started with a terminal prompt, we need to clear it after the first use
+            terminal_prompt = None
 
 
 # def verify_click_target(x_percent, y_percent, target_description, client):
@@ -455,15 +467,18 @@ def click_relative(x_percent, y_percent, x_divisor=1.50, y_multiplier=1.25):
 def operate(operations, session_id, model=None):
     """
     Processes a list of operations and executes them.
-    Supports click, doubleclick, write, press, wait, and done operations.
-    For click operations, it uses the adjusted coordinate conversion:
+    Supports click, doubleclick, rightclick, scroll, write, press, wait, and done operations.
+    For click/doubleclick/rightclick operations, it uses the adjusted coordinate conversion:
     - x-coordinate divided by 1.50.
     - y-coordinate multiplied by 1.25.
+
+    Returns:
+        bool: True if "done" operation was encountered (task completed), otherwise False
     """
     import time
 
     for op in operations:
-        if op.get("operation") in ["click", "doubleclick"]:
+        if op.get("operation") in ["click", "doubleclick", "rightclick"]:
             try:
                 x_percent = float(op.get("x", 0))
                 y_percent = float(op.get("y", 0))
@@ -478,20 +493,47 @@ def operate(operations, session_id, model=None):
                 adjusted_x = int(base_x / 1.50)
                 adjusted_y = int(base_y * 1.25)
 
+                operation_type = op.get("operation")
+                operation_name = {
+                    "click": "Clicking",
+                    "doubleclick": "Double-clicking",
+                    "rightclick": "Right-clicking"
+                }.get(operation_type, operation_type)
+
                 print(
-                    f"{'Double-clicking' if op.get('operation') == 'doubleclick' else 'Clicking'} "
-                    f"at ({adjusted_x}, {adjusted_y}) on a {screen_width}x{screen_height} screen "
+                    f"{operation_name} at ({adjusted_x}, {adjusted_y}) on a {screen_width}x{screen_height} screen "
                     f"with scaling factor {scaling_factor}"
                 )
 
-                if op.get("operation") == "doubleclick":
+                if operation_type == "doubleclick":
                     pyautogui.doubleClick(adjusted_x, adjusted_y)
+                elif operation_type == "rightclick":
+                    pyautogui.rightClick(adjusted_x, adjusted_y)
                 else:
                     pyautogui.click(adjusted_x, adjusted_y)
             except Exception as e:
-                print(
-                    f"Error performing {'double-click' if op.get('operation') == 'doubleclick' else 'click'} operation:",
-                    e)
+                print(f"Error performing {op.get('operation')} operation:", e)
+
+        elif op.get("operation") == "scroll":
+            try:
+                direction = op.get("direction", "down")
+                amount = int(op.get("amount", 3))
+
+                # Convert direction to clicks (positive for down/right, negative for up/left)
+                clicks = amount
+                if direction in ["up", "left"]:
+                    clicks = -amount
+
+                if direction in ["up", "down"]:
+                    print(f"Scrolling {direction} by {amount} clicks")
+                    pyautogui.scroll(clicks)
+                elif direction in ["left", "right"]:
+                    print(f"Scrolling {direction} by {amount} clicks")
+                    pyautogui.hscroll(clicks)
+                else:
+                    print(f"Invalid scroll direction: {direction}")
+            except Exception as e:
+                print(f"Error performing scroll operation:", e)
 
         elif op.get("operation") == "write":
             content = op.get("content", "")
@@ -508,6 +550,6 @@ def operate(operations, session_id, model=None):
 
         elif op.get("operation") == "done":
             print("Operation completed:", op.get("summary", ""))
-            return True  # Stop processing further operations
+            return True  # Signal that the task is completed
 
-    return False  # Continue processing
+    return False  # Continue processing this task
