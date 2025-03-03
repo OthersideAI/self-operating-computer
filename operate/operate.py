@@ -517,7 +517,7 @@ def operate(operations, session_id, model=None):
         elif op.get("operation") == "scroll":
             try:
                 direction = op.get("direction", "down")
-                amount = int(op.get("amount", 3))
+                amount = int(op.get("amount", 25))
 
                 # Convert direction to clicks (positive for down/right, negative for up/left)
                 clicks = amount
