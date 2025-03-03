@@ -85,7 +85,7 @@ Example 3: Right-clicking to open a context menu
 Example 4: Scrolling down a webpage
 ```
 [
-    {{ "thought": "I need to scroll down to see more content", "operation": "scroll", "direction": "down", "amount": "5" }}
+    {{ "thought": "I need to scroll down to see more content", "operation": "scroll", "direction": "up|down|left|right", "amount": "5" }}
 ]
 ```
 
@@ -191,7 +191,7 @@ Example 3: Right-clicking to open a context menu with a labeled element
 Example 4: Scrolling down a webpage
 ```
 [
-    {{ "thought": "I need to scroll down to see more content", "operation": "scroll", "direction": "down", "amount": "5" }}
+    {{ "thought": "I need to scroll down to see more content", "operation": "scroll", "direction": "up|down|left|right", "amount": "5" }}
 ]
 ```
 
@@ -315,7 +315,7 @@ Example 4: Right-clicking to open a context menu
 Example 5: Scrolling through content
 ```
 [
-    {{ "thought": "I need to scroll down to see more content on the page", "operation": "scroll", "direction": "down", "amount": "5" }}
+    {{ "thought": "I need to scroll down to see more content on the page", "operation": "scroll", "direction": "up|down|left|right", "amount": "5" }}
 ]
 ```
 
