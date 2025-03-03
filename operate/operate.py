@@ -516,20 +516,26 @@ def operate(operations, session_id, model=None):
 
         elif op.get("operation") == "scroll":
             try:
-                direction = op.get("direction", "down")
+
+                direction = op.get("direction")
                 amount = int(op.get("amount", 3))
 
                 # Convert direction to clicks (positive for down/right, negative for up/left)
-                clicks = amount * 15
+
+                if direction in ["down", "right"]:
+                    clicks = amount * 150
+
                 if direction in ["up", "left"]:
-                    clicks = -amount
+                    clicks = -amount * 150
 
                 if direction in ["up", "down"]:
                     print(f"Scrolling {direction} by {amount} clicks")
                     pyautogui.scroll(clicks)
+
                 elif direction in ["left", "right"]:
                     print(f"Scrolling {direction} by {amount} clicks")
                     pyautogui.hscroll(clicks)
+
                 else:
                     print(f"Invalid scroll direction: {direction}")
             except Exception as e:
