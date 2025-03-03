@@ -514,32 +514,58 @@ def operate(operations, session_id, model=None):
             except Exception as e:
                 print(f"Error performing {op.get('operation')} operation:", e)
 
+
         elif op.get("operation") == "scroll":
+
             try:
 
-                direction = op.get("direction")
-                amount = int(op.get("amount", 3))
+                direction = op.get("direction", "")
 
-                # Convert direction to clicks (positive for down/right, negative for up/left)
+                amount = int(op.get("amount", 0))
 
-                if direction in ["down", "right"]:
+                # For vertical scrolling: positive for up, negative for down
+
+                if direction == "up":
+
                     clicks = amount * 150
 
-                if direction in ["up", "left"]:
+                elif direction == "down":
+
                     clicks = -amount * 150
 
+                # For horizontal scrolling: negative for left, positive for right
+
+                elif direction == "left":
+
+                    clicks = -amount * 150
+
+                elif direction == "right":
+
+                    clicks = amount * 150
+
+                else:
+
+                    print(f"Invalid scroll direction: {direction}")
+
+                    clicks = 0
+
+                # Execute scroll based on direction type
+
                 if direction in ["up", "down"]:
+
                     print(f"Scrolling {direction} by {amount} clicks")
+
                     pyautogui.scroll(clicks)
 
                 elif direction in ["left", "right"]:
+
                     print(f"Scrolling {direction} by {amount} clicks")
+
                     pyautogui.hscroll(clicks)
 
-                else:
-                    print(f"Invalid scroll direction: {direction}")
             except Exception as e:
-                print(f"Error performing scroll operation:", e)
+
+                print("Error performing scroll operation:", e)
 
         elif op.get("operation") == "write":
             content = op.get("content", "")
