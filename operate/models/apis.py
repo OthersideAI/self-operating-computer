@@ -24,6 +24,7 @@ from operate.utils.label import (
     get_label_coordinates,
 )
 from operate.utils.ocr import get_text_coordinates, get_text_element
+from operate.utils.omniparser import OmniParserClient
 from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
 from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
 
@@ -39,6 +40,9 @@ async def get_next_action(model, messages, objective, session_id):
         return call_gpt_4o(messages), None
     if model == "qwen-vl":
         operation = await call_qwen_vl_with_ocr(messages, objective, model)
+        return operation, None
+    if model == "qwen-vl-with-omniparser":
+        operation = await call_qwen_vl_with_ominiparser(messages, objective, model)
         return operation, None
     if model == "gpt-4-with-som":
         operation = await call_gpt_4o_labeled(messages, objective, model)
@@ -667,6 +671,116 @@ async def call_gpt_4o_labeled(messages, objective, model):
                     processed_content,
                 )
             return processed_content
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[{model}] That did not work. Trying another method {ANSI_RESET}"
+        )
+        if config.verbose:
+            print("[Self-Operating Computer][Operate] error", e)
+            traceback.print_exc()
+        return call_gpt_4o(messages)
+
+
+async def call_qwen_vl_with_ominiparser(messages, objective, model):
+    if config.verbose:
+        print("[call_qwen_vl_with_ominiparser]")
+
+    try:
+        time.sleep(1)
+        client = config.initialize_qwen()
+
+        confirm_system_prompt(messages, objective, model)
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        # Call the function to capture the screen with the cursor
+        raw_screenshot_filename = os.path.join(screenshots_dir, "raw_screenshot.png")
+        capture_screen_with_cursor(raw_screenshot_filename)
+
+        # Use Omniparser to parse image
+        som_screenshot_filename = os.path.join(screenshots_dir, "som_screenshot.jpeg")
+        omni_parser_client = OmniParserClient(os.getenv("OMNIPARSER_BASE_URL", "http://localhost:8000"))
+        parsed_res = omni_parser_client.parse_screenshot(raw_screenshot_filename, som_screenshot_filename)
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        if config.verbose:
+            print(
+                "[call_qwen_vl_with_ominiparser] user_prompt",
+                user_prompt,
+            )
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{parsed_res['som_image_base64']}"
+                    },
+                },
+                {"type": "text", "text": parsed_res["screen_info"]},
+            ],
+        }
+        messages.append(vision_message)
+
+        response = client.chat.completions.create(
+            model="qwen2.5-vl-72b-instruct",
+            messages=messages,
+        )
+
+        content = response.choices[0].message.content
+
+        content = clean_json(content)
+        if config.verbose:
+            print(
+                "[call_qwen_vl_with_ominiparser] content",
+                content,
+            )
+
+        assistant_message = {"role": "assistant", "content": content}
+        messages.append(assistant_message)
+        content = json.loads(content)
+        processed_content = []
+
+        for operation in content:
+            print(
+                "[call_qwen_vl_with_ominiparser] for operation in content",
+                operation,
+            )
+            if operation.get("operation") == "click":
+                box_id = operation.get("id")
+                if config.verbose:
+                    print(
+                        "[Self Operating Computer][call_gpt_4_vision_preview_labeled] box_id",
+                        box_id,
+                    )
+
+                x_percent, y_percent = OmniParserClient.get_click_position(int(box_id), parsed_res["parsed_content_list"])
+                operation["x"] = x_percent
+                operation["y"] = y_percent
+                if config.verbose:
+                    print(
+                        "[Self Operating Computer][call_qwen_vl_with_ominiparser] new click operation",
+                        operation,
+                    )
+                processed_content.append(operation)
+            else:
+                if config.verbose:
+                    print(
+                        "[Self Operating Computer][call_qwen_vl_with_ominiparser] .append none click operation",
+                        operation,
+                    )
+
+                processed_content.append(operation)
+
+        return processed_content
 
     except Exception as e:
         print(
