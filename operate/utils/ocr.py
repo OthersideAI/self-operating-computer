@@ -1,7 +1,8 @@
-from operate.config import Config
+from config import Config
 from PIL import Image, ImageDraw
 import os
 from datetime import datetime
+from utils.style import ANSI_RED, ANSI_RESET
 
 # Load configuration
 config = Config()

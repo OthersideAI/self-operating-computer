@@ -10,9 +10,14 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 
 setup(
     name="self-operating-computer",
-    version="1.5.8",
+    version="0.1.0",
     packages=find_packages(),
-    install_requires=required,  # Add dependencies here
+    install_requires=[
+        "websockets",
+        "prompt_toolkit",
+        "pyautogui",
+    ],
+    python_requires=">=3.7",
     entry_points={
         "console_scripts": [
             "operate=operate.main:main_entry",

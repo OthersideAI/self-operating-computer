@@ -53,3 +53,4 @@ ultralytics==8.0.227
 easyocr==1.7.1
 ollama==0.1.6
 anthropic
+websockets==12.0

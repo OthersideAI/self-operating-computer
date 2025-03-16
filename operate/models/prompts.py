@@ -1,5 +1,7 @@
+import os
 import platform
-from operate.config import Config
+from config import Config
+from utils.style import ANSI_GREEN, ANSI_RESET
 
 # Load configuration
 config = Config()

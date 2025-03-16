@@ -143,6 +143,23 @@ Based on recent tests, OCR performs better than `som` and vanilla GPT-4 so we ma
 
  `operate` or `operate -m gpt-4-with-ocr` will also work. 
 
+### WebSocket Mode `--websocket`
+The Self-Operating Computer Framework now supports WebSocket mode, allowing you to control the computer through a WebSocket connection. This enables integration with external applications and remote control capabilities.
+
+To use WebSocket mode, you need to specify both the WebSocket server URI and a room ID:
+
+```
+operate --websocket "ws://localhost:8000" --room "your_room_id"
+```
+
+You can combine WebSocket mode with different models:
+
+```
+operate --websocket "ws://localhost:8000" --room "your_room_id" -m gpt-4-with-ocr
+```
+
+Note: Voice mode is not supported when using WebSocket mode.
+
 ### Set-of-Mark Prompting `-m gpt-4-with-som`
 The Self-Operating Computer Framework now supports Set-of-Mark (SoM) Prompting with the `gpt-4-with-som` command. This new visual prompting method enhances the visual grounding capabilities of large multimodal models.
 

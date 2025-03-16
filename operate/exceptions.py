@@ -1,10 +1,10 @@
-class ModelNotRecognizedException(Exception):
-    """Exception raised for unrecognized models.
+"""
+Custom exceptions for the Self-Operating Computer
+"""
 
-    Attributes:
-        model -- the unrecognized model
-        message -- explanation of the error
-    """
+class ModelNotRecognizedException(Exception):
+    """Raised when the specified model is not recognized."""
+    pass
 
     def __init__(self, model, message="Model not recognized"):
         self.model = model

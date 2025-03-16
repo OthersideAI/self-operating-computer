@@ -4,16 +4,15 @@ import time
 import asyncio
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit import prompt
-from operate.exceptions import ModelNotRecognizedException
+from exceptions import ModelNotRecognizedException
 import platform
 
-# from operate.models.prompts import USER_QUESTION, get_system_prompt
-from operate.models.prompts import (
+from models.prompts import (
     USER_QUESTION,
     get_system_prompt,
 )
-from operate.config import Config
-from operate.utils.style import (
+from config import Config
+from utils.style import (
     ANSI_GREEN,
     ANSI_RESET,
     ANSI_YELLOW,
@@ -22,15 +21,15 @@ from operate.utils.style import (
     ANSI_BLUE,
     style,
 )
-from operate.utils.operating_system import OperatingSystem
-from operate.models.apis import get_next_action
+from utils.operating_system import OperatingSystem
+from models.apis import get_next_action
 
 # Load configuration
 config = Config()
 operating_system = OperatingSystem()
 
 
-def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
+async def main(model, terminal_prompt=None, voice_mode=False, verbose_mode=False):
     """
     Main function for the Self-Operating Computer.
 
@@ -38,6 +37,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     - model: The model used for generating responses.
     - terminal_prompt: A string representing the prompt provided in the terminal.
     - voice_mode: A boolean indicating whether to enable voice mode.
+    - verbose_mode: A boolean indicating whether to run in verbose mode.
 
     Returns:
     None
@@ -108,9 +108,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
         if config.verbose:
             print("[Self Operating Computer] loop_count", loop_count)
         try:
-            operations, session_id = asyncio.run(
-                get_next_action(model, messages, objective, session_id)
-            )
+            operations, session_id = await get_next_action(model, messages, objective, session_id)
 
             stop = operate(operations, model)
             if stop:

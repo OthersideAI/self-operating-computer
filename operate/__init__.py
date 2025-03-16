@@ -1,0 +1,3 @@
+"""
+Self-Operating Computer package
+"""

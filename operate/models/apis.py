@@ -11,21 +11,21 @@ import pkg_resources
 from PIL import Image
 from ultralytics import YOLO
 
-from operate.config import Config
-from operate.exceptions import ModelNotRecognizedException
-from operate.models.prompts import (
+from config import Config
+from exceptions import ModelNotRecognizedException
+from models.prompts import (
     get_system_prompt,
     get_user_first_message_prompt,
     get_user_prompt,
 )
-from operate.utils.label import (
+from utils.label import (
     add_labels,
     get_click_position_in_percent,
     get_label_coordinates,
 )
-from operate.utils.ocr import get_text_coordinates, get_text_element
-from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
-from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
+from utils.ocr import get_text_coordinates, get_text_element
+from utils.screenshot import capture_screen_with_cursor, compress_screenshot
+from utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
 
 # Load configuration
 config = Config()
