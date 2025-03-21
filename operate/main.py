@@ -42,6 +42,10 @@ def main_entry():
 
     try:
         args = parser.parse_args()
+        
+        if args.model == "ollama":
+            args.model = input("Enter the model name (make sure it's in 'ollama list' and is multimodal): ")
+
         main(
             args.model,
             terminal_prompt=args.prompt,

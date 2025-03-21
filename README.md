@@ -83,28 +83,28 @@ Use Qwen-vl with Vision to see how it stacks up to GPT-4-Vision at operating a c
 operate -m qwen-vl
 ```
 
-#### Try LLaVa Hosted Through Ollama `-m llava`
+#### Try Multimodal Models Hosted Through Ollama `-m ollama`
 If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
 *Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
 
 First, install Ollama on your machine from https://ollama.ai/download.   
 
-Once Ollama is installed, pull the LLaVA model:
+Once Ollama is installed, pull the model you want to use:
 ```
-ollama pull llava
+ollama pull <model_name>
 ```
-This will download the model on your machine which takes approximately 5 GB of storage.   
+This will download the model on your machine which takes approximately 5 GB of storage for llava:7b.   
 
-When Ollama has finished pulling LLaVA, start the server:
+When Ollama has finished pulling the model, start the server:
 ```
 ollama serve
 ```
 
-That's it! Now start `operate` and select the LLaVA model:
+That's it! Now start `operate` and select the model you want to use:
 ```
-operate -m llava
+operate -m ollama
 ```   
-**Important:** Error rates when using LLaVA are very high. This is simply intended to be a base to build off of as local multimodal models improve over time.
+**Important:** Error rates when using ollama are very high, even with large models like llama3.2-vision:90b. This is simply intended to be a base to build off of as local multimodal models improve over time.
 
 Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
 
