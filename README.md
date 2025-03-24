@@ -35,7 +35,7 @@ pip install self-operating-computer
 ```
 2. **Run the project**
 ```
-operate
+operate\operate
 ```
 3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
 
