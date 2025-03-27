@@ -30,7 +30,7 @@ config = Config()
 operating_system = OperatingSystem()
 
 
-def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
+def main(model, terminal_prompt, voice_mode=False, verbose_mode=False, ocr_mode=False):
     """
     Main function for the Self-Operating Computer.
 
@@ -38,6 +38,8 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     - model: The model used for generating responses.
     - terminal_prompt: A string representing the prompt provided in the terminal.
     - voice_mode: A boolean indicating whether to enable voice mode.
+    - verbose_mode: A boolean indicating whether to enable verbose logging.
+    - ocr_mode: A boolean indicating whether to enable OCR for Ollama models.
 
     Returns:
     None
@@ -47,6 +49,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     # Initialize `WhisperMic`, if `voice_mode` is True
 
     config.verbose = verbose_mode
+    config.ocr_enabled = ocr_mode
     config.validation(model, voice_mode)
 
     if voice_mode:

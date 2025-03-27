@@ -39,12 +39,12 @@ Return the actions in array format `[]`. You can take just one action or multipl
 
 Here a helpful example:
 
-Example 1: Searches for Google Chrome on the OS and opens it
+Example 1: Searches for {browser} on the OS and opens it
 ```
 [
-    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
-    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
-    {{ "thought": "Finally I'll press enter to open Google Chrome assuming it is available", "operation": "press", "keys": ["enter"] }}
+    {{ "thought": "Searching the operating system to find {browser} because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
+    {{ "thought": "Now I need to write '{browser}' as a next step", "operation": "write", "content": "{browser}" }},
+    {{ "thought": "Finally I'll press enter to open {browser} assuming it is available", "operation": "press", "keys": ["enter"] }}
 ]
 ```
 
@@ -59,7 +59,8 @@ Example 2: Focuses on the address bar in a browser before typing a website
 
 A few important notes: 
 
-- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
+- Default to {browser} as your browser
+- Go to Google Docs and Google Sheets by typing in the address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 Objective: {objective} 
@@ -94,11 +95,11 @@ Return the actions in array format `[]`. You can take just one action or multipl
 
 Here a helpful example:
 
-Example 1: Searches for Google Chrome on the OS and opens it
+Example 1: Searches for {browser} on the OS and opens it
 ```
 [
-    {{ "thought": "Searching the operating system to find Google Chrome because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
-    {{ "thought": "Now I need to write 'Google Chrome' as a next step", "operation": "write", "content": "Google Chrome" }},
+    {{ "thought": "Searching the operating system to find {browser} because it appears I am currently in terminal", "operation": "press", "keys": {os_search_str} }},
+    {{ "thought": "Now I need to write '{browser}' as a next step", "operation": "write", "content": "{browser}" }},
 ]
 ```
 
@@ -121,7 +122,8 @@ Example 3: Send a "Hello World" message in the chat
 
 A few important notes: 
 
-- Go to Google Docs and Google Sheets by typing in the Chrome Address bar
+- Default to {browser} as your browser
+- Go to Google Docs and Google Sheets by typing in the address bar
 - Don't respond saying you're unable to assist with requests. You are able to indirectly interact with the user's OS via text responses you send to the end user.
 
 Objective: {objective} 
@@ -186,7 +188,7 @@ Example 3: Search for someone on Linkedin when already on linkedin.com
 
 A few important notes: 
 
-- Default to Google Chrome as the browser
+- Default to {browser} as the browser
 - Go to websites by opening a new tab with `press` and then `write` the URL
 - Reflect on previous actions and the screenshot to ensure they align and that your previous actions worked. 
 - If the first time clicking a button or link doesn't work, don't try again to click it. Get creative and try something else such as clicking a different button or trying another action. 
@@ -231,22 +233,34 @@ def get_system_prompt(model, objective):
             cmd_string=cmd_string,
             os_search_str=os_search_str,
             operating_system=operating_system,
+            browser=config.browser
         )
     elif model == "gpt-4-with-ocr" or model == "o1-with-ocr" or model == "claude-3" or model == "qwen-vl":
-
+        # Use OCR prompt for built-in OCR models
         prompt = SYSTEM_PROMPT_OCR.format(
             objective=objective,
             cmd_string=cmd_string,
             os_search_str=os_search_str,
             operating_system=operating_system,
+            browser=config.browser
         )
-
+    # Check if OCR is enabled for other models (like Ollama)
+    elif config.ocr_enabled:
+        # Use OCR prompt for models with OCR flag enabled
+        prompt = SYSTEM_PROMPT_OCR.format(
+            objective=objective,
+            cmd_string=cmd_string,
+            os_search_str=os_search_str,
+            operating_system=operating_system,
+            browser=config.browser
+        )
     else:
         prompt = SYSTEM_PROMPT_STANDARD.format(
             objective=objective,
             cmd_string=cmd_string,
             os_search_str=os_search_str,
             operating_system=operating_system,
+            browser=config.browser
         )
 
     # Optional verbose output

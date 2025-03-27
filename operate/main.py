@@ -39,18 +39,36 @@ def main_entry():
         type=str,
         required=False,
     )
+    
+    # Add OCR flag for Ollama models
+    parser.add_argument(
+        "--ocr",
+        help="Enable OCR for Ollama models",
+        action="store_true",
+    )
+    
+    # Add browser preference flag
+    parser.add_argument(
+        "-b",
+        "--browser",
+        help="Specify preferred browser (default: Google Chrome)",
+        type=str,
+        default="Google Chrome",
+    )
 
     try:
         args = parser.parse_args()
         
-        if args.model == "ollama":
-            args.model = input("Enter the model name (make sure it's in 'ollama list' and is multimodal): ")
+        # No need to prompt for model name if it's directly specified
+        # The Ollama model name can now be passed directly
 
         main(
             args.model,
             terminal_prompt=args.prompt,
             voice_mode=args.voice,
-            verbose_mode=args.verbose
+            verbose_mode=args.verbose,
+            ocr_mode=args.ocr,
+            browser=args.browser
         )
     except KeyboardInterrupt:
         print(f"\n{ANSI_BRIGHT_MAGENTA}Exiting...")

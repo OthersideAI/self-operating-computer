@@ -83,11 +83,11 @@ Use Qwen-vl with Vision to see how it stacks up to GPT-4-Vision at operating a c
 operate -m qwen-vl
 ```
 
-#### Try Multimodal Models Hosted Through Ollama `-m ollama`
+#### Try Multimodal Models Hosted Through Ollama `-m <model_name>`
 If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
 *Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
 
-First, install Ollama on your machine from https://ollama.ai/download.   
+First, install Ollama on your machine from https://ollama.com/download.   
 
 Once Ollama is installed, pull the model you want to use:
 ```
@@ -100,11 +100,20 @@ When Ollama has finished pulling the model, start the server:
 ollama serve
 ```
 
-That's it! Now start `operate` and select the model you want to use:
+That's it! Now start `operate` and specify the model you want to use directly:
 ```
-operate -m ollama
-```   
-**Important:** Error rates when using ollama are very high, even with large models like llama3.2-vision:90b. This is simply intended to be a base to build off of as local multimodal models improve over time.
+operate -m llama-3.1-vision
+```
+
+For better text recognition when clicking on elements, you can enable OCR with the `--ocr` flag:
+```
+operate -m llama-3.1-vision --ocr
+```
+
+**Important:** 
+- The OCR flag is only available for Ollama models
+- The system will attempt to run any model you specify, regardless of whether it's detected as multimodal
+- Error rates when using ollama are very high, even with large models like llama3.2-vision:90b. This is simply intended to be a base to build off of as local multimodal models improve over time.
 
 Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
 
@@ -135,6 +144,19 @@ Run with voice mode
 ```
 operate --voice
 ```
+
+### Browser Preference `-b` or `--browser`
+By default, Self-Operating Computer uses Google Chrome as the browser when providing instructions. If you prefer a different browser, you can specify it using the `-b` or `--browser` flag:
+
+```
+operate -b "Firefox"
+```
+
+```
+operate --browser "Microsoft Edge"
+```
+
+The specified browser will be used in the system prompts to guide the model.
 
 ### Optical Character Recognition Mode `-m gpt-4-with-ocr`
 The Self-Operating Computer Framework now integrates Optical Character Recognition (OCR) capabilities with the `gpt-4-with-ocr` mode. This mode gives GPT-4 a hash map of clickable elements by coordinates. GPT-4 can decide to `click` elements by text and then the code references the hash map to get the coordinates for that element GPT-4 wanted to click. 
