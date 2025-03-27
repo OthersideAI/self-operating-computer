@@ -25,7 +25,7 @@ from operate.utils.label import (
 )
 from operate.utils.ocr import get_text_coordinates, get_text_element
 from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
-from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
+from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET, ANSI_YELLOW
 
 # Load configuration
 config = Config()
@@ -53,13 +53,51 @@ async def get_next_action(model, messages, objective, session_id):
         return "coming soon"
     if model == "gemini-pro-vision":
         return call_gemini_pro_vision(messages, objective), None
-    if model == "llava":
-        operation = call_ollama_llava(messages)
-        return operation, None
     if model == "claude-3":
         operation = await call_claude_3_with_ocr(messages, objective, model)
         return operation, None
+    if ollama_model_installed(model):
+        is_multimodal = ollama_model_multimodal(model)
+        if is_multimodal or not is_multimodal:  # Run regardless of multimodality check
+            if config.ocr_enabled:
+                operation = await call_ollama_with_ocr(messages, model)
+            else:
+                operation = call_ollama(messages, model)
+            return operation, None
     raise ModelNotRecognizedException(model)
+
+
+def ollama_model_installed(model_name):
+    import ollama
+    installed_models = ollama.list()
+
+    for model in installed_models.get('models', []):
+        if model_name == model['name']:
+            return True
+
+    return False
+
+
+def ollama_model_multimodal(model_name):
+    """
+    Check if an Ollama model appears to support multimodal inputs.
+    Note: This check is not definitive and the model will run regardless.
+    """
+    model_info = ollama.show(model_name)
+    if 'details' in model_info:
+        if 'families' in model_info['details']:
+            families = model_info['details']['families']
+            multimodal_indicators = [
+                'clip', 'vision', 'llava', 'bakllava', 'multimodal']
+            for indicator in multimodal_indicators:
+                if any(indicator.lower() in family.lower() for family in families):
+                    return True
+            if 'vision' in model_info.get('details', {}).get('capabilities', []):
+                return True
+    
+    # Print a warning but continue anyway
+    print(f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_YELLOW}[Warning] Model {model_name} doesn't appear to be multimodal but will be used anyway{ANSI_RESET}")
+    return False
 
 
 def call_gpt_4o(messages):
@@ -154,7 +192,8 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         # Call the function to capture the screen with the cursor
-        raw_screenshot_filename = os.path.join(screenshots_dir, "raw_screenshot.png")
+        raw_screenshot_filename = os.path.join(
+            screenshots_dir, "raw_screenshot.png")
         capture_screen_with_cursor(raw_screenshot_filename)
 
         # Compress screenshot image to make size be smaller
@@ -256,6 +295,7 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
             traceback.print_exc()
         return gpt_4_fallback(messages, objective, model)
 
+
 def call_gemini_pro_vision(messages, objective):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
@@ -282,7 +322,8 @@ def call_gemini_pro_vision(messages, objective):
         if config.verbose:
             print("[call_gemini_pro_vision] model", model)
 
-        response = model.generate_content([prompt, Image.open(screenshot_filename)])
+        response = model.generate_content(
+            [prompt, Image.open(screenshot_filename)])
 
         content = response.text[1:]
         if config.verbose:
@@ -541,7 +582,8 @@ async def call_gpt_4o_labeled(messages, objective, model):
         client = config.initialize_openai()
 
         confirm_system_prompt(messages, objective, model)
-        file_path = pkg_resources.resource_filename("operate.models.weights", "best.pt")
+        file_path = pkg_resources.resource_filename(
+            "operate.models.weights", "best.pt")
         yolo_model = YOLO(file_path)  # Load your trained model
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
@@ -554,7 +596,8 @@ async def call_gpt_4o_labeled(messages, objective, model):
         with open(screenshot_filename, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        img_base64_labeled, label_coordinates = add_labels(img_base64, yolo_model)
+        img_base64_labeled, label_coordinates = add_labels(
+            img_base64, yolo_model)
 
         if len(messages) == 1:
             user_prompt = get_user_first_message_prompt()
@@ -627,7 +670,8 @@ async def call_gpt_4o_labeled(messages, objective, model):
                 image = Image.open(
                     io.BytesIO(base64.b64decode(img_base64))
                 )  # Load the image to get its size
-                image_size = image.size  # Get the size of the image (width, height)
+                # Get the size of the image (width, height)
+                image_size = image.size
                 click_position_percent = get_click_position_in_percent(
                     coordinates, image_size
                 )
@@ -678,12 +722,12 @@ async def call_gpt_4o_labeled(messages, objective, model):
         return call_gpt_4o(messages)
 
 
-def call_ollama_llava(messages):
+def call_ollama(messages, model_name):
     if config.verbose:
-        print("[call_ollama_llava]")
+        print("[call_ollama]")
     time.sleep(1)
     try:
-        model = config.initialize_ollama()
+        ollama_client = config.initialize_ollama()
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
@@ -699,7 +743,7 @@ def call_ollama_llava(messages):
 
         if config.verbose:
             print(
-                "[call_ollama_llava] user_prompt",
+                "[call_ollama] user_prompt",
                 user_prompt,
             )
 
@@ -710,8 +754,8 @@ def call_ollama_llava(messages):
         }
         messages.append(vision_message)
 
-        response = model.chat(
-            model="llava",
+        response = ollama_client.chat(
+            model=model_name,
             messages=messages,
         )
 
@@ -727,10 +771,18 @@ def call_ollama_llava(messages):
         assistant_message = {"role": "assistant", "content": content}
         if config.verbose:
             print(
-                "[call_ollama_llava] content",
+                "[call_ollama] content",
                 content,
             )
-        content = json.loads(content)
+        
+        try:
+            content = json.loads(content)
+            if config.verbose:
+                print("[call_ollama] Successfully parsed JSON from model response")
+        except json.JSONDecodeError as e:
+            if config.verbose:
+                print(f"[call_ollama] Failed to parse JSON: {e}")
+            raise  # Re-raise to be caught by outer exception handler
 
         messages.append(assistant_message)
 
@@ -738,22 +790,22 @@ def call_ollama_llava(messages):
 
     except ollama.ResponseError as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull llava` then `ollama serve`{ANSI_RESET}",
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull {model_name}` then `ollama serve`{ANSI_RESET}",
             e,
         )
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[llava] That did not work. Trying again {ANSI_RESET}",
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[{model_name}] That did not work. Trying again {ANSI_RESET}",
             e,
         )
         print(
             f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
-            content,
+            content if 'content' in locals() else "Not available",
         )
         if config.verbose:
             traceback.print_exc()
-        return call_ollama_llava(messages)
+        return call_ollama(messages, model_name)
 
 
 async def call_claude_3_with_ocr(messages, objective, model):
@@ -789,7 +841,8 @@ async def call_claude_3_with_ocr(messages, objective, model):
                 print("[call_claude_3_with_ocr] resizing claude")
 
             # Resize the image
-            img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            img_resized = img.resize(
+                (new_width, new_height), Image.Resampling.LANCZOS)
 
             # Save the resized and converted image to a BytesIO object for JPEG format
             img_buffer = io.BytesIO()
@@ -942,7 +995,8 @@ async def call_claude_3_with_ocr(messages, objective, model):
                         else:
                             updated_content.append(item)
 
-                gpt4_messages.append({"role": "user", "content": updated_content})
+                gpt4_messages.append(
+                    {"role": "user", "content": updated_content})
             elif message["role"] == "assistant":
                 gpt4_messages.append(
                     {"role": "assistant", "content": message["content"]}
@@ -1010,11 +1064,11 @@ def clean_json(content):
         print("\n\n[clean_json] content before cleaning", content)
     if content.startswith("```json"):
         content = content[
-            len("```json") :
+            len("```json"):
         ].strip()  # Remove starting ```json and trim whitespace
     elif content.startswith("```"):
         content = content[
-            len("```") :
+            len("```"):
         ].strip()  # Remove starting ``` and trim whitespace
     if content.endswith("```"):
         content = content[
@@ -1026,5 +1080,144 @@ def clean_json(content):
 
     if config.verbose:
         print("\n\n[clean_json] content after cleaning", content)
+        # Check if the JSON is valid
+        try:
+            json.loads(content)
+            print("[clean_json] ✅ JSON is valid")
+        except json.JSONDecodeError as e:
+            print(f"[clean_json] ❌ JSON is invalid: {e}")
 
     return content
+
+
+async def call_ollama_with_ocr(messages, model_name):
+    """
+    Call Ollama model with OCR capabilities similar to other OCR-enabled models.
+    """
+    if config.verbose:
+        print("[call_ollama_with_ocr]")
+    time.sleep(1)
+    try:
+        ollama_client = config.initialize_ollama()
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        if config.verbose:
+            print(
+                "[call_ollama_with_ocr] user_prompt",
+                user_prompt,
+            )
+
+        vision_message = {
+            "role": "user",
+            "content": user_prompt,
+            "images": [screenshot_filename],
+        }
+        messages.append(vision_message)
+
+        response = ollama_client.chat(
+            model=model_name,
+            messages=messages,
+        )
+
+        # Important: Remove the image path from the message history.
+        # Ollama will attempt to load each image reference and will
+        # eventually timeout.
+        messages[-1]["images"] = None
+
+        content = response["message"]["content"].strip()
+
+        content = clean_json(content)
+
+        # used later for the messages
+        content_str = content
+
+        try:
+            content = json.loads(content)
+            if config.verbose:
+                print("[call_ollama_with_ocr] Successfully parsed JSON from model response")
+        except json.JSONDecodeError as e:
+            if config.verbose:
+                print(f"[call_ollama_with_ocr] Failed to parse JSON: {e}")
+                print(f"[call_ollama_with_ocr] Raw content that failed to parse: {content_str}")
+            raise  # Re-raise to be caught by outer exception handler
+
+        processed_content = []
+
+        for operation in content:
+            if operation.get("operation") == "click":
+                text_to_click = operation.get("text")
+                if config.verbose:
+                    print(
+                        "[call_ollama_with_ocr][click] text_to_click",
+                        text_to_click,
+                    )
+                # Initialize EasyOCR Reader
+                reader = easyocr.Reader(["en"])
+
+                # Read the screenshot
+                result = reader.readtext(screenshot_filename)
+
+                text_element_index = get_text_element(
+                    result, text_to_click, screenshot_filename
+                )
+                coordinates = get_text_coordinates(
+                    result, text_element_index, screenshot_filename
+                )
+
+                # add `coordinates`` to `content`
+                operation["x"] = coordinates["x"]
+                operation["y"] = coordinates["y"]
+
+                if config.verbose:
+                    print(
+                        "[call_ollama_with_ocr][click] text_element_index",
+                        text_element_index,
+                    )
+                    print(
+                        "[call_ollama_with_ocr][click] coordinates",
+                        coordinates,
+                    )
+                    print(
+                        "[call_ollama_with_ocr][click] final operation",
+                        operation,
+                    )
+                processed_content.append(operation)
+
+            else:
+                processed_content.append(operation)
+
+        # wait to append the assistant message so that if the `processed_content` step fails we don't append a message and mess up message history
+        assistant_message = {"role": "assistant", "content": content_str}
+        messages.append(assistant_message)
+
+        return processed_content
+
+    except ollama.ResponseError as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull {model_name}` then `ollama serve`{ANSI_RESET}",
+            e,
+        )
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[{model_name}] That did not work. Trying again {ANSI_RESET}",
+            e,
+        )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
+            content_str if 'content_str' in locals() else "Not available",
+        )
+        if config.verbose:
+            traceback.print_exc()
+        return call_ollama(messages, model_name)

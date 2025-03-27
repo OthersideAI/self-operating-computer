@@ -18,6 +18,8 @@ class Config:
         openai_api_key (str): API key for OpenAI.
         google_api_key (str): API key for Google.
         ollama_host (str): url to ollama running remotely.
+        ocr_enabled (bool): Flag indicating whether OCR is enabled for Ollama models.
+        browser (str): Preferred browser to use in system prompts.
     """
 
     _instance = None
@@ -31,6 +33,8 @@ class Config:
     def __init__(self):
         load_dotenv()
         self.verbose = False
+        self.ocr_enabled = False
+        self.browser = "Google Chrome"
         self.openai_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
