@@ -20,7 +20,7 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4o, o1, Gemini Pro Vision, Claude 3, Qwen-VL and LLaVa.**
+- **Integration**: Currently integrated with **GPT-4o, GPT-4.1, o1, Gemini Pro Vision, Claude 3, Qwen-VL and LLaVa.**
 - **Future Plans**: Support for additional models.
 
 ## Demo
@@ -54,10 +54,16 @@ operate
 
 #### OpenAI models
 
-The default model for the project is gpt-4o which you can use by simply typing `operate`. To try running OpenAI's new `o1` model, use the command below. 
+The default model for the project is gpt-4o which you can use by simply typing `operate`. To try running OpenAI's new `o1` model, use the command below.
 
 ```
 operate -m o1-with-ocr
+```
+
+To experiment with OpenAI's latest `gpt-4.1` model, run:
+
+```
+operate -m gpt-4.1-with-ocr
 ```
 
 

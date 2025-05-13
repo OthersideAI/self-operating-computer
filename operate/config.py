@@ -139,6 +139,7 @@ class Config:
             or voice_mode
             or model == "gpt-4-with-som"
             or model == "gpt-4-with-ocr"
+            or model == "gpt-4.1-with-ocr"
             or model == "o1-with-ocr",
         )
         self.require_api_key(
