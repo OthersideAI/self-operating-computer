@@ -104,7 +104,7 @@ class Config:
                 )
             api_key = os.getenv("GOOGLE_API_KEY")
         genai.configure(api_key=api_key, transport="rest")
-        model = genai.GenerativeModel("gemini-pro-vision")
+        model = genai.GenerativeModel("gemini-exp-1206")
 
         return model
 
@@ -143,7 +143,7 @@ class Config:
             or model == "o1-with-ocr",
         )
         self.require_api_key(
-            "GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision"
+            "GOOGLE_API_KEY", "Google API key", model == "gemini-exp-1206"
         )
         self.require_api_key(
             "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
