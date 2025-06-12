@@ -1,0 +1,15 @@
+{
+    "summary": "The project requires Python packages aiohttp 3.9.1 and ultralytics 8.0.227, listed in the requirements.txt format.",
+    "details": [
+        {
+            "comment": "This is a list of Python package dependencies for a project, specified in requirements.txt format.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/requirements.txt\":0-49",
+            "content": "annotated-types==0.6.0\nanyio==3.7.1\ncertifi==2023.7.22\ncharset-normalizer==3.3.2\ncolorama==0.4.6\ncontourpy==1.2.0\ncycler==0.12.1\ndistro==1.8.0\nEasyProcess==1.1\nentrypoint2==1.1\nexceptiongroup==1.1.3\nfonttools==4.44.0\nh11==0.14.0\nhttpcore==1.0.2\nhttpx==0.25.1\nidna==3.4\nimportlib-resources==6.1.1\nkiwisolver==1.4.5\nmatplotlib==3.8.1\nMouseInfo==0.1.3\nmss==9.0.1\nnumpy==1.26.1\nopenai==1.2.3\npackaging==23.2\nPillow==10.1.0\nprompt-toolkit==3.0.39\nPyAutoGUI==0.9.54\npydantic==2.4.2\npydantic_core==2.10.1\nPyGetWindow==0.0.9\nPyMsgBox==1.0.9\npyparsing==3.1.1\npyperclip==1.8.2\nPyRect==0.2.0\npyscreenshot==3.1\nPyScreeze==0.1.29\npython3-xlib==0.15\npython-dateutil==2.8.2\npython-dotenv==1.0.0\npytweening==1.0.7\nrequests==2.31.0\nrubicon-objc==0.4.7\nsix==1.16.0\nsniffio==1.3.0\ntqdm==4.66.1\ntyping_extensions==4.8.0\nurllib3==2.0.7\nwcwidth==0.2.9\nzipp==3.17.0\ngoogle-generativeai==0.3.0"
+        },
+        {
+            "comment": "These lines specify the required Python libraries for the project: aiohttp 3.9.1 and ultralytics 8.0.227.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/requirements.txt\":50-51",
+            "content": "aiohttp==3.9.1\nultralytics==8.0.227"
+        }
+    ]
+}

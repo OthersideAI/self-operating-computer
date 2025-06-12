@@ -1,0 +1,10 @@
+{
+    "summary": "This code defines the main entry point of the Self-Operating Computer, allowing the user to specify a model and input mode. It uses the argparse module to define command line arguments for the model, voice input mode, and prompt. The main function is then called with these arguments.",
+    "details": [
+        {
+            "comment": "This code defines the main entry point of the Self-Operating Computer, allowing the user to specify a model and input mode. It uses the argparse module to define command line arguments for the model, voice input mode, and prompt. The main function is then called with these arguments.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/operate/main.py\":0-46",
+            "content": "\"\"\"\nSelf-Operating Computer\n\"\"\"\nimport argparse\nfrom operate.utils.style import ANSI_BRIGHT_MAGENTA\nfrom operate.dialog import main\ndef main_entry():\n    parser = argparse.ArgumentParser(\n        description=\"Run the self-operating-computer with a specified model.\"\n    )\n    parser.add_argument(\n        \"-m\",\n        \"--model\",\n        help=\"Specify the model to use\",\n        required=False,\n        default=\"gpt-4\",\n    )\n    # Add a voice flag\n    parser.add_argument(\n        \"--voice\",\n        help=\"Use voice input mode\",\n        action=\"store_true\",\n    )\n    # Allow for direct input of prompt\n    parser.add_argument(\n        \"--prompt\",\n        help=\"Directly input the objective prompt\",\n        type=str,\n        required=False,\n    )\n    try:\n        args = parser.parse_args()\n        main(\n            args.model,\n            terminal_prompt=args.prompt,\n            voice_mode=args.voice,\n        )\n    except KeyboardInterrupt:\n        print(f\"\\n{ANSI_BRIGHT_MAGENTA}Exiting...\")\nif __name__ == \"__main__\":\n    main_entry()"
+        }
+    ]
+}
