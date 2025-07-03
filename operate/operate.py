@@ -2,7 +2,7 @@ import sys
 import os
 import time
 import asyncio
-from prompt_toolkit.shortcuts import message_dialog
+from prompt_toolkit.shortcuts import message_dialog, radiolist_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
 import platform
@@ -30,6 +30,45 @@ config = Config()
 operating_system = OperatingSystem()
 
 
+def display_welcome_message():
+    welcome_message = """
+Welcome to Self-Operating Computer!
+
+This tool allows multimodal models to operate a computer.
+It uses screen vision and decides on mouse/keyboard actions.
+
+Let's get started!
+"""
+    print(welcome_message)
+
+
+def select_model_interactively():
+    models = [
+        ("gpt-4o", "OpenAI GPT-4o (Default)"),
+        ("gpt-4-with-ocr", "OpenAI GPT-4 with OCR"),
+        ("gpt-4.1-with-ocr", "OpenAI GPT-4.1 with OCR"),
+        ("o1-with-ocr", "OpenAI o1 with OCR"),
+        ("gpt-4-with-som", "OpenAI GPT-4 with Set-of-Mark Prompting"),
+        ("gemini-1.5-pro-latest", "Google Gemini 1.5 Pro (latest)"),
+        ("gemini-2.5-pro", "Google Gemini 2.5 Pro"),
+        ("gemini-2.5-flash", "Google Gemini 2.5 Flash"),
+        ("claude-3", "Anthropic Claude 3"),
+        ("qwen-vl", "Qwen-VL"),
+        ("llava", "LLaVa (via Ollama)"),
+        ("gemma3n", "Gemma 3n (via Ollama)"),
+        ("gemma3n:e2b", "Gemma 3n:e2b (via Ollama)"),
+        ("gemma3n:e4b", "Gemma 3n:e4b (via Ollama)"),
+    ]
+
+    selected_model = radiolist_dialog(
+        title="Model Selection",
+        text="Please select a model to use:",
+        values=models,
+    ).run()
+
+    return selected_model
+
+
 def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     """
     Main function for the Self-Operating Computer.
@@ -47,6 +86,14 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     # Initialize `WhisperMic`, if `voice_mode` is True
 
     config.verbose = verbose_mode
+
+    display_welcome_message()
+
+    if not model:
+        model = select_model_interactively()
+        if not model:  # User cancelled model selection
+            sys.exit("Model selection cancelled. Exiting.")
+
     config.validation(model, voice_mode)
 
     if voice_mode:
@@ -60,17 +107,6 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
                 "Voice mode requires the 'whisper_mic' module. Please install it using 'pip install -r requirements-audio.txt'"
             )
             sys.exit(1)
-
-    # Skip message dialog if prompt was given directly
-    if not terminal_prompt:
-        message_dialog(
-            title="Self-Operating Computer",
-            text="An experimental framework to enable multimodal models to operate computers",
-            style=style,
-        ).run()
-
-    else:
-        print("Running direct prompt...")
 
     # # Clear the console
     if platform.system() == "Windows":

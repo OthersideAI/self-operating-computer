@@ -54,10 +54,10 @@ async def get_next_action(model, messages, objective, session_id):
         return operation, None
     if model == "agent-1":
         return "coming soon"
-    if model == "gemini-pro-vision":
-        return call_gemini_pro_vision(messages, objective), None
-    if model == "llava":
-        operation = call_ollama_llava(messages)
+    if model == "gemini-1.5-pro-latest" or model == "gemini-2.5-pro" or model == "gemini-2.5-flash":
+        return call_gemini(messages, objective, model), None
+    if model == "llava" or model == "gemma3n":
+        operation = call_ollama_model(messages, model)
         return operation, None
     if model == "claude-3":
         operation = await call_claude_3_with_ocr(messages, objective, model)
@@ -259,13 +259,13 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
             traceback.print_exc()
         return gpt_4_fallback(messages, objective, model)
 
-def call_gemini_pro_vision(messages, objective):
+def call_gemini(messages, objective, model_name):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
     if config.verbose:
         print(
-            "[Self Operating Computer][call_gemini_pro_vision]",
+            "[Self Operating Computer][call_gemini_1_5_pro_latest]",
         )
     # sleep for a second
     time.sleep(1)
@@ -279,23 +279,23 @@ def call_gemini_pro_vision(messages, objective):
         capture_screen_with_cursor(screenshot_filename)
         # sleep for a second
         time.sleep(1)
-        prompt = get_system_prompt("gemini-pro-vision", objective)
+        prompt = get_system_prompt(model_name, objective)
 
-        model = config.initialize_google()
+        model = config.initialize_google(model_name)
         if config.verbose:
-            print("[call_gemini_pro_vision] model", model)
+            print("[call_gemini_1_5_pro_latest] model", model)
 
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
-        content = response.text[1:]
+        content = clean_json(response.text)
         if config.verbose:
-            print("[call_gemini_pro_vision] response", response)
-            print("[call_gemini_pro_vision] content", content)
+            print("[call_gemini_1_5_pro_latest] response", response)
+            print("[call_gemini_1_5_pro_latest] content", content)
 
         content = json.loads(content)
         if config.verbose:
             print(
-                "[get_next_action][call_gemini_pro_vision] content",
+                "[get_next_action][call_gemini_1_5_pro_latest] content",
                 content,
             )
 
@@ -303,12 +303,11 @@ def call_gemini_pro_vision(messages, objective):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] Error calling Gemini model: {e}{ANSI_RESET}"
         )
         if config.verbose:
-            print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
-        return call_gpt_4o(messages)
+        raise  # Re-raise the exception to prevent fallback to GPT-4o
 
 
 async def call_gpt_4o_with_ocr(messages, objective, model):
@@ -326,28 +325,37 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
-        # Call the function to capture the screen with the cursor
-        capture_screen_with_cursor(screenshot_filename)
+        
+        if config.display_screenshot:
+            # Call the function to capture the screen with the cursor
+            capture_screen_with_cursor(screenshot_filename)
 
-        with open(screenshot_filename, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+            with open(screenshot_filename, "rb") as img_file:
+                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        if len(messages) == 1:
-            user_prompt = get_user_first_message_prompt()
+            if len(messages) == 1:
+                user_prompt = get_user_first_message_prompt()
+            else:
+                user_prompt = get_user_prompt()
+
+            vision_message = {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": user_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
+            messages.append(vision_message)
         else:
-            user_prompt = get_user_prompt()
-
-        vision_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": user_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ],
-        }
-        messages.append(vision_message)
+            if len(messages) == 1:
+                user_prompt = get_user_first_message_prompt()
+            else:
+                user_prompt = get_user_prompt()
+            vision_message = {"role": "user", "content": user_prompt}
+            messages.append(vision_message)
 
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -438,6 +446,7 @@ async def call_gpt_4_1_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         capture_screen_with_cursor(screenshot_filename)
 
         with open(screenshot_filename, "rb") as img_file:
@@ -545,6 +554,7 @@ async def call_o1_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -657,6 +667,7 @@ async def call_gpt_4o_labeled(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -787,7 +798,7 @@ async def call_gpt_4o_labeled(messages, objective, model):
         return call_gpt_4o(messages)
 
 
-def call_ollama_llava(messages):
+def call_ollama_model(messages, model_name):
     if config.verbose:
         print("[call_ollama_llava]")
     time.sleep(1)
@@ -798,6 +809,7 @@ def call_ollama_llava(messages):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -820,9 +832,12 @@ def call_ollama_llava(messages):
         messages.append(vision_message)
 
         response = model.chat(
-            model="llava",
+            model=model_name,
             messages=messages,
         )
+
+        if not response or "message" not in response or "content" not in response["message"]:
+            raise Exception(f"Invalid response from Ollama model {model_name}: {response}")
 
         # Important: Remove the image path from the message history.
         # Ollama will attempt to load each image reference and will
@@ -847,8 +862,7 @@ def call_ollama_llava(messages):
 
     except ollama.ResponseError as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull llava` then `ollama serve`{ANSI_RESET}",
-            e,
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull {model_name}` then `ollama serve` {e}{ANSI_RESET}"
         )
 
     except Exception as e:
@@ -879,6 +893,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         capture_screen_with_cursor(screenshot_filename)
 
         # downsize screenshot due to 5MB size limit
