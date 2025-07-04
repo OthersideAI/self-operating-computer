@@ -9,7 +9,7 @@ ome
 </p>
 
 <div align="center">
-  <img src="https://github.com/malah-code//blob/main/readme/self-ai-operating-computer.png" width="750"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code//blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
 </div>
 
 <!--
