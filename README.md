@@ -43,7 +43,7 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Expanded Model Support**: Now integrated with the latest **Gemini 2.5 Pro, Gemini 2.5 Flash**, and **Gemma 3n** models (including `e2b` and `e4b` variants), alongside existing support for GPT-4o, GPT-4.1, o1, Claude 3, Qwen-VL, and LLaVa.
+- **Expanded Model Support**: Now integrated with the latest **OpenAI o3, o4-mini, GPT-4.1, GPT-4.1 mini, GPT-4.1 nano**, **Gemini 2.5 Pro, Gemini 2.5 Flash**, and **Gemma 3n** models (including `e2b` and `e4b` variants), alongside existing support for GPT-4o, Claude 3, Qwen-VL, and LLaVa.
 - **Enhanced Ollama Integration**: Improved handling for Ollama models, including default host configuration and more informative error messages.
 - **Future Plans**: Support for additional models.
 
@@ -126,7 +126,31 @@ operate -m o1-with-ocr
 To experiment with OpenAI's latest `gpt-4.1` model, run:
 
 ```
-operate -m gpt-4.1-with-ocr
+operate -m gpt-4.1
+```
+
+To experiment with OpenAI's latest `gpt-4.1 mini` model, run:
+
+```
+operate -m gpt-4.1-mini
+```
+
+To experiment with OpenAI's latest `gpt-4.1 nano` model, run:
+
+```
+operate -m gpt-4.1-nano
+```
+
+To experiment with OpenAI's latest `o3` model, run:
+
+```
+operate -m o3
+```
+
+To experiment with OpenAI's latest `o4-mini` model, run:
+
+```
+operate -m o4-mini
 ```
 
 
@@ -288,9 +312,25 @@ Here's a summary of all currently supported models and how to run them:
     ```
     operate -m o1-with-ocr
     ```
-*   **OpenAI gpt-4.1-with-ocr:**
+*   **OpenAI o3:**
     ```
-    operate -m gpt-4.1-with-ocr
+    operate -m o3
+    ```
+*   **OpenAI o4-mini:**
+    ```
+    operate -m o4-mini
+    ```
+*   **OpenAI gpt-4.1:**
+    ```
+    operate -m gpt-4.1
+    ```
+*   **OpenAI gpt-4.1 mini:**
+    ```
+    operate -m gpt-4.1-mini
+    ```
+*   **OpenAI gpt-4.1 nano:**
+    ```
+    operate -m gpt-4.1-nano
     ```
 *   **OpenAI gpt-4-with-ocr:**
     ```

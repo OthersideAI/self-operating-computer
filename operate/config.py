@@ -135,14 +135,18 @@ class Config:
         self.require_api_key(
             "OPENAI_API_KEY",
             "OpenAI API key",
-            (model in [
+            model in [
                 "gpt-4",
                 "gpt-4o",
                 "gpt-4-with-som",
                 "gpt-4-with-ocr",
-                "gpt-4.1-with-ocr",
+                "gpt-4.1",
+                "gpt-4.1-mini",
+                "gpt-4.1-nano",
                 "o1-with-ocr",
-            ]) or (voice_mode and not model.startswith("gemini")),
+                "o3",
+                "o4-mini",
+            ] or (voice_mode and not model.startswith("gemini")),
         )
         self.require_api_key(
             "GOOGLE_API_KEY",

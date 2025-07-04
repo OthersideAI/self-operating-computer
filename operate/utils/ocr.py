@@ -42,7 +42,7 @@ def get_text_element(result, search_text, image_path):
             # Draw bounding box in blue
             draw.polygon([tuple(point) for point in box], outline="blue")
 
-        if search_text in text:
+        if search_text.lower().strip() in text.lower().strip():
             found_index = index
             if config.verbose:
                 print("[get_text_element][loop] found search_text, index:", index)
@@ -59,8 +59,9 @@ def get_text_element(result, search_text, image_path):
             print("[get_text_element] OCR image saved at:", ocr_image_path)
 
         return found_index
-
-    raise Exception("The text element was not found in the image")
+    if config.verbose:
+        print(f"[get_text_element] Text '{search_text}' not found in OCR results.")
+    return None
 
 
 def get_text_coordinates(result, index, image_path):

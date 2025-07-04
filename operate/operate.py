@@ -46,8 +46,12 @@ def select_model_interactively():
     models = [
         ("gpt-4o", "OpenAI GPT-4o (Default)"),
         ("gpt-4-with-ocr", "OpenAI GPT-4 with OCR"),
-        ("gpt-4.1-with-ocr", "OpenAI GPT-4.1 with OCR"),
+        ("gpt-4.1", "OpenAI GPT-4.1"),
+        ("gpt-4.1-mini", "OpenAI GPT-4.1 mini"),
+        ("gpt-4.1-nano", "OpenAI GPT-4.1 nano"),
         ("o1-with-ocr", "OpenAI o1 with OCR"),
+        ("o3", "OpenAI o3"),
+        ("o4-mini", "OpenAI o4-mini"),
         ("gpt-4-with-som", "OpenAI GPT-4 with Set-of-Mark Prompting"),
         ("gemini-1.5-pro-latest", "Google Gemini 1.5 Pro (latest)"),
         ("gemini-2.5-pro", "Google Gemini 2.5 Pro"),
@@ -181,7 +185,18 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
             )
 
             stop = operate(operations, model)
-            if stop:
+            if stop == "done":
+                # Task completed, prompt for next objective
+                print(f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]\n{USER_QUESTION}")
+                print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+                objective = prompt(style=style)
+                system_prompt = get_system_prompt(model, objective, custom_system_prompt)
+                system_message = {"role": "system", "content": system_prompt}
+                messages = [system_message] # Reset messages for new objective
+                loop_count = 0 # Reset loop count for new objective
+                session_id = None # Reset session ID for new objective
+                continue # Continue to the next iteration of the main loop
+            elif stop:
                 break
 
             loop_count += 1
@@ -230,13 +245,11 @@ def operate(operations, model):
             operating_system.mouse(click_detail)
         elif operate_type == "done":
             summary = operation.get("summary")
-
             print(
                 f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]"
             )
-            print(f"{ANSI_BLUE}Objective Complete: {ANSI_RESET}{summary}\n")
-            return True
-
+            print(f"{ANSI_BLUE}Objective Complete: {ANSI_RESET}{summary}" + "\n")
+            return "done"
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"

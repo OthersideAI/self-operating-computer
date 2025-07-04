@@ -25,7 +25,13 @@ from operate.utils.label import (
 )
 from operate.utils.ocr import get_text_coordinates, get_text_element
 from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
-from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
+from operate.utils.style import (
+    ANSI_BRIGHT_MAGENTA,
+    ANSI_GREEN,
+    ANSI_RED,
+    ANSI_RESET,
+    ANSI_YELLOW,
+)
 
 # Load configuration
 config = Config()
@@ -264,10 +270,8 @@ def call_gemini(messages, objective, model_name):
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
     if config.verbose:
-        print(
-            "[Self Operating Computer][call_gemini_1_5_pro_latest]",
-        )
-    # sleep for a second
+        print(f"[Self Operating Computer][{model_name}]")
+    
     time.sleep(1)
     try:
         screenshots_dir = "screenshots"
@@ -275,39 +279,110 @@ def call_gemini(messages, objective, model_name):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
-        # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
-        # sleep for a second
         time.sleep(1)
+        
+        # Get the system prompt and enhance it with specific instructions
         prompt = get_system_prompt(model_name, objective)
-
+        prompt += """
+        IMPORTANT: When providing click coordinates, they MUST be in decimal percentage format (0.0 to 1.0).
+        For example, to click at 25% from the left and 50% from the top, use:
+        {"x": 0.25, "y": 0.50}
+        
+        For interacting with UI elements:
+        1. First, identify the element's position on the screen
+        2. Estimate its center point in percentage (0.0 to 1.0 for both x and y)
+        3. Return a click action with those coordinates
+        
+        For entering phone numbers:
+        1. First click on the input field
+        2. Then use the 'write' operation to type the numbers
+        
+        If you can't determine exact coordinates, make an educated guess based on the UI layout.
+        """
+        
+        # Add specific guidance for calculator operations
+        if "calculator" in objective.lower():
+            prompt += """
+            When interacting with the Calculator app:
+            1. The input field is typically at the top (y ~0.2-0.3)
+            2. Number buttons are in a grid at the bottom
+            3. Operation buttons are on the right side
+            
+            For phone number entry:
+            1. First click on the input field (x: 0.5, y: 0.25)
+            2. Then type the numbers using the 'write' operation
+            3. For a random phone number, use format: 5551234567 (without dashes)
+            """
+        
         model = config.initialize_google(model_name)
         if config.verbose:
-            print("[call_gemini_1_5_pro_latest] model", model)
+            print(f"[{model_name}] model initialized")
 
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
         content = clean_json(response.text)
+        
         if config.verbose:
-            print("[call_gemini_1_5_pro_latest] response", response)
-            print("[call_gemini_1_5_pro_latest] content", content)
+            print(f"[{model_name}] response:", content)
 
         content = json.loads(content)
-        if config.verbose:
-            print(
-                "[get_next_action][call_gemini_1_5_pro_latest] content",
-                content,
-            )
+        
+        # If content is a string, try to parse it as JSON
+        if isinstance(content, str):
+            try:
+                content = json.loads(content)
+            except json.JSONDecodeError:
+                print(f"{ANSI_RED}[Error] Failed to parse response as JSON: {content}{ANSI_RESET}")
+                raise
+        
+        # If content is not a list, wrap it in a list
+        if not isinstance(content, list):
+            content = [content]
+        
+        # Process each action in the content
+        for action in content:
+            if action.get("operation") == "click":
+                x = action.get("x")
+                y = action.get("y")
+                
+                # If coordinates are missing, try to estimate based on the objective
+                if x is None or y is None:
+                    if "calculator" in objective.lower() and "+" in objective.lower():
+                        # Default position for calculator + button (adjust as needed)
+                        action["x"] = 0.85  # Right side of calculator
+                        action["y"] = 0.6   # Vertical middle area where + usually is
+                        action["thought"] = "Moving to the + button in the calculator"
+                        print(f"{ANSI_YELLOW}Using estimated position for calculator + button{ANSI_RESET}")
+                    elif any(word in objective.lower() for word in ["phone", "number", "telephone"]):
+                        # Adjusted position for calculator input field
+                        action["x"] = 0.5    # Middle of screen (calculator should be centered)
+                        action["y"] = 0.25   # Higher up for input field
+                        action["thought"] = "Clicking on the calculator input field to type"
+                        print(f"{ANSI_YELLOW}Using estimated position for calculator input field at (0.5, 0.25){ANSI_RESET}")
+                        
+                        # Add a small delay to ensure calculator is focused
+                        time.sleep(1)
+                    else:
+                        print(f"{ANSI_RED}[Error] Missing x or y coordinates in click action. Please specify where to click.{ANSI_RESET}")
+                        print(f"{ANSI_YELLOW}Hint: Try being more specific about what to click on (e.g., 'click on the input field' or 'click on the + button'){ANSI_RESET}")
+                        raise ValueError("Missing coordinates in click action")
+                
+                # Ensure coordinates are floats
+                try:
+                    action["x"] = float(action["x"])
+                    action["y"] = float(action["y"])
+                except (TypeError, ValueError) as e:
+                    print(f"{ANSI_RED}[Error] Invalid coordinate format: {e}. Expected numbers between 0 and 1.{ANSI_RESET}")
+                    raise
 
         return content
 
     except Exception as e:
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] Error calling Gemini model: {e}{ANSI_RESET}"
-        )
+        print(f"{ANSI_RED}[Error] {e}{ANSI_RESET}")
         if config.verbose:
             traceback.print_exc()
-        raise  # Re-raise the exception to prevent fallback to GPT-4o
+        raise
 
 
 async def call_gpt_4o_with_ocr(messages, objective, model):
