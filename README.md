@@ -4,6 +4,28 @@ ome
 <p align="center">
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
+
+### Version 0.0.X (Latest) Release Summary
+
+**New Features:**
+
+*   **Interactive Model Selection:** When running `operate` without specifying a model, a welcome screen is displayed, followed by an interactive menu to select your desired model.
+*   **Dynamic API Key Prompting:** The application now intelligently prompts for required API keys (e.g., OpenAI, Google, Anthropic) only when a model requiring that key is selected and the key is not found in your environment variables or `.env` file.
+*   **Custom System Prompt:** Users can now provide a custom system prompt from a file or an environment variable (`CUSTOM_SYSTEM_PROMPT`). If the environment variable is set, the option to load from it will be hidden.
+
+**Improvements:**
+
+*   **Expanded Google Gemini Support:** Added full support for `gemini-2.5-pro` and `gemini-2.5-flash` models.
+*   **Enhanced Ollama Integration:** Improved handling for Ollama models, including setting `http://localhost:11434` as the default host and providing more informative error messages when Ollama models are not found.
+*   **Gemma 3n Model Support:** Integrated support for `gemma3n`, `gemma3n:e2b`, and `gemma3n:e4b` models via Ollama.
+*   **Robust Error Handling:** Improved error handling for API calls to prevent unexpected fallbacks and provide clearer error messages.
+
+**Bug Fixes:**
+
+*   Resolved an issue where the application would incorrectly prompt for an OpenAI API key when a Google Gemini model was selected.
+*   Fixed an issue where the application would attempt to use an incorrect model name for `gemini-2.5-flash-lite` (which is not a valid model name).
+*   Addressed the "Extra data" JSON parsing error when receiving responses from Gemini models.
+
 <p align="center">
   Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Released Nov 2023, the Self-Operating Computer Framework was one of the first examples of usiself-ai-operating-computerng a multimodal model to view the screen and operate a computer.
 </p>
