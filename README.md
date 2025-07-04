@@ -9,8 +9,9 @@ ome
 </p>
 
 <div align="center">
-  <img src="https://github.com/malah-code/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/choose-model.png" width="750"  style="max-width: 100%;"/>
 </div>
+
 
 <!--
 :rotating_light: **OUTAGE NOTIFICATION: gpt-4o**
