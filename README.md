@@ -5,11 +5,11 @@ ome
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
 <p align="center">
-  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Released Nov 2023, the Self-Operating Computer Framework was one of the first examples of using a multimodal model to view the screen and operate a computer.
+  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Released Nov 2023, the Self-Operating Computer Framework was one of the first examples of usiself-ai-operating-computerng a multimodal model to view the screen and operate a computer.
 </p>
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-operating-computer/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code//blob/main/readme/self-ai-operating-computer.png" width="750"  style="margin: 10px;"/>
 </div>
 
 <!--
@@ -25,7 +25,7 @@ ome
 - **Future Plans**: Support for additional models.
 
 ## Demo
-https://github.com/malah-code/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
+https://github.com/malah-code/self-ai-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
 ## Run `Self-Operating Computer`
@@ -34,7 +34,7 @@ To run the application from your local copy (after making changes), follow these
 
 1.  **Uninstall previous installations (if any):**
     ```bash
-    pip uninstall self-operating-computer
+    pip uninstall self-ai-operating-computer
     ```
     Confirm uninstallation when prompted.
 
@@ -52,27 +52,27 @@ To run the application from your local copy (after making changes), follow these
     If you run `operate` without any arguments, a welcome screen will be displayed, followed by an interactive model selection menu. If a model requires an API key that is not found in your environment variables or `.env` file, you will be prompted to enter it.
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-operating-computer/blob/main/readme/choose-model.png" width="300"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/choose-model.png" width="300"  style="margin: 10px;"/>
 </div>
 
 Once you select a model, you will be prompted to provide a custom system prompt. This can be loaded from a file or an environment variable.
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-operating-computer/blob/main/readme/system-parameter-1.png" width="300"  style="margin: 10px;"/>
-  <img src="https://github.com/malah-code/self-operating-computer/blob/main/readme/system-parameter-2.png" width="300"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/system-parameter-1.png" width="300"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/system-parameter-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
 4.  **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
 </div>
 
 5.  **Give Terminal app the required permissions**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
-  <img src="https://github.com/malah-code/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
+  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
 ## Using `operate` Modes
@@ -165,11 +165,11 @@ Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
 **Clone the repo** to a directory on your computer:
 ```
-git clone https://github.com/malah-code/self-operating-computer.git
+git clone https://github.com/malah-code/self-ai-operating-computer.git
 ```
 **Cd into directory**:
 ```
-cd self-operating-computer
+cd self-ai-operating-computer
 ```
 Install the additional `requirements-audio.txt`
 ```
@@ -213,7 +213,7 @@ operate -m gpt-4-with-som
 
 ## Contributions are Welcomed!:
 
-If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/malah-code/self-operating-computer/blob/main/CONTRIBUTING.md).
+If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/malah-code/self-ai-operating-computer/blob/main/CONTRIBUTING.md).
 
 ## Feedback
 
@@ -222,7 +222,7 @@ For any input on improving this project, feel free to reach out to [Josh](https:
 ## Join Our Discord Community
 
 For real-time discussions and community support, join our Discord server. 
-- If you're already a member, join the discussion in [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
+- If you're already a member, join the discussion in [#self-ai-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
 - If you're new, first [join our Discord Server](https://discord.com/channels/877638638001877052/1181241785834541157).
 
 ## Follow HyperWriteAI for More Updates

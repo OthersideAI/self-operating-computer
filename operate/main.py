@@ -8,7 +8,7 @@ from operate.operate import main
 
 def main_entry():
     parser = argparse.ArgumentParser(
-        description="Run the self-operating-computer with a specified model."
+        description="Run the self-ai-operating-computer with a specified model."
     )
     parser.add_argument(
         "-m",
