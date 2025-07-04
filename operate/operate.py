@@ -69,6 +69,36 @@ def select_model_interactively():
     return selected_model
 
 
+def get_custom_system_prompt():
+    system_prompt_options = [
+        ("none", "No custom system prompt"),
+        ("file", "Load from file"),
+    ]
+
+    if os.getenv("CUSTOM_SYSTEM_PROMPT"): # Check if env variable exists
+        pass # Don't show the option if it's already set
+    else:
+        system_prompt_options.append(("env", "Load from environment variable (CUSTOM_SYSTEM_PROMPT)"))
+
+    selected_option = radiolist_dialog(
+        title="Custom System Prompt",
+        text="How would you like to provide a custom system prompt?",
+        values=system_prompt_options,
+    ).run()
+
+    if selected_option == "file":
+        file_path = prompt("Enter the path to the system prompt file:")
+        try:
+            with open(file_path, "r") as f:
+                return f.read()
+        except FileNotFoundError:
+            print(f"{ANSI_RED}Error: File not found at {file_path}{ANSI_RESET}")
+            return None
+    elif selected_option == "env":
+        return os.getenv("CUSTOM_SYSTEM_PROMPT")
+    return None
+
+
 def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     """
     Main function for the Self-Operating Computer.
@@ -95,6 +125,8 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
             sys.exit("Model selection cancelled. Exiting.")
 
     config.validation(model, voice_mode)
+
+    custom_system_prompt = get_custom_system_prompt()
 
     if voice_mode:
         try:
@@ -132,7 +164,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
         print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
         objective = prompt(style=style)
 
-    system_prompt = get_system_prompt(model, objective)
+    system_prompt = get_system_prompt(model, objective, custom_system_prompt)
     system_message = {"role": "system", "content": system_prompt}
     messages = [system_message]
 

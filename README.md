@@ -296,6 +296,7 @@ Here's a summary of all currently supported models and how to run them:
 
 *   **Interactive Model Selection:** When running `operate` without specifying a model, a welcome screen is displayed, followed by an interactive menu to select your desired model.
 *   **Dynamic API Key Prompting:** The application now intelligently prompts for required API keys (e.g., OpenAI, Google, Anthropic) only when a model requiring that key is selected and the key is not found in your environment variables or `.env` file.
+*   **Custom System Prompt:** Users can now provide a custom system prompt from a file or an environment variable (`CUSTOM_SYSTEM_PROMPT`). If the environment variable is set, the option to load from it will be hidden.
 
 **Improvements:**
 

@@ -207,10 +207,16 @@ Please take the next best action. The `pyautogui` library will be used to execut
 Action:"""
 
 
-def get_system_prompt(model, objective):
+def get_system_prompt(model, objective, custom_system_prompt=None):
     """
     Format the vision prompt more efficiently and print the name of the prompt used
     """
+
+    if custom_system_prompt:
+        return custom_system_prompt
+
+    if custom_system_prompt:
+        return custom_system_prompt
 
     if platform.system() == "Darwin":
         cmd_string = "\"command\""
