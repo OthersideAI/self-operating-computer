@@ -51,6 +51,17 @@ To run the application from your local copy (after making changes), follow these
     ```
     If you run `operate` without any arguments, a welcome screen will be displayed, followed by an interactive model selection menu. If a model requires an API key that is not found in your environment variables or `.env` file, you will be prompted to enter it.
 
+<div align="center">
+  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/choose-model.png" width="300"  style="margin: 10px;"/>
+</div>
+
+Once you select a model, you will be prompted to provide a custom system prompt. This can be loaded from a file or an environment variable.
+
+<div align="center">
+  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/system-parameter-1.png" width="300"  style="margin: 10px;"/>
+  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/system-parameter-2.png" width="300"  style="margin: 10px;"/>
+</div>
+
 4.  **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
 
 <div align="center">
