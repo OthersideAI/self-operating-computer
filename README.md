@@ -53,11 +53,26 @@ https://github.com/malah-code/self-ai-operating-computer/assets/42594239/9e8abc9
 
 ## Run `Self-Operating Computer`
 
+### Run from PyPI
+
+To run the application by installing it from PyPI, follow these steps:
+
+1.  **Install the project:**
+    ```bash
+    pip install self-operating-computer
+    ```
+2.  **Run the project:**
+    ```bash
+    operate
+    ```
+
+### Run from Source Code
+
 To run the application from your local copy (after making changes), follow these steps:
 
 1.  **Uninstall previous installations (if any):**
     ```bash
-    pip uninstall self-ai-operating-computer
+    pip uninstall self-operating-computer
     ```
     Confirm uninstallation when prompted.
 
