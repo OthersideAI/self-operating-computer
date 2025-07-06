@@ -31,7 +31,7 @@ ome
 </p>
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/choose-model.png" width="750"  style="max-width: 100%;"/>
+  <img src="/blob/main/readme/choose-model.png" width="750"  style="max-width: 100%;"/>
 </div>
 
 
@@ -48,7 +48,7 @@ ome
 - **Future Plans**: Support for additional models.
 
 ## Demo
-https://github.com/malah-code/self-ai-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
+/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
 ## Run `Self-Operating Computer`
@@ -90,27 +90,27 @@ To run the application from your local copy (after making changes), follow these
     If you run `operate` without any arguments, a welcome screen will be displayed, followed by an interactive model selection menu. If a model requires an API key that is not found in your environment variables or `.env` file, you will be prompted to enter it.
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/choose-model.png" width="300"  style="margin: 10px;"/>
+  <img src="/blob/main/readme/choose-model.png" width="300"  style="margin: 10px;"/>
 </div>
 
 Once you select a model, you will be prompted to provide a custom system prompt. This can be loaded from a file or an environment variable.
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/system-parameter-1.png" width="300"  style="margin: 10px;"/>
-  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/system-parameter-2.png" width="300"  style="margin: 10px;"/>
+  <img src="/blob/main/readme/system-parameter-1.png" width="300"  style="margin: 10px;"/>
+  <img src="/blob/main/readme/system-parameter-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
 4.  **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
+  <img src="/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
 </div>
 
 5.  **Give Terminal app the required permissions**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
 
 <div align="center">
-  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
-  <img src="https://github.com/malah-code/self-ai-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
+  <img src="/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
+  <img src="/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
 ## Using `operate` Modes
@@ -227,7 +227,7 @@ Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
 **Clone the repo** to a directory on your computer:
 ```
-git clone https://github.com/malah-code/self-ai-operating-computer.git
+git clone .git
 ```
 **Cd into directory**:
 ```
@@ -275,7 +275,7 @@ operate -m gpt-4-with-som
 
 ## Contributions are Welcomed!:
 
-If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/malah-code/self-ai-operating-computer/blob/main/CONTRIBUTING.md).
+If you want to contribute yourself, see [CONTRIBUTING.md](/blob/main/CONTRIBUTING.md).
 
 ## Feedback
 
