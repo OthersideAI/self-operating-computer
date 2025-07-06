@@ -1,7 +1,8 @@
+import os
 from setuptools import setup, find_packages
 
 # Read the contents of your requirements.txt file
-with open("requirements.txt") as f:
+with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as f:
     required = f.read().splitlines()
 
 # Read the contents of your README.md file for the project description
