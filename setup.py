@@ -11,7 +11,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 
 setup(
     name="self-ai-operating-computer",
-    version="1.5.8",
+    version="2.0.4",
     packages=find_packages(),
     install_requires=required,  # Add dependencies here
     entry_points={
