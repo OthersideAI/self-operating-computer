@@ -11,7 +11,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 
 setup(
     name="self-ai-operating-computer",
-    version="2.0.14",
+    version="2.0.15",
     packages=find_packages(),
     install_requires=[
         "annotated-types==0.6.0",
@@ -37,7 +37,7 @@ setup(
         "mss==9.0.1",
         "numpy==1.26.1",
         "openai==1.2.3",
-        "packaging==23.2",
+        "packaging>=23.2,<24.0",
         "Pillow==10.1.0",
         "prompt-toolkit==3.0.39",
         "PyAutoGUI==0.9.54",

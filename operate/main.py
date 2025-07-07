@@ -26,6 +26,7 @@ def main_entry():
     
     # Add a flag for verbose mode
     parser.add_argument(
+        "-d",
         "--verbose",
         help="Run operate in verbose mode",
         action="store_true",

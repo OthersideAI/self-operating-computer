@@ -30,6 +30,8 @@ config = Config()
 operating_system = OperatingSystem()
 
 
+from operate.models.model_configs import MODELS
+
 def display_welcome_message():
     welcome_message = """
 Welcome to Self-Operating Computer!
@@ -43,50 +45,40 @@ Let's get started!
 
 
 def select_model_interactively():
-    models = [
-        ("gpt-4o", "OpenAI GPT-4o (Default)"),
-        ("gpt-4-with-ocr", "OpenAI GPT-4 with OCR"),
-        ("gpt-4.1", "OpenAI GPT-4.1"),
-        ("gpt-4.1-mini", "OpenAI GPT-4.1 mini"),
-        ("gpt-4.1-nano", "OpenAI GPT-4.1 nano"),
-        ("o1-with-ocr", "OpenAI o1 with OCR"),
-        ("o3", "OpenAI o3"),
-        ("o4-mini", "OpenAI o4-mini"),
-        ("gpt-4-with-som", "OpenAI GPT-4 with Set-of-Mark Prompting"),
-        ("gemini-1.5-pro-latest", "Google Gemini 1.5 Pro (latest)"),
-        ("gemini-2.5-pro", "Google Gemini 2.5 Pro"),
-        ("gemini-2.5-flash", "Google Gemini 2.5 Flash"),
-        ("claude-3", "Anthropic Claude 3"),
-        ("qwen-vl", "Qwen-VL"),
-        ("llava", "LLaVa (via Ollama)"),
-        ("gemma3n", "Gemma 3n (via Ollama)"),
-        ("gemma3n:e2b", "Gemma 3n:e2b (via Ollama)"),
-        ("gemma3n:e4b", "Gemma 3n:e4b (via Ollama)"),
-    ]
-
+    print("Attempting to display model selection dialog...")
+    models = [(name, config["display_name"]) for name, config in MODELS.items()]
+    
     selected_model = radiolist_dialog(
         title="Model Selection",
         text="Please select a model to use:",
         values=models,
     ).run()
-
+    
+    if selected_model is None:
+        print("Dialog was cancelled or failed to display.")
+        
     return selected_model
 
 
 def get_custom_system_prompt():
-    system_prompt_options = [
-        ("none", "No custom system prompt"),
-        ("file", "Load from file"),
-    ]
+    if os.getenv("CUSTOM_SYSTEM_PROMPT"): # If env variable exists, don't show the screen
+        return os.getenv("CUSTOM_SYSTEM_PROMPT")
 
-    if os.getenv("CUSTOM_SYSTEM_PROMPT"): # Check if env variable exists
-        pass # Don't show the option if it's already set
-    else:
-        system_prompt_options.append(("env", "Load from environment variable (CUSTOM_SYSTEM_PROMPT)"))
+    system_prompt_options = [
+        ("none", "No custom system prompt (use default model prompt)"),
+        ("file", "Load from a text file"),
+        ("env", "Load from environment variable (CUSTOM_SYSTEM_PROMPT)"),
+    ]
 
     selected_option = radiolist_dialog(
         title="Custom System Prompt",
-        text="How would you like to provide a custom system prompt?",
+        text="""
+How would you like to provide a custom system prompt?
+
+- 'No custom system prompt': Use the default prompt for the selected model.
+- 'Load from a text file': Specify a path to a .txt file containing your prompt.
+- 'Load from environment variable': Use the value of the CUSTOM_SYSTEM_PROMPT environment variable.
+""",
         values=system_prompt_options,
     ).run()
 

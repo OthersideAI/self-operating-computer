@@ -37,37 +37,28 @@ from operate.utils.style import (
 config = Config()
 
 
+from operate.models.model_configs import MODELS
+
 async def get_next_action(model, messages, objective, session_id):
     if config.verbose:
         print("[Self-Operating Computer][get_next_action]")
         print("[Self-Operating Computer][get_next_action] model", model)
-    if model == "gpt-4":
-        return call_gpt_4o(messages), None
-    if model == "qwen-vl":
-        operation = await call_qwen_vl_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "gpt-4-with-som":
-        operation = await call_gpt_4o_labeled(messages, objective, model)
-        return operation, None
-    if model == "gpt-4-with-ocr":
-        operation = await call_gpt_4o_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "gpt-4.1-with-ocr":
-        operation = await call_gpt_4_1_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "o1-with-ocr":
-        operation = await call_o1_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "agent-1":
-        return "coming soon"
-    if model == "gemini-1.5-pro-latest" or model == "gemini-2.5-pro" or model == "gemini-2.5-flash":
-        return call_gemini(messages, objective, model), None
-    if model == "llava" or model == "gemma3n":
-        operation = call_ollama_model(messages, model)
-        return operation, None
-    if model == "claude-3":
-        operation = await call_claude_3_with_ocr(messages, objective, model)
-        return operation, None
+
+    if model in MODELS:
+        provider = MODELS[model].get("provider")
+        if provider == "openai":
+            if "-with-ocr" in model or "-with-som" in model:
+                return await call_gpt_4o_with_ocr(messages, objective, model), None
+            return call_gpt_4o(messages), None
+        elif provider == "google":
+            return call_gemini(messages, objective, model), None
+        elif provider == "ollama":
+            return call_ollama_model(messages, model), None
+        elif provider == "anthropic":
+            return await call_claude_3_with_ocr(messages, objective, model), None
+        elif provider == "qwen":
+            return await call_qwen_vl_with_ocr(messages, objective, model), None
+
     raise ModelNotRecognizedException(model)
 
 
@@ -906,10 +897,16 @@ def call_ollama_model(messages, model_name):
         }
         messages.append(vision_message)
 
+        if config.verbose:
+            print(f"\n{ANSI_YELLOW}--- PROMPT SENT TO OLLAMA ---\n{messages}\n{ANSI_RESET}")
+
         response = model.chat(
             model=model_name,
             messages=messages,
         )
+
+        if config.verbose:
+            print(f"\n{ANSI_GREEN}--- RESPONSE FROM OLLAMA ---\n{response}\n{ANSI_RESET}")
 
         if not response or "message" not in response or "content" not in response["message"]:
             raise Exception(f"Invalid response from Ollama model {model_name}: {response}")

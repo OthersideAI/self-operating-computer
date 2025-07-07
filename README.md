@@ -5,26 +5,22 @@ ome
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
 
-### Version v2.0.5 (Latest) Release Summary
+### Version v2.0.15 (Latest) Release Summary
 
 **New Features:**
 
-*   **Interactive Model Selection:** When running `operate` without specifying a model, a welcome screen is displayed, followed by an interactive menu to select your desired model.
-*   **Dynamic API Key Prompting:** The application now intelligently prompts for required API keys (e.g., OpenAI, Google, Anthropic) only when a model requiring that key is selected and the key is not found in your environment variables or `.env` file.
-*   **Custom System Prompt:** Users can now provide a custom system prompt from a file or an environment variable (`CUSTOM_SYSTEM_PROMPT`). If the environment variable is set, the option to load from it will be hidden.
+*   **Centralized Model Management:** All model configurations are now managed in a single file (`operate/models/model_configs.py`), making it easier to add, remove, and manage models.
+*   **Expanded Ollama Model Support:** Added support for `qwen2.5vl:3b` and `gemma3:4b`.
+*   **Enhanced Debugging:** Added a `-d` flag (alias for `--verbose`) that provides detailed debugging information, including the full prompt sent to the AI and the raw response received.
 
 **Improvements:**
 
-*   **Expanded Google Gemini Support:** Added full support for `gemini-2.5-pro` and `gemini-2.5-flash` models.
-*   **Enhanced Ollama Integration:** Improved handling for Ollama models, including setting `http://localhost:11434` as the default host and providing more informative error messages when Ollama models are not found.
-*   **Gemma 3n Model Support:** Integrated support for `gemma3n`, `gemma3n:e2b`, and `gemma3n:e4b` models via Ollama.
-*   **Robust Error Handling:** Improved error handling for API calls to prevent unexpected fallbacks and provide clearer error messages.
+*   **Improved System Prompt:** The system prompt has been enhanced with a more structured format, explicit JSON schema definitions, and clear examples to improve model accuracy and reliability.
 
 **Bug Fixes:**
 
-*   Resolved an issue where the application would incorrectly prompt for an OpenAI API key when a Google Gemini model was selected.
-*   Fixed an issue where the application would attempt to use an incorrect model name for `gemini-2.5-flash-lite` (which is not a valid model name).
-*   Addressed the "Extra data" JSON parsing error when receiving responses from Gemini models.
+*   Fixed an issue where the model selection screen was not correctly displaying all available models.
+*   Resolved an `IndentationError` in the model configuration file.
 
 <p align="center">
   Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Released Nov 2023, the Self-Operating Computer Framework was one of the first examples of usiself-ai-operating-computerng a multimodal model to view the screen and operate a computer.
@@ -43,7 +39,7 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Expanded Model Support**: Now integrated with the latest **OpenAI o3, o4-mini, GPT-4.1, GPT-4.1 mini, GPT-4.1 nano**, **Gemini 2.5 Pro, Gemini 2.5 Flash**, and **Gemma 3n** models (including `e2b` and `e4b` variants), alongside existing support for GPT-4o, Claude 3, Qwen-VL, and LLaVa.
+- **Expanded Model Support**: Now integrated with the latest **OpenAI o3, o4-mini, GPT-4.1, GPT-4.1 mini, GPT-4.1 nano**, **Gemini 2.5 Pro, Gemini 2.5 Flash**, and **Gemma 3n** models (including `e2b` and `e4b` variants), and **Gemma 3:12b** alongside existing support for GPT-4o, Claude 3, Qwen-VL, and LLaVa.
 - **Enhanced Ollama Integration**: Improved handling for Ollama models, including default host configuration and more informative error messages.
 - **Future Plans**: Support for additional models.
 
@@ -90,14 +86,14 @@ To run the application from your local copy (after making changes), follow these
     If you run `operate` without any arguments, a welcome screen will be displayed, followed by an interactive model selection menu. If a model requires an API key that is not found in your environment variables or `.env` file, you will be prompted to enter it.
 
 <div align="center">
-  <img src="/readme/choose-model.png" width="300"  style="margin: 10px;"/>
+  <img src="/readme/choose-model.png" width="750"  style="max-width: 100%;"/>
 </div>
 
-Once you select a model, you will be prompted to provide a custom system prompt. This can be loaded from a file or an environment variable.
+Once you select a model, you will be prompted to provide a custom system prompt if the `CUSTOM_SYSTEM_PROMPT` environment variable is not set. If the environment variable is set, the prompt screen will be skipped and the value from the environment variable will be used automatically. You can also load the prompt from a file if needed.
 
 <div align="center">
-  <img src="/readme/system-parameter-1.png" width="300"  style="margin: 10px;"/>
-  <img src="/readme/system-parameter-2.png" width="300"  style="margin: 10px;"/>
+  <img src="/readme/system-parameter-1.png" width="750"  style="max-width: 100%;"/>
+  <img src="/readme/prompt1.png" width="750"  style="max-width: 100%;"/>
 </div>
 
 4.  **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
@@ -218,6 +214,28 @@ ollama serve
 That's it! Now start `operate` and select the Gemma 3n model. You can specify `gemma3n`, `gemma3n:e2b`, or `gemma3n:e4b`:
 ```
 operate -m gemma3n:e2b
+```   
+
+#### Try Gemma 3:12b Hosted Through Ollama `-m gemma3:12b`
+If you wish to experiment with the Self-Operating Computer Framework using Gemma 3:12b on your own machine, you can with Ollama!   
+*Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
+
+First, install Ollama on your machine from https://ollama.ai/download.   
+
+Once Ollama is installed, pull the Gemma 3:12b model:
+```
+ollama pull gemma3:12b
+```
+This will download the model on your machine.   
+
+When Ollama has finished pulling Gemma 3:12b, start the server:
+```
+ollama serve
+```
+
+That's it! Now start `operate` and select the Gemma 3:12b model:
+```
+operate -m gemma3:12b
 ```   
 
 Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
@@ -374,6 +392,10 @@ Here's a summary of all currently supported models and how to run them:
 *   **Gemma 3n:e4b (via Ollama):**
     ```
     operate -m gemma3n:e4b
+    ```
+*   **Gemma 3:12b (via Ollama):**
+    ```
+    operate -m gemma3:12b
     ```
 
 ## Release Notes

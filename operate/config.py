@@ -7,6 +7,7 @@ from ollama import Client
 from openai import OpenAI
 import anthropic
 from prompt_toolkit.shortcuts import input_dialog
+from operate.models.model_configs import MODELS
 
 
 class Config:
@@ -32,9 +33,6 @@ class Config:
         load_dotenv()
         self.verbose = False
         self.openai_api_key = (
-            None  # instance variables are backups in case saving to a `.env` fails
-        )
-        self.google_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
         self.ollama_host = (
@@ -93,16 +91,7 @@ class Config:
         return client
 
     def initialize_google(self, model_name="gemini-1.5-pro-latest"):
-        if self.google_api_key:
-            if self.verbose:
-                print("[Config][initialize_google] using cached google_api_key")
-            api_key = self.google_api_key
-        else:
-            if self.verbose:
-                print(
-                    "[Config][initialize_google] no cached google_api_key, try to get from env."
-                )
-            api_key = os.getenv("GOOGLE_API_KEY")
+        api_key = os.getenv("GOOGLE_API_KEY")
         genai.configure(api_key=api_key, transport="rest")
         model = genai.GenerativeModel(model_name)
 
@@ -132,34 +121,17 @@ class Config:
         """
         Validate the input parameters for the dialog operation.
         """
-        self.require_api_key(
-            "OPENAI_API_KEY",
-            "OpenAI API key",
-            model in [
-                "gpt-4",
-                "gpt-4o",
-                "gpt-4-with-som",
-                "gpt-4-with-ocr",
-                "gpt-4.1",
-                "gpt-4.1-mini",
-                "gpt-4.1-nano",
-                "o1-with-ocr",
-                "o3",
-                "o4-mini",
-            ] or (voice_mode and not model.startswith("gemini")),
-        )
-        self.require_api_key(
-            "GOOGLE_API_KEY",
-            "Google API key",
-            model == "gemini-1.5-pro-latest"
-            or model == "gemini-2.5-pro"
-            or model == "gemini-2.5-flash",
-        )
-        self.require_api_key(
-            "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
-        )
-        self.require_api_key("QWEN_API_KEY", "Qwen API key", model == "qwen-vl")
-        self.require_api_key("OLLAMA_HOST", "Ollama Host", model == "llava" or model.startswith("gemma3n"))
+        if model in MODELS:
+            model_config = MODELS[model]
+            provider = model_config.get("provider")
+            api_key_name = model_config.get("api_key")
+
+            if api_key_name:
+                self.require_api_key(api_key_name, f"{provider} API key", True)
+
+        if voice_mode and model not in [m for m, c in MODELS.items() if c.get('provider') == 'google']:
+            self.require_api_key("OPENAI_API_KEY", "OpenAI API key", True)
+
 
     def require_api_key(self, key_name, key_description, is_required):
         key_exists = bool(os.environ.get(key_name))
@@ -168,7 +140,7 @@ class Config:
             print("[Config] key_name", key_name)
             print("[Config] key_description", key_description)
             print("[Config] key_exists", key_exists)
-        if is_required and not key_exists:
+        if is_required and not key_exists and not getattr(self, key_name.lower(), None):
             self.prompt_and_save_api_key(key_name, key_description)
 
     def prompt_and_save_api_key(self, key_name, key_description):
@@ -180,17 +152,12 @@ class Config:
             sys.exit("Operation cancelled by user.")
 
         if key_value:
-            if key_name == "OPENAI_API_KEY":
-                self.openai_api_key = key_value
-            elif key_name == "GOOGLE_API_KEY":
-                self.google_api_key = key_value
-            elif key_name == "ANTHROPIC_API_KEY":
-                self.anthropic_api_key = key_value
-            elif key_name == "QWEN_API_KEY":
-                self.qwen_api_key = key_value
+            setattr(self, key_name.lower(), key_value)
+            if key_name == "GOOGLE_API_KEY":
+                os.environ[key_name] = key_value # Explicitly set for current process
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
-            # Update the instance attribute with the new key
+
 
     @staticmethod
     def save_api_key_to_env(key_name, key_value):
