@@ -45,6 +45,4 @@ MODELS = {
 
     # OpenRouter Models
     "openrouter": {"api_key": "OPENROUTER_API_KEY", "provider": "openrouter", "display_name": "OpenRouter (Select Model)"}
-},
-
-    }
+}

@@ -458,7 +458,7 @@ Here's a summary of all currently supported models and how to run them:
     ```
     operate -m openrouter
     ```
-    (Selecting this option will dynamically fetch and present a sub-menu to choose a specific OpenRouter model.)
+    (Selecting this option will prompt you to enter the full OpenRouter model name, e.g., `google/gemini-2.0-flash-001`.)
 
 ## Release Notes
 

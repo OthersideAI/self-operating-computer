@@ -44,9 +44,6 @@ class Config:
         self.openrouter_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
-        self.openrouter_api_key = (
-            None  # instance variables are backups in case saving to a `.env` fails
-        )
         self.qwen_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
