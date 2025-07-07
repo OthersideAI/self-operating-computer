@@ -11,7 +11,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 
 setup(
     name="self-ai-operating-computer",
-    version="2.0.13",
+    version="2.0.14",
     packages=find_packages(),
     install_requires=[
         "annotated-types==0.6.0",
