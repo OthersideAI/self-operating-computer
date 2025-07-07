@@ -5,7 +5,7 @@ ome
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
 
-### Version 0.0.X (Latest) Release Summary
+### Version v2.0.5 (Latest) Release Summary
 
 **New Features:**
 
@@ -59,7 +59,7 @@ To run the application by installing it from PyPI, follow these steps:
 
 1.  **Install the project:**
     ```bash
-    pip install self-operating-computer
+    pip install self-ai-operating-computer
     ```
 2.  **Run the project:**
     ```bash
@@ -72,7 +72,7 @@ To run the application from your local copy (after making changes), follow these
 
 1.  **Uninstall previous installations (if any):**
     ```bash
-    pip uninstall self-operating-computer
+    pip uninstall self-ai-operating-computer
     ```
     Confirm uninstallation when prompted.
 
