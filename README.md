@@ -39,9 +39,55 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
+- **Centralized Model Management**: All model configurations are now managed in a single, easy-to-update file (`operate/models/model_configs.py`), simplifying the addition and management of new models.
 - **Expanded Model Support**: Now integrated with the latest **OpenAI o3, o4-mini, GPT-4.1, GPT-4.1 mini, GPT-4.1 nano**, **Gemini 2.5 Pro, Gemini 2.5 Flash**, and **Gemma 3n** models (including `e2b` and `e4b` variants), and **Gemma 3:12b** alongside existing support for GPT-4o, Claude 3, Qwen-VL, and LLaVa.
 - **Enhanced Ollama Integration**: Improved handling for Ollama models, including default host configuration and more informative error messages.
 - **Future Plans**: Support for additional models.
+
+## Debugging
+
+To gain deeper insights into the model's behavior and troubleshoot issues, you can run `operate` with the `-d` or `--verbose` flag. This will enable verbose mode, providing detailed debugging information directly in your terminal.
+
+```bash
+operate -d
+# or
+operate --verbose
+```
+
+When verbose mode is active, you will see:
+
+*   **Prompt Sent to AI:** The exact JSON prompt that is constructed and sent to the language model for its decision.
+*   **Response from AI:** The raw JSON response received back from the language model.
+
+This detailed output is invaluable for understanding why the model made a particular decision, identifying issues with prompt construction, or debugging unexpected model behaviors.
+
+## Adding New Models
+
+With the introduction of centralized model management, adding new models to the Self-Operating Computer Framework is straightforward. All model configurations are now defined in a single file: `operate/models/model_configs.py`.
+
+To add a new model:
+
+1.  **Locate `model_configs.py`**: Navigate to `operate/models/model_configs.py` in your project directory.
+
+2.  **Understand the `MODELS` Dictionary**: This file contains a Python dictionary named `MODELS`. Each key in this dictionary is the internal identifier for a model (e.g., `"gpt-4o"`, `"llava"`), and its value is another dictionary containing the model's configuration.
+
+    Each model configuration dictionary has the following keys:
+    *   `"api_key"` (string): The name of the environment variable that stores the API key required for this model (e.g., `"OPENAI_API_KEY"`, `"GOOGLE_API_KEY"`, `"OLLAMA_HOST"`). If no API key is needed, you can omit this key or set its value to `None`.
+    *   `"provider"` (string): The service provider for the model (e.g., `"openai"`, `"google"`, `"ollama"`, `"anthropic"`, `"qwen"`). This string directly corresponds to the logic implemented in `operate/models/apis.py` that handles API calls for that provider.
+    *   `"display_name"` (string): The user-friendly name that will appear in the interactive model selection menu when you run `operate` without specifying a model.
+
+3.  **Add Your New Model Entry**: Append a new entry to the `MODELS` dictionary following the existing format. For example, to add a hypothetical new Ollama model:
+
+    ```python
+    MODELS = {
+        # ... existing models ...
+        "my-new-ollama-model": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "My New Ollama Model (via Ollama)"},
+    }
+    ```
+
+4.  **Ensure Provider Logic Exists**: The `"provider"` you specify (e.g., `"ollama"`) must have corresponding API call logic implemented in `operate/models/apis.py`. If you are adding a model from an existing provider (like OpenAI, Google, Ollama, Anthropic, or Qwen), the existing logic should handle it. If it's a completely new provider, you would need to add the necessary API integration code in `operate/models/apis.py`.
+
+By following these steps, you can easily extend the framework to support new models without modifying core application logic in multiple places.
 
 ## Demo
 https://github.com/malah-code/self-ai-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
