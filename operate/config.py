@@ -41,6 +41,12 @@ class Config:
         self.anthropic_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
+        self.openrouter_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
+        self.openrouter_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
         self.qwen_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
@@ -117,6 +123,13 @@ class Config:
             api_key = os.getenv("ANTHROPIC_API_KEY")
         return anthropic.Anthropic(api_key=api_key)
 
+    def initialize_openrouter(self):
+        if self.openrouter_api_key:
+            api_key = self.openrouter_api_key
+        else:
+            api_key = os.getenv("OPENROUTER_API_KEY")
+        return OpenAI(api_key=api_key, base_url="https://openrouter.ai/api/v1")
+
     def validation(self, model, voice_mode):
         """
         Validate the input parameters for the dialog operation.
@@ -131,6 +144,9 @@ class Config:
 
         if voice_mode and model not in [m for m, c in MODELS.items() if c.get('provider') == 'google']:
             self.require_api_key("OPENAI_API_KEY", "OpenAI API key", True)
+
+        if model in MODELS and MODELS[model].get("provider") == "openrouter":
+            self.require_api_key("OPENROUTER_API_KEY", "OpenRouter API key", True)
 
 
     def require_api_key(self, key_name, key_description, is_required):

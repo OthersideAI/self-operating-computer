@@ -41,5 +41,10 @@ MODELS = {
     "gemma3n:e4b": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "Gemma 3n:e4b (via Ollama)"},
     "gemma3:12b": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "Gemma 3:12b (via Ollama)"},
     "gemma3:4b": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "Gemma 3:4b (via Ollama)"},
-    "qwen2.5vl:3b": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "Qwen 2.5 VL 3B (via Ollama)"}
-}
+    "qwen2.5vl:3b": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "Qwen 2.5 VL 3B (via Ollama)"},
+
+    # OpenRouter Models
+    "openrouter": {"api_key": "OPENROUTER_API_KEY", "provider": "openrouter", "display_name": "OpenRouter (Select Model)"}
+},
+
+    }

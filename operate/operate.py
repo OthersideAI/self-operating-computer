@@ -6,6 +6,7 @@ from prompt_toolkit.shortcuts import message_dialog, radiolist_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
 import platform
+import requests
 
 # from operate.models.prompts import USER_QUESTION, get_system_prompt
 from operate.models.prompts import (
@@ -30,7 +31,7 @@ config = Config()
 operating_system = OperatingSystem()
 
 
-from operate.models.model_configs import MODELS
+from operate.models.model_configs import MODELS, OPENROUTER_MODELS
 
 def display_welcome_message():
     welcome_message = """
@@ -44,6 +45,40 @@ Let's get started!
     print(welcome_message)
 
 
+def select_openrouter_model_interactively():
+    print("Fetching OpenRouter models...")
+    try:
+        headers = {
+            "Authorization": f"Bearer {config.openrouter_api_key}"
+        }
+        response = requests.get("https://openrouter.ai/api/v1/models", headers=headers)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        models_data = response.json()["data"]
+
+        # Filter for chat models and format for radiolist_dialog
+        models = []
+        for model in models_data:
+            if "image" in model.get("input_modalities", []) and "text" in model.get("input_modalities", []):
+                models.append((model["id"], model["id"].replace("openrouter/", "")))
+        
+        if not models:
+            print(f"{ANSI_RED}No chat models found from OpenRouter. Please check your API key and permissions.{ANSI_RESET}")
+            return None
+
+        selected_model = radiolist_dialog(
+            title="OpenRouter Model Selection",
+            text="Please select an OpenRouter model to use:",
+            values=models,
+        ).run()
+
+        if selected_model is None:
+            print("Dialog was cancelled or failed to display.")
+
+        return selected_model
+    except requests.exceptions.RequestException as e:
+        print(f"{ANSI_RED}Error fetching OpenRouter models: {e}{ANSI_RESET}")
+        return None
+
 def select_model_interactively():
     print("Attempting to display model selection dialog...")
     models = [(name, config["display_name"]) for name, config in MODELS.items()]
@@ -53,6 +88,9 @@ def select_model_interactively():
         text="Please select a model to use:",
         values=models,
     ).run()
+    
+    if selected_model == "openrouter":
+        selected_model = select_openrouter_model_interactively()
     
     if selected_model is None:
         print("Dialog was cancelled or failed to display.")
@@ -116,9 +154,13 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     display_welcome_message()
 
     if not model:
-        model = select_model_interactively()
-        if not model:  # User cancelled model selection
-            sys.exit("Model selection cancelled. Exiting.")
+        openrouter_model_env = os.getenv("OPENROUTER_MODEL")
+        if openrouter_model_env:
+            model = openrouter_model_env
+        else:
+            model = select_model_interactively()
+            if not model:  # User cancelled model selection
+                sys.exit("Model selection cancelled. Exiting.")
 
     config.validation(model, voice_mode)
 

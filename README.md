@@ -131,6 +131,17 @@ To run the application from your local copy (after making changes), follow these
     ```
     If you run `operate` without any arguments, a welcome screen will be displayed, followed by an interactive model selection menu. If a model requires an API key that is not found in your environment variables or `.env` file, you will be prompted to enter it.
 
+    You can also specify the OpenRouter model directly via an environment variable to bypass the interactive selection:
+    ```bash
+    export OPENROUTER_MODEL="openai/gpt-4o-mini"
+    operate -m openrouter
+    ```
+    Or for other models:
+    ```bash
+    export OPENROUTER_MODEL="google/gemini-2.5-pro"
+    operate -m openrouter
+    ```
+
 <div align="center">
   <img src="/readme/choose-model.png" width="750"  style="max-width: 100%;"/>
 </div>
@@ -443,6 +454,11 @@ Here's a summary of all currently supported models and how to run them:
     ```
     operate -m gemma3:12b
     ```
+*   **OpenRouter:**
+    ```
+    operate -m openrouter
+    ```
+    (Selecting this option will dynamically fetch and present a sub-menu to choose a specific OpenRouter model.)
 
 ## Release Notes
 
