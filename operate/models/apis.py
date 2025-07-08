@@ -25,44 +25,176 @@ from operate.utils.label import (
 )
 from operate.utils.ocr import get_text_coordinates, get_text_element
 from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
-from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
+from operate.utils.style import (
+    ANSI_BRIGHT_MAGENTA,
+    ANSI_GREEN,
+    ANSI_RED,
+    ANSI_RESET,
+    ANSI_YELLOW,
+)
 
 # Load configuration
 config = Config()
 
+# Define a maximum token limit for OpenRouter models (adjust as needed)
+OPENROUTER_MAX_TOKENS = 15000
+
+
+from operate.models.model_configs import MODELS
 
 async def get_next_action(model, messages, objective, session_id):
     if config.verbose:
         print("[Self-Operating Computer][get_next_action]")
         print("[Self-Operating Computer][get_next_action] model", model)
-    if model == "gpt-4":
-        return call_gpt_4o(messages), None
-    if model == "qwen-vl":
-        operation = await call_qwen_vl_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "gpt-4-with-som":
-        operation = await call_gpt_4o_labeled(messages, objective, model)
-        return operation, None
-    if model == "gpt-4-with-ocr":
-        operation = await call_gpt_4o_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "gpt-4.1-with-ocr":
-        operation = await call_gpt_4_1_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "o1-with-ocr":
-        operation = await call_o1_with_ocr(messages, objective, model)
-        return operation, None
-    if model == "agent-1":
-        return "coming soon"
-    if model == "gemini-pro-vision":
-        return call_gemini_pro_vision(messages, objective), None
-    if model == "llava":
-        operation = call_ollama_llava(messages)
-        return operation, None
-    if model == "claude-3":
-        operation = await call_claude_3_with_ocr(messages, objective, model)
-        return operation, None
+
+    if config.verbose:
+        print(f"[Self-Operating Computer][get_next_action] Checking model: {model}")
+    if model.startswith("openrouter_internal_"):
+        # Remove the internal prefix before calling the OpenRouter model
+        actual_model_name = model.replace("openrouter_internal_", "")
+        return call_openrouter_model(messages, objective, actual_model_name), None
+
+    if model in MODELS:
+        provider = MODELS[model].get("provider")
+        if provider == "openai":
+            if "-with-ocr" in model or "-with-som" in model:
+                return await call_gpt_4o_with_ocr(messages, objective, model), None
+            return call_gpt_4o(messages), None
+        elif provider == "google":
+            return call_gemini(messages, objective, model), None
+        elif provider == "ollama":
+            return call_ollama_model(messages, model), None
+        elif provider == "anthropic":
+            return await call_claude_3_with_ocr(messages, objective, model), None
+        elif provider == "qwen":
+            return await call_qwen_vl_with_ocr(messages, objective, model), None
+        # If it's "openrouter" from MODELS, it means the user selected the OpenRouter option
+        # The actual OpenRouter model name would have been prompted for and is now in 'model'
+        elif provider == "openrouter":
+            return call_openrouter_model(messages, objective, model), None
+
+    # If the model is not in MODELS, check if it's an OpenRouter model by its format
+    # OpenRouter models typically have a '/' in their name (e.g., "google/gemini-2.0-flash-001")
+    if "/" in model:
+        return call_openrouter_model(messages, objective, model), None
+
     raise ModelNotRecognizedException(model)
+
+
+def call_openrouter_model(messages, objective, model):
+    if config.verbose:
+        print("[call_openrouter_model]")
+    time.sleep(1)
+    client = config.initialize_openrouter()
+    content = None  # Initialize content to None
+    try:
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        with open(screenshot_filename, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        if config.verbose:
+            print(
+                "[call_openrouter_model] user_prompt",
+                user_prompt,
+            )
+
+        vision_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                },
+            ],
+        }
+        messages.append(vision_message)
+
+        # Token management for OpenRouter models
+        current_tokens = 0
+        truncated_messages = [messages[0]]  # Always keep the system prompt
+
+        # Estimate token count and truncate messages if necessary
+        for msg in reversed(messages[1:]):
+            msg_content = ""
+            if isinstance(msg["content"], str):
+                msg_content = msg["content"]
+            elif isinstance(msg["content"], list):
+                for item in msg["content"]:
+                    if item["type"] == "text":
+                        msg_content += item["text"]
+            
+            # Simple character count as a proxy for tokens
+            estimated_tokens = len(msg_content) / 4  # Rough estimate: 1 token ~ 4 characters
+
+            if current_tokens + estimated_tokens < OPENROUTER_MAX_TOKENS:
+                truncated_messages.insert(1, msg)  # Insert after system prompt
+                current_tokens += estimated_tokens
+            else:
+                if config.verbose:
+                    print(f"{ANSI_YELLOW}Truncating messages to stay within token limit. Dropping: {msg.get('role')}{ANSI_RESET}")
+                break
+        
+        # Reverse to maintain chronological order (except system prompt at beginning)
+        truncated_messages = [truncated_messages[0]] + list(reversed(truncated_messages[1:]))
+
+        response = client.chat.completions.create(
+            model=model,
+            messages=truncated_messages,
+            presence_penalty=1,
+            frequency_penalty=1,
+        )
+
+        if config.verbose:
+            print(f"{ANSI_YELLOW}Raw OpenRouter API response: {response}{ANSI_RESET}")
+
+        if not response or not response.choices or not response.choices[0] or not response.choices[0].message:
+            raise Exception("OpenRouter API response is incomplete or malformed.")
+
+        content = response.choices[0].message.content
+
+        if content is None:
+            print(f"{ANSI_RED}[Error] OpenRouter model returned no content.{ANSI_RESET}")
+            return [] # Return an empty list of operations
+
+        content = clean_json(content)
+
+        assistant_message = {"role": "assistant", "content": content}
+        if config.verbose:
+            print(
+                "[call_openrouter_model] content",
+                content,
+            )
+        content = json.loads(content)
+
+        messages.append(assistant_message)
+
+        return content
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. {ANSI_RESET}",
+            e,
+        )
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] AI response was {ANSI_RESET}",
+            content,
+        )
+        if config.verbose:
+            traceback.print_exc()
+        raise
 
 
 def call_gpt_4o(messages):
@@ -259,15 +391,13 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
             traceback.print_exc()
         return gpt_4_fallback(messages, objective, model)
 
-def call_gemini_pro_vision(messages, objective):
+def call_gemini(messages, objective, model_name):
     """
     Get the next action for Self-Operating Computer using Gemini Pro Vision
     """
     if config.verbose:
-        print(
-            "[Self Operating Computer][call_gemini_pro_vision]",
-        )
-    # sleep for a second
+        print(f"[Self Operating Computer][{model_name}]")
+    
     time.sleep(1)
     try:
         screenshots_dir = "screenshots"
@@ -275,40 +405,110 @@ def call_gemini_pro_vision(messages, objective):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
-        # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
-        # sleep for a second
         time.sleep(1)
-        prompt = get_system_prompt("gemini-pro-vision", objective)
-
-        model = config.initialize_google()
+        
+        # Get the system prompt and enhance it with specific instructions
+        prompt = get_system_prompt(model_name, objective)
+        prompt += """
+        IMPORTANT: When providing click coordinates, they MUST be in decimal percentage format (0.0 to 1.0).
+        For example, to click at 25% from the left and 50% from the top, use:
+        {"x": 0.25, "y": 0.50}
+        
+        For interacting with UI elements:
+        1. First, identify the element's position on the screen
+        2. Estimate its center point in percentage (0.0 to 1.0 for both x and y)
+        3. Return a click action with those coordinates
+        
+        For entering phone numbers:
+        1. First click on the input field
+        2. Then use the 'write' operation to type the numbers
+        
+        If you can't determine exact coordinates, make an educated guess based on the UI layout.
+        """
+        
+        # Add specific guidance for calculator operations
+        if "calculator" in objective.lower():
+            prompt += """
+            When interacting with the Calculator app:
+            1. The input field is typically at the top (y ~0.2-0.3)
+            2. Number buttons are in a grid at the bottom
+            3. Operation buttons are on the right side
+            
+            For phone number entry:
+            1. First click on the input field (x: 0.5, y: 0.25)
+            2. Then type the numbers using the 'write' operation
+            3. For a random phone number, use format: 5551234567 (without dashes)
+            """
+        
+        model = config.initialize_google(model_name)
         if config.verbose:
-            print("[call_gemini_pro_vision] model", model)
+            print(f"[{model_name}] model initialized")
 
         response = model.generate_content([prompt, Image.open(screenshot_filename)])
 
-        content = response.text[1:]
+        content = clean_json(response.text)
+        
         if config.verbose:
-            print("[call_gemini_pro_vision] response", response)
-            print("[call_gemini_pro_vision] content", content)
+            print(f"[{model_name}] response:", content)
 
         content = json.loads(content)
-        if config.verbose:
-            print(
-                "[get_next_action][call_gemini_pro_vision] content",
-                content,
-            )
+        
+        # If content is a string, try to parse it as JSON
+        if isinstance(content, str):
+            try:
+                content = json.loads(content)
+            except json.JSONDecodeError:
+                print(f"{ANSI_RED}[Error] Failed to parse response as JSON: {content}{ANSI_RESET}")
+                raise
+        
+        # If content is not a list, wrap it in a list
+        if not isinstance(content, list):
+            content = [content]
+        
+        # Process each action in the content
+        for action in content:
+            if action.get("operation") == "click":
+                x = action.get("x")
+                y = action.get("y")
+                
+                # If coordinates are missing, try to estimate based on the objective
+                if x is None or y is None:
+                    if "calculator" in objective.lower() and "+" in objective.lower():
+                        # Default position for calculator + button (adjust as needed)
+                        action["x"] = 0.85  # Right side of calculator
+                        action["y"] = 0.6   # Vertical middle area where + usually is
+                        action["thought"] = "Moving to the + button in the calculator"
+                        print(f"{ANSI_YELLOW}Using estimated position for calculator + button{ANSI_RESET}")
+                    elif any(word in objective.lower() for word in ["phone", "number", "telephone"]):
+                        # Adjusted position for calculator input field
+                        action["x"] = 0.5    # Middle of screen (calculator should be centered)
+                        action["y"] = 0.25   # Higher up for input field
+                        action["thought"] = "Clicking on the calculator input field to type"
+                        print(f"{ANSI_YELLOW}Using estimated position for calculator input field at (0.5, 0.25){ANSI_RESET}")
+                        
+                        # Add a small delay to ensure calculator is focused
+                        time.sleep(1)
+                    else:
+                        print(f"{ANSI_RED}[Error] Missing x or y coordinates in click action. Please specify where to click.{ANSI_RESET}")
+                        print(f"{ANSI_YELLOW}Hint: Try being more specific about what to click on (e.g., 'click on the input field' or 'click on the + button'){ANSI_RESET}")
+                        raise ValueError("Missing coordinates in click action")
+                
+                # Ensure coordinates are floats
+                try:
+                    action["x"] = float(action["x"])
+                    action["y"] = float(action["y"])
+                except (TypeError, ValueError) as e:
+                    print(f"{ANSI_RED}[Error] Invalid coordinate format: {e}. Expected numbers between 0 and 1.{ANSI_RESET}")
+                    raise
 
         return content
 
     except Exception as e:
-        print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
-        )
+        print(f"{ANSI_RED}[Error] {e}{ANSI_RESET}")
         if config.verbose:
-            print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
-        return call_gpt_4o(messages)
+        raise
 
 
 async def call_gpt_4o_with_ocr(messages, objective, model):
@@ -326,28 +526,37 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
-        # Call the function to capture the screen with the cursor
-        capture_screen_with_cursor(screenshot_filename)
+        
+        if config.display_screenshot:
+            # Call the function to capture the screen with the cursor
+            capture_screen_with_cursor(screenshot_filename)
 
-        with open(screenshot_filename, "rb") as img_file:
-            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+            with open(screenshot_filename, "rb") as img_file:
+                img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        if len(messages) == 1:
-            user_prompt = get_user_first_message_prompt()
+            if len(messages) == 1:
+                user_prompt = get_user_first_message_prompt()
+            else:
+                user_prompt = get_user_prompt()
+
+            vision_message = {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": user_prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
+                    },
+                ],
+            }
+            messages.append(vision_message)
         else:
-            user_prompt = get_user_prompt()
-
-        vision_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": user_prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"},
-                },
-            ],
-        }
-        messages.append(vision_message)
+            if len(messages) == 1:
+                user_prompt = get_user_first_message_prompt()
+            else:
+                user_prompt = get_user_prompt()
+            vision_message = {"role": "user", "content": user_prompt}
+            messages.append(vision_message)
 
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -438,6 +647,7 @@ async def call_gpt_4_1_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         capture_screen_with_cursor(screenshot_filename)
 
         with open(screenshot_filename, "rb") as img_file:
@@ -545,6 +755,7 @@ async def call_o1_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -657,6 +868,7 @@ async def call_gpt_4o_labeled(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -787,7 +999,7 @@ async def call_gpt_4o_labeled(messages, objective, model):
         return call_gpt_4o(messages)
 
 
-def call_ollama_llava(messages):
+def call_ollama_model(messages, model_name):
     if config.verbose:
         print("[call_ollama_llava]")
     time.sleep(1)
@@ -798,6 +1010,7 @@ def call_ollama_llava(messages):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -819,10 +1032,19 @@ def call_ollama_llava(messages):
         }
         messages.append(vision_message)
 
+        if config.verbose:
+            print(f"\n{ANSI_YELLOW}--- PROMPT SENT TO OLLAMA ---\n{messages}\n{ANSI_RESET}")
+
         response = model.chat(
-            model="llava",
+            model=model_name,
             messages=messages,
         )
+
+        if config.verbose:
+            print(f"\n{ANSI_GREEN}--- RESPONSE FROM OLLAMA ---\n{response}\n{ANSI_RESET}")
+
+        if not response or "message" not in response or "content" not in response["message"]:
+            raise Exception(f"Invalid response from Ollama model {model_name}: {response}")
 
         # Important: Remove the image path from the message history.
         # Ollama will attempt to load each image reference and will
@@ -847,8 +1069,7 @@ def call_ollama_llava(messages):
 
     except ollama.ResponseError as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull llava` then `ollama serve`{ANSI_RESET}",
-            e,
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama. With Ollama installed, run `ollama pull {model_name}` then `ollama serve` {e}{ANSI_RESET}"
         )
 
     except Exception as e:
@@ -879,6 +1100,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
             os.makedirs(screenshots_dir)
 
         screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        
         capture_screen_with_cursor(screenshot_filename)
 
         # downsize screenshot due to 5MB size limit

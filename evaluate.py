@@ -135,7 +135,7 @@ def run_test_case(objective, guideline, model):
 
 def get_test_model():
     parser = argparse.ArgumentParser(
-        description="Run the self-operating-computer with a specified model."
+        description="Run the self-ai-operating-computer with a specified model."
     )
 
     parser.add_argument(

@@ -2,7 +2,7 @@ import sys
 import os
 import time
 import asyncio
-from prompt_toolkit.shortcuts import message_dialog
+from prompt_toolkit.shortcuts import message_dialog, radiolist_dialog, input_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
 import platform
@@ -21,6 +21,7 @@ from operate.utils.style import (
     ANSI_BRIGHT_MAGENTA,
     ANSI_BLUE,
     style,
+    strip_ansi_codes,
 )
 from operate.utils.operating_system import OperatingSystem
 from operate.models.apis import get_next_action
@@ -28,6 +29,87 @@ from operate.models.apis import get_next_action
 # Load configuration
 config = Config()
 operating_system = OperatingSystem()
+
+
+from operate.models.model_configs import MODELS
+
+def display_welcome_message():
+    welcome_message = """
+Welcome to Self-Operating Computer!
+
+This tool allows multimodal models to operate a computer.
+It uses screen vision and decides on mouse/keyboard actions.
+
+Let's get started!
+"""
+    print(welcome_message)
+
+
+def select_openrouter_model_interactively():
+    text_content = f"""{ANSI_GREEN}Please enter the full OpenRouter model name.{ANSI_RESET}
+{ANSI_YELLOW}Ensure the model supports both image and text input modalities.{ANSI_RESET}
+{ANSI_YELLOW}You can find a list of suitable models here: https://openrouter.ai/models?fmt=cards&input_modalities=image%2Ctext{ANSI_RESET}
+{ANSI_YELLOW}Examples: google/gemini-2.0-flash-001, openai/gpt-4o, anthropic/claude-3-opus{ANSI_RESET}"""
+    model_name = input_dialog(
+        title="OpenRouter Model Selection",
+        text=strip_ansi_codes(text_content),
+    ).run()
+    if model_name is None:
+        sys.exit("OpenRouter model selection cancelled. Exiting.")
+    return model_name
+
+def select_model_interactively():
+    print("Attempting to display model selection dialog...")
+    models = [(name, config["display_name"]) for name, config in MODELS.items()]
+    
+    selected_model = radiolist_dialog(
+        title="Model Selection",
+        text="Please select a model to use:",
+        values=models,
+    ).run()
+    
+    if selected_model == "openrouter":
+        selected_model = select_openrouter_model_interactively()
+    
+    if selected_model is None:
+        print("Dialog was cancelled or failed to display.")
+        
+    return selected_model
+
+
+def get_custom_system_prompt():
+    if os.getenv("CUSTOM_SYSTEM_PROMPT"): # If env variable exists, don't show the screen
+        return os.getenv("CUSTOM_SYSTEM_PROMPT")
+
+    system_prompt_options = [
+        ("none", "No custom system prompt (use default model prompt)"),
+        ("file", "Load from a text file"),
+        ("env", "Load from environment variable (CUSTOM_SYSTEM_PROMPT)"),
+    ]
+
+    selected_option = radiolist_dialog(
+        title="Custom System Prompt",
+        text="""
+How would you like to provide a custom system prompt?
+
+- 'No custom system prompt': Use the default prompt for the selected model.
+- 'Load from a text file': Specify a path to a .txt file containing your prompt.
+- 'Load from environment variable': Use the value of the CUSTOM_SYSTEM_PROMPT environment variable.
+""",
+        values=system_prompt_options,
+    ).run()
+
+    if selected_option == "file":
+        file_path = prompt("Enter the path to the system prompt file:")
+        try:
+            with open(file_path, "r") as f:
+                return f.read()
+        except FileNotFoundError:
+            print(f"{ANSI_RED}Error: File not found at {file_path}{ANSI_RESET}")
+            return None
+    elif selected_option == "env":
+        return os.getenv("CUSTOM_SYSTEM_PROMPT")
+    return None
 
 
 def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
@@ -47,7 +129,24 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     # Initialize `WhisperMic`, if `voice_mode` is True
 
     config.verbose = verbose_mode
+
+    display_welcome_message()
+
+    if not model:
+        openrouter_model_env = os.getenv("OPENROUTER_MODEL")
+        if openrouter_model_env:
+            model = f"openrouter_internal_{openrouter_model_env}"
+        else:
+            model = select_model_interactively()
+            if not model:  # User cancelled model selection
+                sys.exit("Model selection cancelled. Exiting.")
+            # If the selected model is from OpenRouter, add the internal prefix
+            if model and MODELS.get(model, {}).get("provider") == "openrouter":
+                model = f"openrouter_internal_{model}"
+
     config.validation(model, voice_mode)
+
+    custom_system_prompt = get_custom_system_prompt()
 
     if voice_mode:
         try:
@@ -60,17 +159,6 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
                 "Voice mode requires the 'whisper_mic' module. Please install it using 'pip install -r requirements-audio.txt'"
             )
             sys.exit(1)
-
-    # Skip message dialog if prompt was given directly
-    if not terminal_prompt:
-        message_dialog(
-            title="Self-Operating Computer",
-            text="An experimental framework to enable multimodal models to operate computers",
-            style=style,
-        ).run()
-
-    else:
-        print("Running direct prompt...")
 
     # # Clear the console
     if platform.system() == "Windows":
@@ -96,7 +184,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
         print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
         objective = prompt(style=style)
 
-    system_prompt = get_system_prompt(model, objective)
+    system_prompt = get_system_prompt(model, objective, custom_system_prompt)
     system_message = {"role": "system", "content": system_prompt}
     messages = [system_message]
 
@@ -113,7 +201,18 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
             )
 
             stop = operate(operations, model)
-            if stop:
+            if stop == "done":
+                # Task completed, prompt for next objective
+                print(f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]\n{USER_QUESTION}")
+                print(f"{ANSI_YELLOW}[User]{ANSI_RESET}")
+                objective = prompt(style=style)
+                system_prompt = get_system_prompt(model, objective, custom_system_prompt)
+                system_message = {"role": "system", "content": system_prompt}
+                messages = [system_message] # Reset messages for new objective
+                loop_count = 0 # Reset loop count for new objective
+                session_id = None # Reset session ID for new objective
+                continue # Continue to the next iteration of the main loop
+            elif stop:
                 break
 
             loop_count += 1
@@ -162,13 +261,11 @@ def operate(operations, model):
             operating_system.mouse(click_detail)
         elif operate_type == "done":
             summary = operation.get("summary")
-
             print(
                 f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]"
             )
-            print(f"{ANSI_BLUE}Objective Complete: {ANSI_RESET}{summary}\n")
-            return True
-
+            print(f"{ANSI_BLUE}Objective Complete: {ANSI_RESET}{summary}" + "\n")
+            return "done"
         else:
             print(
                 f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] unknown operation response :({ANSI_RESET}"

@@ -1,6 +1,6 @@
 annotated-types==0.6.0
 anyio==3.7.1
-certifi==2023.7.22
+certifi==2025.6.15
 charset-normalizer==3.3.2
 colorama==0.4.6
 contourpy==1.2.0

@@ -4,13 +4,7 @@ ome
 <p align="center">
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
-<p align="center">
-  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Released Nov 2023, the Self-Operating Computer Framework was one of the first examples of using a multimodal model to view the screen and operate a computer.
-</p>
-
-<div align="center">
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/self-operating-computer.png" width="750"  style="margin: 10px;"/>
-</div>
+ce
 
 <!--
 :rotating_light: **OUTAGE NOTIFICATION: gpt-4o**
@@ -20,34 +14,131 @@ ome
 
 ## Key Features
 - **Compatibility**: Designed for various multimodal models.
-- **Integration**: Currently integrated with **GPT-4o, GPT-4.1, o1, Gemini Pro Vision, Claude 3, Qwen-VL and LLaVa.**
+- **Centralized Model Management**: All model configurations are now managed in a single, easy-to-update file (`operate/models/model_configs.py`), simplifying the addition and management of new models.
+- **Expanded Model Support**: Now integrated with the latest **OpenAI o3, o4-mini, GPT-4.1, GPT-4.1 mini, GPT-4.1 nano**, **Gemini 2.5 Pro, Gemini 2.5 Flash**, and **Gemma 3n** models (including `e2b` and `e4b` variants), and **Gemma 3:12b** alongside existing support for GPT-4o, Claude 3, Qwen-VL, and LLaVa.
+- **Enhanced Ollama Integration**: Improved handling for Ollama models, including default host configuration and more informative error messages.
 - **Future Plans**: Support for additional models.
 
+## Debugging
+
+To gain deeper insights into the model's behavior and troubleshoot issues, you can run `operate` with the `-d` or `--verbose` flag. This will enable verbose mode, providing detailed debugging information directly in your terminal.
+
+```bash
+operate -d
+# or
+operate --verbose
+```
+
+When verbose mode is active, you will see:
+
+*   **Prompt Sent to AI:** The exact JSON prompt that is constructed and sent to the language model for its decision.
+*   **Response from AI:** The raw JSON response received back from the language model.
+
+This detailed output is invaluable for understanding why the model made a particular decision, identifying issues with prompt construction, or debugging unexpected model behaviors.
+
+## Adding New Models
+
+With the introduction of centralized model management, adding new models to the Self-Operating Computer Framework is straightforward. All model configurations are now defined in a single file: `operate/models/model_configs.py`.
+
+To add a new model:
+
+1.  **Locate `model_configs.py`**: Navigate to `operate/models/model_configs.py` in your project directory.
+
+2.  **Understand the `MODELS` Dictionary**: This file contains a Python dictionary named `MODELS`. Each key in this dictionary is the internal identifier for a model (e.g., `"gpt-4o"`, `"llava"`), and its value is another dictionary containing the model's configuration.
+
+    Each model configuration dictionary has the following keys:
+    *   `"api_key"` (string): The name of the environment variable that stores the API key required for this model (e.g., `"OPENAI_API_KEY"`, `"GOOGLE_API_KEY"`, `"OLLAMA_HOST"`). If no API key is needed, you can omit this key or set its value to `None`.
+    *   `"provider"` (string): The service provider for the model (e.g., `"openai"`, `"google"`, `"ollama"`, `"anthropic"`, `"qwen"`). For OpenRouter models, the provider is internally set to `"openrouter_internal"` to ensure proper routing. This string directly corresponds to the logic implemented in `operate/models/apis.py` that handles API calls for that provider.
+    *   `"display_name"` (string): The user-friendly name that will appear in the interactive model selection menu when you run `operate` without specifying a model.
+
+3.  **Add Your New Model Entry**: Append a new entry to the `MODELS` dictionary following the existing format. For example, to add a hypothetical new Ollama model:
+
+    ```python
+    MODELS = {
+        # ... existing models ...
+        "my-new-ollama-model": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "My New Ollama Model (via Ollama)"},
+    }
+    ```
+
+4.  **Ensure Provider Logic Exists**: The `"provider"` you specify (e.g., `"ollama"`) must have corresponding API call logic implemented in `operate/models/apis.py`. If you are adding a model from an existing provider (like OpenAI, Google, Ollama, Anthropic, or Qwen), the existing logic should handle it. If it's a completely new provider, you would need to add the necessary API integration code in `operate/models/apis.py`.
+
+By following these steps, you can easily extend the framework to support new models without modifying core application logic in multiple places.
+
 ## Demo
-https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
+https://github.com/malah-code/self-ai-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
 ## Run `Self-Operating Computer`
 
-1. **Install the project**
-```
-pip install self-operating-computer
-```
-2. **Run the project**
-```
-operate
-```
-3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
+### Run from PyPI
+
+To run the application by installing it from PyPI, follow these steps:
+
+1.  **Install the project:**
+    ```bash
+    pip install self-ai-operating-computer
+    ```
+2.  **Run the project:**
+    ```bash
+    operate
+    ```
+
+### Run from Source Code
+
+To run the application from your local copy (after making changes), follow these steps:
+
+1.  **Uninstall previous installations (if any):**
+    ```bash
+    pip uninstall self-ai-operating-computer
+    ```
+    Confirm uninstallation when prompted.
+
+2.  **Install in editable mode:**
+    Navigate to the project's root directory (where `setup.py` is located) and run:
+    ```bash
+    pip install -e .
+    ```
+    This links your local source code to your Python environment, so changes are immediately reflected.
+
+3.  **Run the project:**
+    ```bash
+    operate
+    ```
+    If you run `operate` without any arguments, a welcome screen will be displayed, followed by an interactive model selection menu. If a model requires an API key that is not found in your environment variables or `.env` file, you will be prompted to enter it.
+
+    You can also specify the OpenRouter model directly via an environment variable to bypass the interactive selection:
+    ```bash
+    export OPENROUTER_MODEL="openai/gpt-4o-mini"
+    operate -m openrouter
+    ```
+    Or for other models:
+    ```bash
+    export OPENROUTER_MODEL="google/gemini-2.5-pro"
+    operate -m openrouter
+    ```
 
 <div align="center">
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/key.png" width="300"  style="margin: 10px;"/>
+  <img src="/readme/choose-model.png" width="750"  style="max-width: 100%;"/>
 </div>
 
-4. **Give Terminal app the required permissions**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+Once you select a model, you will be prompted to provide a custom system prompt if the `CUSTOM_SYSTEM_PROMPT` environment variable is not set. If the environment variable is set, the prompt screen will be skipped and the value from the environment variable will be used automatically. You can also load the prompt from a file if needed.
 
 <div align="center">
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
-  <img src="https://github.com/OthersideAI/self-operating-computer/blob/main/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
+  <img src="/readme/system-parameter-1.png" width="750"  style="max-width: 100%;"/>
+  <img src="/readme/prompt1.png" width="750"  style="max-width: 100%;"/>
+</div>
+
+4.  **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
+
+<div align="center">
+  <img src="/readme/key.png" width="300"  style="margin: 10px;"/>
+</div>
+
+5.  **Give Terminal app the required permissions**: As a last step, the Terminal app will ask for permission for "Screen Recording" and "Accessibility" in the "Security & Privacy" page of Mac's "System Preferences".
+
+<div align="center">
+  <img src="/readme/terminal-access-1.png" width="300"  style="margin: 10px;"/>
+  <img src="/readme/terminal-access-2.png" width="300"  style="margin: 10px;"/>
 </div>
 
 ## Using `operate` Modes
@@ -63,14 +154,38 @@ operate -m o1-with-ocr
 To experiment with OpenAI's latest `gpt-4.1` model, run:
 
 ```
-operate -m gpt-4.1-with-ocr
+operate -m gpt-4.1
+```
+
+To experiment with OpenAI's latest `gpt-4.1 mini` model, run:
+
+```
+operate -m gpt-4.1-mini
+```
+
+To experiment with OpenAI's latest `gpt-4.1 nano` model, run:
+
+```
+operate -m gpt-4.1-nano
+```
+
+To experiment with OpenAI's latest `o3` model, run:
+
+```
+operate -m o3
+```
+
+To experiment with OpenAI's latest `o4-mini` model, run:
+
+```
+operate -m o4-mini
 ```
 
 
 ### Multimodal Models  `-m`
-Try Google's `gemini-pro-vision` by following the instructions below. Start `operate` with the Gemini model
+Try Google's `gemini-1.5-pro-latest`, `gemini-2.5-pro`, or `gemini-2.5-flash` by following the instructions below. Start `operate` with the Gemini model
 ```
-operate -m gemini-pro-vision
+operate -m gemini-2.5-pro
 ```
 
 **Enter your Google AI Studio API key when terminal prompts you for it** If you don't have one, you can obtain a key [here](https://makersuite.google.com/app/apikey) after setting up your Google AI Studio account. You may also need [authorize credentials for a desktop application](https://ai.google.dev/palm_docs/oauth_quickstart). It took me a bit of time to get it working, if anyone knows a simpler way, please make a PR.
@@ -91,7 +206,6 @@ operate -m qwen-vl
 
 #### Try LLaVa Hosted Through Ollama `-m llava`
 If you wish to experiment with the Self-Operating Computer Framework using LLaVA on your own machine, you can with Ollama!   
-*Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
 
 First, install Ollama on your machine from https://ollama.ai/download.   
 
@@ -112,17 +226,61 @@ operate -m llava
 ```   
 **Important:** Error rates when using LLaVA are very high. This is simply intended to be a base to build off of as local multimodal models improve over time.
 
+#### Try Gemma 3n Hosted Through Ollama `-m gemma3n`
+If you wish to experiment with the Self-Operating Computer Framework using Gemma 3n on your own machine, you can with Ollama!   
+*Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
+
+First, install Ollama on your machine from https://ollama.ai/download.   
+
+Once Ollama is installed, pull the Gemma 3n model:
+```
+ollama pull gemma3n
+```
+This will download the model on your machine. You can also pull specific versions like `ollama pull gemma3n:e2b` or `ollama pull gemma3n:e4b`.
+
+When Ollama has finished pulling Gemma 3n, start the server:
+```
+ollama serve
+```
+
+That's it! Now start `operate` and select the Gemma 3n model. You can specify `gemma3n`, `gemma3n:e2b`, or `gemma3n:e4b`:
+```
+operate -m gemma3n:e2b
+```   
+
+#### Try Gemma 3:12b Hosted Through Ollama `-m gemma3:12b`
+If you wish to experiment with the Self-Operating Computer Framework using Gemma 3:12b on your own machine, you can with Ollama!   
+*Note: Ollama currently only supports MacOS and Linux. Windows now in Preview*   
+
+First, install Ollama on your machine from https://ollama.ai/download.   
+
+Once Ollama is installed, pull the Gemma 3:12b model:
+```
+ollama pull gemma3:12b
+```
+This will download the model on your machine.   
+
+When Ollama has finished pulling Gemma 3:12b, start the server:
+```
+ollama serve
+```
+
+That's it! Now start `operate` and select the Gemma 3:12b model:
+```
+operate -m gemma3:12b
+```   
+
 Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
 
 ### Voice Mode `--voice`
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
 **Clone the repo** to a directory on your computer:
 ```
-git clone https://github.com/OthersideAI/self-operating-computer.git
+git clone https://github.com/malah-code/self-ai-operating-computer.git
 ```
 **Cd into directory**:
 ```
-cd self-operating-computer
+cd self-ai-operating-computer
 ```
 Install the additional `requirements-audio.txt`
 ```
@@ -166,7 +324,7 @@ operate -m gpt-4-with-som
 
 ## Contributions are Welcomed!:
 
-If you want to contribute yourself, see [CONTRIBUTING.md](https://github.com/OthersideAI/self-operating-computer/blob/main/CONTRIBUTING.md).
+If you want to contribute yourself, see [CONTRIBUTING.md](/CONTRIBUTING.md).
 
 ## Feedback
 
@@ -175,18 +333,127 @@ For any input on improving this project, feel free to reach out to [Josh](https:
 ## Join Our Discord Community
 
 For real-time discussions and community support, join our Discord server. 
-- If you're already a member, join the discussion in [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
-- If you're new, first [join our Discord Server](https://discord.gg/YqaKtyBEzM) and then navigate to the [#self-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
+- If you're already a member, join the discussion in [#self-ai-operating-computer](https://discord.com/channels/877638638001877052/1181241785834541157).
+- If you're new, first [join our Discord Server](https://discord.com/channels/877638638001877052/1181241785834541157).
 
 ## Follow HyperWriteAI for More Updates
 
 Stay updated with the latest developments:
 - Follow HyperWriteAI on [Twitter](https://twitter.com/HyperWriteAI).
-- Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/othersideai/).
+- Follow HyperWriteAI on [LinkedIn](https://www.linkedin.com/company/malah-code/).
 
 ## Compatibility
 - This project is compatible with Mac OS, Windows, and Linux (with X server installed).
 
 ## OpenAI Rate Limiting Note
-The ```gpt-4o``` model is required. To unlock access to this model, your account needs to spend at least \$5 in API credits. Pre-paying for these credits will unlock access if you haven't already spent the minimum \$5.   
+The ```gpt-4o``` model is required. To unlock access to this model, your account needs to spend at least $5 in API credits. Pre-paying for these credits will unlock access if you haven't already spent the minimum $5.   
 Learn more **[here](https://platform.openai.com/docs/guides/rate-limits?context=tier-one)**
+
+## Supported Models Summary
+
+Here's a summary of all currently supported models and how to run them:
+
+*   **OpenAI GPT-4o (Default):**
+    ```
+    operate
+    ```
+*   **OpenAI o1-with-ocr:**
+    ```
+    operate -m o1-with-ocr
+    ```
+*   **OpenAI o3:**
+    ```
+    operate -m o3
+    ```
+*   **OpenAI o4-mini:**
+    ```
+    operate -m o4-mini
+    ```
+*   **OpenAI gpt-4.1:**
+    ```
+    operate -m gpt-4.1
+    ```
+*   **OpenAI gpt-4.1 mini:**
+    ```
+    operate -m gpt-4.1-mini
+    ```
+*   **OpenAI gpt-4.1 nano:**
+    ```
+    operate -m gpt-4.1-nano
+    ```
+*   **OpenAI gpt-4-with-ocr:**
+    ```
+    operate -m gpt-4-with-ocr
+    ```
+*   **OpenAI gpt-4-with-som:**
+    ```
+    operate -m gpt-4-with-som
+    ```
+*   **Google Gemini 1.5 Pro (latest):**
+    ```
+    operate -m gemini-1.5-pro-latest
+    ```
+*   **Google Gemini 2.5 Pro:**
+    ```
+    operate -m gemini-2.5-pro
+    ```
+*   **Google Gemini 2.5 Flash:**
+    ```
+    operate -m gemini-2.5-flash
+    ```
+*   **Anthropic Claude 3:**
+    ```
+    operate -m claude-3
+    ```
+*   **Qwen-VL:**
+    ```
+    operate -m qwen-vl
+    ```
+*   **LLaVa (via Ollama):**
+    ```
+    operate -m llava
+    ```
+*   **Gemma 3n (via Ollama):**
+    ```
+    operate -m gemma3n
+    ```
+*   **Gemma 3n:e2b (via Ollama):**
+    ```
+    operate -m gemma3n:e2b
+    ```
+*   **Gemma 3n:e4b (via Ollama):**
+    ```
+    operate -m gemma3n:e4b
+    ```
+*   **Gemma 3:12b (via Ollama):**
+    ```
+    operate -m gemma3:12b
+    ```
+*   **OpenRouter:**
+    ```
+    operate -m openrouter
+    ```
+    (Selecting this option will prompt you to enter the full OpenRouter model name, e.g., `google/gemini-2.0-flash-001`.)
+
+## Release Notes
+
+### Version 0.0.X (Latest)
+
+**New Features:**
+
+*   **Interactive Model Selection:** When running `operate` without specifying a model, a welcome screen is displayed, followed by an interactive menu to select your desired model.
+*   **Dynamic API Key Prompting:** The application now intelligently prompts for required API keys (e.g., OpenAI, Google, Anthropic) only when a model requiring that key is selected and the key is not found in your environment variables or `.env` file.
+*   **Custom System Prompt:** Users can now provide a custom system prompt from a file or an environment variable (`CUSTOM_SYSTEM_PROMPT`). If the environment variable is set, the option to load from it will be hidden.
+
+**Improvements:**
+
+*   **Expanded Google Gemini Support:** Added full support for `gemini-2.5-pro` and `gemini-2.5-flash` models.
+*   **Enhanced Ollama Integration:** Improved handling for Ollama models, including setting `http://localhost:11434` as the default host and providing more informative error messages when Ollama models are not found.
+*   **Gemma 3n Model Support:** Integrated support for `gemma3n`, `gemma3n:e2b`, and `gemma3n:e4b` models via Ollama.
+*   **Robust Error Handling:** Improved error handling for API calls to prevent unexpected fallbacks and provide clearer error messages.
+
+**Bug Fixes:**
+
+*   Resolved an issue where the application would incorrectly prompt for an OpenAI API key when a Google Gemini model was selected.
+*   Fixed an issue where the application would attempt to use an incorrect model name for `gemini-2.5-flash-lite` (which is not a valid model name).
+*   Addressed the "Extra data" JSON parsing error when receiving responses from Gemini models.

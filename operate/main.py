@@ -8,14 +8,13 @@ from operate.operate import main
 
 def main_entry():
     parser = argparse.ArgumentParser(
-        description="Run the self-operating-computer with a specified model."
+        description="Run the self-ai-operating-computer with a specified model."
     )
     parser.add_argument(
         "-m",
         "--model",
         help="Specify the model to use",
         required=False,
-        default="gpt-4-with-ocr",
     )
 
     # Add a voice flag
@@ -27,6 +26,7 @@ def main_entry():
     
     # Add a flag for verbose mode
     parser.add_argument(
+        "-d",
         "--verbose",
         help="Run operate in verbose mode",
         action="store_true",

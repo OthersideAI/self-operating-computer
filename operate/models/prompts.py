@@ -136,7 +136,7 @@ From looking at the screen, the objective, and your previous actions, take the n
 
 You have 4 possible operation actions available to you. The `pyautogui` library will be used to execute your decision. Your output will be used in a `json.loads` loads statement.
 
-1. click - Move mouse and click - Look for text to click. Try to find relevant text to click, but if there's nothing relevant enough you can return `"nothing to click"` for the text value and we'll try a different method.
+1. click - Move mouse and click - Look for text to click. Try to find relevant text to click, but if there's nothing relevant enough you can return `"nothing to click"` for the text value and we'll try a different method. If you need to move the mouse to a specific visual element without clicking, use the `click` operation with the `text` of the element. The system will attempt to find the coordinates for you.
 ```
 [{{ "thought": "write a thought here", "operation": "click", "text": "The text in the button or link to click" }}]  
 ```
@@ -207,10 +207,16 @@ Please take the next best action. The `pyautogui` library will be used to execut
 Action:"""
 
 
-def get_system_prompt(model, objective):
+def get_system_prompt(model, objective, custom_system_prompt=None):
     """
     Format the vision prompt more efficiently and print the name of the prompt used
     """
+
+    if custom_system_prompt:
+        return custom_system_prompt
+
+    if custom_system_prompt:
+        return custom_system_prompt
 
     if platform.system() == "Darwin":
         cmd_string = "\"command\""
@@ -232,7 +238,7 @@ def get_system_prompt(model, objective):
             os_search_str=os_search_str,
             operating_system=operating_system,
         )
-    elif model == "gpt-4-with-ocr" or model == "gpt-4.1-with-ocr" or model == "o1-with-ocr" or model == "claude-3" or model == "qwen-vl":
+    elif model == "gpt-4-with-ocr" or model == "gpt-4.1-with-ocr" or model == "o1-with-ocr" or model == "claude-3" or model == "qwen-vl" or model.startswith("gemini"):
 
         prompt = SYSTEM_PROMPT_OCR.format(
             objective=objective,
