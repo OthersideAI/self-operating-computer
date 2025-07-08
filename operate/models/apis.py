@@ -83,6 +83,7 @@ def call_openrouter_model(messages, objective, model):
         print("[call_openrouter_model]")
     time.sleep(1)
     client = config.initialize_openrouter()
+    content = None  # Initialize content to None
     try:
         screenshots_dir = "screenshots"
         if not os.path.exists(screenshots_dir):
@@ -124,6 +125,9 @@ def call_openrouter_model(messages, objective, model):
             presence_penalty=1,
             frequency_penalty=1,
         )
+
+        if not response or not response.choices or not response.choices[0] or not response.choices[0].message:
+            raise Exception("OpenRouter API response is incomplete or malformed.")
 
         content = response.choices[0].message.content
 
