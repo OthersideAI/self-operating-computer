@@ -4,32 +4,7 @@ ome
 <p align="center">
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
-
-### Version v2.0.16 (Latest) Release Summary
-
-**New Features:**
-
-*   **Centralized Model Management:** All model configurations are now managed in a single file (`operate/models/model_configs.py`), making it easier to add, remove, and manage models.
-*   **Expanded Ollama Model Support:** Added support for `qwen2.5vl:3b` and `gemma3:4b`.
-*   **Enhanced Debugging:** Added a `-d` flag (alias for `--verbose`) that provides detailed debugging information, including the full prompt sent to the AI and the raw response received.
-
-**Improvements:**
-
-*   **Improved System Prompt:** The system prompt has been enhanced with a more structured format, explicit JSON schema definitions, and clear examples to improve model accuracy and reliability.
-
-**Bug Fixes:**
-
-*   Fixed an issue where the model selection screen was not correctly displaying all available models.
-*   Resolved an `IndentationError` in the model configuration file.
-
-<p align="center">
-  Using the same inputs and outputs as a human operator, the model views the screen and decides on a series of mouse and keyboard actions to reach an objective. Released Nov 2023, the Self-Operating Computer Framework was one of the first examples of usiself-ai-operating-computerng a multimodal model to view the screen and operate a computer.
-</p>
-
-<div align="center">
-  <img src="/readme/choose-model.png" width="750"  style="max-width: 100%;"/>
-</div>
-
+ce
 
 <!--
 :rotating_light: **OUTAGE NOTIFICATION: gpt-4o**
