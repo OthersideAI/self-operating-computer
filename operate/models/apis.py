@@ -36,6 +36,9 @@ from operate.utils.style import (
 # Load configuration
 config = Config()
 
+# Define a maximum token limit for OpenRouter models (adjust as needed)
+OPENROUTER_MAX_TOKENS = 15000
+
 
 from operate.models.model_configs import MODELS
 
@@ -119,12 +122,43 @@ def call_openrouter_model(messages, objective, model):
         }
         messages.append(vision_message)
 
+        # Token management for OpenRouter models
+        current_tokens = 0
+        truncated_messages = [messages[0]]  # Always keep the system prompt
+
+        # Estimate token count and truncate messages if necessary
+        for msg in reversed(messages[1:]):
+            msg_content = ""
+            if isinstance(msg["content"], str):
+                msg_content = msg["content"]
+            elif isinstance(msg["content"], list):
+                for item in msg["content"]:
+                    if item["type"] == "text":
+                        msg_content += item["text"]
+            
+            # Simple character count as a proxy for tokens
+            estimated_tokens = len(msg_content) / 4  # Rough estimate: 1 token ~ 4 characters
+
+            if current_tokens + estimated_tokens < OPENROUTER_MAX_TOKENS:
+                truncated_messages.insert(1, msg)  # Insert after system prompt
+                current_tokens += estimated_tokens
+            else:
+                if config.verbose:
+                    print(f"{ANSI_YELLOW}Truncating messages to stay within token limit. Dropping: {msg.get('role')}{ANSI_RESET}")
+                break
+        
+        # Reverse to maintain chronological order (except system prompt at beginning)
+        truncated_messages = [truncated_messages[0]] + list(reversed(truncated_messages[1:]))
+
         response = client.chat.completions.create(
             model=model,
-            messages=messages,
+            messages=truncated_messages,
             presence_penalty=1,
             frequency_penalty=1,
         )
+
+        if config.verbose:
+            print(f"{ANSI_YELLOW}Raw OpenRouter API response: {response}{ANSI_RESET}")
 
         if not response or not response.choices or not response.choices[0] or not response.choices[0].message:
             raise Exception("OpenRouter API response is incomplete or malformed.")

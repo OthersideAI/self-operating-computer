@@ -2,7 +2,7 @@ import sys
 import os
 import time
 import asyncio
-from prompt_toolkit.shortcuts import message_dialog, radiolist_dialog
+from prompt_toolkit.shortcuts import message_dialog, radiolist_dialog, input_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
 import platform
@@ -21,6 +21,7 @@ from operate.utils.style import (
     ANSI_BRIGHT_MAGENTA,
     ANSI_BLUE,
     style,
+    strip_ansi_codes,
 )
 from operate.utils.operating_system import OperatingSystem
 from operate.models.apis import get_next_action
@@ -45,12 +46,13 @@ Let's get started!
 
 
 def select_openrouter_model_interactively():
-    model_name = input_dialog(
-        title="OpenRouter Model Selection",
-        text=f"""{ANSI_GREEN}Please enter the full OpenRouter model name.{ANSI_RESET}
+    text_content = f"""{ANSI_GREEN}Please enter the full OpenRouter model name.{ANSI_RESET}
 {ANSI_YELLOW}Ensure the model supports both image and text input modalities.{ANSI_RESET}
 {ANSI_YELLOW}You can find a list of suitable models here: https://openrouter.ai/models?fmt=cards&input_modalities=image%2Ctext{ANSI_RESET}
-{ANSI_YELLOW}Examples: google/gemini-2.0-flash-001, openai/gpt-4o, anthropic/claude-3-opus{ANSI_RESET}""",
+{ANSI_YELLOW}Examples: google/gemini-2.0-flash-001, openai/gpt-4o, anthropic/claude-3-opus{ANSI_RESET}"""
+    model_name = input_dialog(
+        title="OpenRouter Model Selection",
+        text=strip_ansi_codes(text_content),
     ).run()
     if model_name is None:
         sys.exit("OpenRouter model selection cancelled. Exiting.")

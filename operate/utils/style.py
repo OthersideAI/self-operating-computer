@@ -1,6 +1,7 @@
 import sys
 import platform
 import os
+import re
 from prompt_toolkit.styles import Style as PromptStyle
 
 
@@ -34,3 +35,9 @@ ANSI_BLUE = "\033[94m" if supports_ansi() else ""  # Bright blue
 ANSI_YELLOW = "\033[33m" if supports_ansi() else ""  # Standard yellow text
 ANSI_RED = "\033[31m" if supports_ansi() else ""
 ANSI_BRIGHT_MAGENTA = "\033[95m" if supports_ansi() else ""  # Bright magenta text
+
+def strip_ansi_codes(s):
+    """
+    Strips ANSI escape codes from a string.
+    """
+    return re.sub(r'\x1b\[[0-9;]*m', '', s)
