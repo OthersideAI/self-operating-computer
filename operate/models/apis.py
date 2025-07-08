@@ -60,9 +60,14 @@ async def get_next_action(model, messages, objective, session_id):
             return await call_claude_3_with_ocr(messages, objective, model), None
         elif provider == "qwen":
             return await call_qwen_vl_with_ocr(messages, objective, model), None
-    
-    # Handle OpenRouter models that are not explicitly in MODELS
-    if model.startswith("google/") or model.startswith("openai/") or model.startswith("anthropic/") or model.startswith("openrouter/") or model.startswith("qwen/"):
+        # If it's "openrouter" from MODELS, it means the user selected the OpenRouter option
+        # The actual OpenRouter model name would have been prompted for and is now in 'model'
+        elif provider == "openrouter":
+            return call_openrouter_model(messages, objective, model), None
+
+    # If the model is not in MODELS, check if it's an OpenRouter model by its format
+    # OpenRouter models typically have a '/' in their name (e.g., "google/gemini-2.0-flash-001")
+    if "/" in model:
         return call_openrouter_model(messages, objective, model), None
 
     raise ModelNotRecognizedException(model)
