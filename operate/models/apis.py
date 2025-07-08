@@ -127,6 +127,10 @@ def call_openrouter_model(messages, objective, model):
 
         content = response.choices[0].message.content
 
+        if content is None:
+            print(f"{ANSI_RED}[Error] OpenRouter model returned no content.{ANSI_RESET}")
+            return [] # Return an empty list of operations
+
         content = clean_json(content)
 
         assistant_message = {"role": "assistant", "content": content}
