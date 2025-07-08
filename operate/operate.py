@@ -6,7 +6,6 @@ from prompt_toolkit.shortcuts import message_dialog, radiolist_dialog
 from prompt_toolkit import prompt
 from operate.exceptions import ModelNotRecognizedException
 import platform
-import requests
 
 # from operate.models.prompts import USER_QUESTION, get_system_prompt
 from operate.models.prompts import (
@@ -46,51 +45,12 @@ Let's get started!
 
 
 def select_openrouter_model_interactively():
-    print("Fetching free OpenRouter vision models...")
-    try:
-        headers = {
-            "Authorization": f"Bearer {config.openrouter_api_key}"
-        }
-        # Fetch models with max_price=0 to get free models
-        response = requests.get("https://openrouter.ai/api/v1/models?max_price=0", headers=headers)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        models_data = response.json()["data"]
-
-        models = []
-        if config.verbose:
-            print(f"{ANSI_YELLOW}OpenRouter API Key: {config.openrouter_api_key}{ANSI_RESET}")
-            print(f"{ANSI_YELLOW}Raw models data from OpenRouter: {models_data}{ANSI_RESET}")
-        for model in models_data:
-            if config.verbose:
-                print(f"{ANSI_YELLOW}Checking model: {model.get('id')}, Input Modalities: {model.get('input_modalities', [])}, Input Format: {model.get('input_format', [])}{ANSI_RESET}")
-
-            is_vision_model = False
-            if "image" in model.get("input_format", []) and "text" in model.get("input_format", []):
-                is_vision_model = True
-            elif "image" in model.get("input_modalities", []) and "text" in model.get("input_modalities", []):
-                is_vision_model = True
-
-            if is_vision_model:
-                models.append((model["id"], model["id"].replace("openrouter/", "")))
-        
-        if not models:
-            print(f"{ANSI_RED}No free vision models found from OpenRouter. Please check your API key and permissions, or if there are any free vision models available.{ANSI_RESET}")
-            return None
-
-        selected_model = radiolist_dialog(
-            title="OpenRouter Free Vision Model Selection",
-            text=f"""{ANSI_GREEN}Please select a free OpenRouter vision model to use.{ANSI_RESET}
-{ANSI_YELLOW}You can find more free vision models here: https://openrouter.ai/models?fmt=cards&input_modalities=image%2Ctext&max_price=0{ANSI_RESET}""",
-            values=models,
-        ).run()
-
-        if selected_model is None:
-            print("Dialog was cancelled or failed to display.")
-
-        return selected_model
-    except requests.exceptions.RequestException as e:
-        print(f"{ANSI_RED}Error fetching OpenRouter models: {e}{ANSI_RESET}")
-        return None
+    print(f"""{ANSI_GREEN}Please enter the full OpenRouter model name.{ANSI_RESET}
+{ANSI_YELLOW}Ensure the model supports both image and text input modalities.{ANSI_RESET}
+{ANSI_YELLOW}You can find a list of suitable models here: https://openrouter.ai/models?fmt=cards&input_modalities=image%2Ctext{ANSI_RESET}
+{ANSI_YELLOW}Examples: google/gemini-2.0-flash-001, openai/gpt-4o, anthropic/claude-3-opus{ANSI_RESET}""")
+    model_name = prompt("OpenRouter Model Name: ").strip()
+    return model_name
 
 def select_model_interactively():
     print("Attempting to display model selection dialog...")
