@@ -44,6 +44,8 @@ async def get_next_action(model, messages, objective, session_id):
         print("[Self-Operating Computer][get_next_action]")
         print("[Self-Operating Computer][get_next_action] model", model)
 
+    if config.verbose:
+        print(f"[Self-Operating Computer][get_next_action] Checking model: {model}")
     if model in MODELS:
         provider = MODELS[model].get("provider")
         if provider == "openai":
@@ -58,8 +60,10 @@ async def get_next_action(model, messages, objective, session_id):
             return await call_claude_3_with_ocr(messages, objective, model), None
         elif provider == "qwen":
             return await call_qwen_vl_with_ocr(messages, objective, model), None
-        elif provider == "openrouter":
-            return call_openrouter_model(messages, objective, model), None
+    
+    # Handle OpenRouter models that are not explicitly in MODELS
+    if model.startswith("google/") or model.startswith("openai/") or model.startswith("anthropic/") or model.startswith("openrouter/") or model.startswith("qwen/"):
+        return call_openrouter_model(messages, objective, model), None
 
     raise ModelNotRecognizedException(model)
 
@@ -129,7 +133,7 @@ def call_openrouter_model(messages, objective, model):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying again {ANSI_RESET}",
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. {ANSI_RESET}",
             e,
         )
         print(
@@ -138,7 +142,7 @@ def call_openrouter_model(messages, objective, model):
         )
         if config.verbose:
             traceback.print_exc()
-        return call_openrouter_model(messages, objective, model)
+        raise
 
 
 def call_gpt_4o(messages):
