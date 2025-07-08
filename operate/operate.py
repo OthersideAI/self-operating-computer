@@ -169,11 +169,14 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
     if not model:
         openrouter_model_env = os.getenv("OPENROUTER_MODEL")
         if openrouter_model_env:
-            model = openrouter_model_env
+            model = f"openrouter_internal_{openrouter_model_env}"
         else:
             model = select_model_interactively()
             if not model:  # User cancelled model selection
                 sys.exit("Model selection cancelled. Exiting.")
+            # If the selected model is from OpenRouter, add the internal prefix
+            if model and MODELS.get(model, {}).get("provider") == "openrouter":
+                model = f"openrouter_internal_{model}"
 
     config.validation(model, voice_mode)
 

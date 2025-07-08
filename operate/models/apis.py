@@ -46,6 +46,11 @@ async def get_next_action(model, messages, objective, session_id):
 
     if config.verbose:
         print(f"[Self-Operating Computer][get_next_action] Checking model: {model}")
+    if model.startswith("openrouter_internal_"):
+        # Remove the internal prefix before calling the OpenRouter model
+        actual_model_name = model.replace("openrouter_internal_", "")
+        return call_openrouter_model(messages, objective, actual_model_name), None
+
     if model in MODELS:
         provider = MODELS[model].get("provider")
         if provider == "openai":

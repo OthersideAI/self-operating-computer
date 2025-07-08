@@ -73,7 +73,7 @@ To add a new model:
 
     Each model configuration dictionary has the following keys:
     *   `"api_key"` (string): The name of the environment variable that stores the API key required for this model (e.g., `"OPENAI_API_KEY"`, `"GOOGLE_API_KEY"`, `"OLLAMA_HOST"`). If no API key is needed, you can omit this key or set its value to `None`.
-    *   `"provider"` (string): The service provider for the model (e.g., `"openai"`, `"google"`, `"ollama"`, `"anthropic"`, `"qwen"`). This string directly corresponds to the logic implemented in `operate/models/apis.py` that handles API calls for that provider.
+    *   `"provider"` (string): The service provider for the model (e.g., `"openai"`, `"google"`, `"ollama"`, `"anthropic"`, `"qwen"`). For OpenRouter models, the provider is internally set to `"openrouter_internal"` to ensure proper routing. This string directly corresponds to the logic implemented in `operate/models/apis.py` that handles API calls for that provider.
     *   `"display_name"` (string): The user-friendly name that will appear in the interactive model selection menu when you run `operate` without specifying a model.
 
 3.  **Add Your New Model Entry**: Append a new entry to the `MODELS` dictionary following the existing format. For example, to add a hypothetical new Ollama model:

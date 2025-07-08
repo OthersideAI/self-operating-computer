@@ -44,5 +44,5 @@ MODELS = {
     "qwen2.5vl:3b": {"api_key": "OLLAMA_HOST", "provider": "ollama", "display_name": "Qwen 2.5 VL 3B (via Ollama)"},
 
     # OpenRouter Models
-    "openrouter": {"api_key": "OPENROUTER_API_KEY", "provider": "openrouter", "display_name": "OpenRouter (Select Model)"}
+    "openrouter": {"api_key": "OPENROUTER_API_KEY", "provider": "openrouter_internal", "display_name": "OpenRouter (Select Model)"}
 }
