@@ -5,7 +5,7 @@ ome
   <strong>A framework to enable multimodal models to operate a computer.</strong>
 </p>
 
-### Version v2.0.15 (Latest) Release Summary
+### Version v2.0.16 (Latest) Release Summary
 
 **New Features:**
 
