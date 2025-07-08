@@ -45,11 +45,15 @@ Let's get started!
 
 
 def select_openrouter_model_interactively():
-    print(f"""{ANSI_GREEN}Please enter the full OpenRouter model name.{ANSI_RESET}
+    model_name = input_dialog(
+        title="OpenRouter Model Selection",
+        text=f"""{ANSI_GREEN}Please enter the full OpenRouter model name.{ANSI_RESET}
 {ANSI_YELLOW}Ensure the model supports both image and text input modalities.{ANSI_RESET}
 {ANSI_YELLOW}You can find a list of suitable models here: https://openrouter.ai/models?fmt=cards&input_modalities=image%2Ctext{ANSI_RESET}
-{ANSI_YELLOW}Examples: google/gemini-2.0-flash-001, openai/gpt-4o, anthropic/claude-3-opus{ANSI_RESET}""")
-    model_name = prompt("OpenRouter Model Name: ").strip()
+{ANSI_YELLOW}Examples: google/gemini-2.0-flash-001, openai/gpt-4o, anthropic/claude-3-opus{ANSI_RESET}""",
+    ).run()
+    if model_name is None:
+        sys.exit("OpenRouter model selection cancelled. Exiting.")
     return model_name
 
 def select_model_interactively():
