@@ -164,3 +164,6 @@ cython_debug/
 # Avoid sending testing screenshots up
 *.png
 operate/screenshots/
+
+# Bat files
+*.bat
