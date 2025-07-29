@@ -1,11 +1,13 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+ai_env/
 *.py[cod]
 *$py.class
 
 # C extensions
 *.so
-
+*.md
+*.patch
 # Distribution / packaging
 .Python
 build/
