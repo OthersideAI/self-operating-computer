@@ -7,7 +7,7 @@ from ollama import Client
 from openai import OpenAI
 import anthropic
 from prompt_toolkit.shortcuts import input_dialog
-
+from openai import AzureOpenAI
 
 class Config:
     """
@@ -46,6 +46,18 @@ class Config:
         self.qwen_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
+        self.azure_openai_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
+        self.azure_openai_endpoint = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
+        self.azure_openai_deployment = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
+        self.azure_openai_api_version = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
 
     def initialize_openai(self):
         if self.verbose:
@@ -69,6 +81,30 @@ class Config:
         client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
         return client
 
+    def initialize_azure_openai(self):
+        if self.verbose:
+            print("[Config][initialize_azure_openai]")
+
+        if self.azure_openai_api_key:
+            if self.verbose:
+                print("[Config][initialize_openai] using cached openai_api_key")
+            api_key = self.azure_openai_api_key
+        else:
+            if self.verbose:
+                print(
+                    "[Config][initialize_azure_openai] no cached azure_openai_api_key, try to get from env."
+                )
+            api_key = os.getenv("AZURE_OPENAI_API_KEY")
+
+        azure_client = AzureOpenAI(
+            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+        )
+        azure_client.api_key = api_key
+        azure_client.base_url = os.getenv("OPENAI_API_BASE_URL", azure_client.base_url)
+        return azure_client
+ 
     def initialize_qwen(self):
         if self.verbose:
             print("[Config][initialize_qwen]")
