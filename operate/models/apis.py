@@ -430,7 +430,7 @@ async def call_gpt_4_1_with_ocr(messages, objective, model):
 
     try:
         time.sleep(1)
-        client = config.initialize_openai()
+        client = config.initialize_azure_openai()
 
         confirm_system_prompt(messages, objective, model)
         screenshots_dir = "screenshots"
