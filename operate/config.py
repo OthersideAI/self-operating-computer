@@ -140,7 +140,11 @@ class Config:
             or model == "gpt-4-with-som"
             or model == "gpt-4-with-ocr"
             or model == "gpt-4.1-with-ocr"
-            or model == "o1-with-ocr",
+            or model == "o1-with-ocr"
+            or model == "gpt-5-with-ocr"
+            or model == "gpt-5-research-with-ocr"
+            or model == "gpt-5-mini-with-ocr"
+            or model == "gpt-5-nano-with-ocr",
         )
         self.require_api_key(
             "GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision"
