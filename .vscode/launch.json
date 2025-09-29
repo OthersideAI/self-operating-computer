@@ -1,0 +1,20 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "pwa-msedge",
+            "name": "Launch Microsoft Edge",
+            "request": "launch",
+            "runtimeArgs": [
+                "--remote-debugging-port=9222"
+            ],
+            "url": "c:\\Users\\Jim\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.9\\out\\startpage\\index.html",
+            "presentation": {
+                "hidden": true
+            }
+        }
+    ]
+}
