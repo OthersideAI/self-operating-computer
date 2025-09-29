@@ -1,11 +1,34 @@
 import os
 import sys
+try:
+    from dotenv import load_dotenv
+except Exception as e:
+    raise ImportError("python-dotenv is required: pip install python-dotenv") from e
 
-import google.generativeai as genai
-from dotenv import load_dotenv
-from ollama import Client
-from openai import OpenAI
-import anthropic
+try:
+    from ollama import Client
+except Exception:
+    Client = None
+
+try:
+    from openai import OpenAI
+except Exception:
+    try:
+        import openai as _openai
+        OpenAI = getattr(_openai, "OpenAI", None) or _openai
+    except Exception as e:
+        raise ImportError("openai package required: pip install openai") from e
+
+try:
+    import anthropic
+except Exception:
+    anthropic = None
+
+try:
+    import google.generativeai as genai
+except Exception:
+    genai = None
+
 from prompt_toolkit.shortcuts import input_dialog
 
 
@@ -25,65 +48,34 @@ class Config:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Config, cls).__new__(cls)
-            # Put any initialization here
         return cls._instance
 
     def __init__(self):
         load_dotenv()
         self.verbose = False
-        self.openai_api_key = (
-            None  # instance variables are backups in case saving to a `.env` fails
-        )
-        self.google_api_key = (
-            None  # instance variables are backups in case saving to a `.env` fails
-        )
-        self.ollama_host = (
-            None  # instance variables are backups in case savint to a `.env` fails
-        )
-        self.anthropic_api_key = (
-            None  # instance variables are backups in case saving to a `.env` fails
-        )
-        self.qwen_api_key = (
-            None  # instance variables are backups in case saving to a `.env` fails
-        )
+        self.openai_api_key = None
+        self.google_api_key = None
+        self.ollama_host = None
+        self.anthropic_api_key = None
+        self.qwen_api_key = None
 
     def initialize_openai(self):
         if self.verbose:
             print("[Config][initialize_openai]")
 
-        if self.openai_api_key:
-            if self.verbose:
-                print("[Config][initialize_openai] using cached openai_api_key")
-            api_key = self.openai_api_key
-        else:
-            if self.verbose:
-                print(
-                    "[Config][initialize_openai] no cached openai_api_key, try to get from env."
-                )
-            api_key = os.getenv("OPENAI_API_KEY")
-
-        client = OpenAI(
-            api_key=api_key,
-        )
+        api_key = self.openai_api_key or os.getenv("OPENAI_API_KEY")
+        client = OpenAI(api_key=api_key)
         client.api_key = api_key
-        client.base_url = os.getenv("OPENAI_API_BASE_URL", client.base_url)
+        client.base_url = os.getenv(
+            "OPENAI_API_BASE_URL", getattr(client, "base_url", None)
+        )
         return client
 
     def initialize_qwen(self):
         if self.verbose:
             print("[Config][initialize_qwen]")
 
-        if self.qwen_api_key:
-            if self.verbose:
-                print("[Config][initialize_qwen] using cached qwen_api_key")
-            api_key = self.qwen_api_key
-        else:
-            if self.verbose:
-                print(
-                    "[Config][initialize_qwen] no cached qwen_api_key, try to get from env."
-                )
-            api_key = os.getenv("QWEN_API_KEY")
-
+        api_key = self.qwen_api_key or os.getenv("QWEN_API_KEY")
         client = OpenAI(
             api_key=api_key,
             base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
@@ -93,19 +85,12 @@ class Config:
         return client
 
     def initialize_google(self):
-        if self.google_api_key:
-            if self.verbose:
-                print("[Config][initialize_google] using cached google_api_key")
-            api_key = self.google_api_key
-        else:
-            if self.verbose:
-                print(
-                    "[Config][initialize_google] no cached google_api_key, try to get from env."
-                )
-            api_key = os.getenv("GOOGLE_API_KEY")
+        if self.verbose:
+            print("[Config][initialize_google]")
+
+        api_key = self.google_api_key or os.getenv("GOOGLE_API_KEY")
         genai.configure(api_key=api_key, transport="rest")
         model = genai.GenerativeModel("gemini-pro-vision")
-
         return model
 
     def initialize_ollama(self):
@@ -122,10 +107,7 @@ class Config:
         return model
 
     def initialize_anthropic(self):
-        if self.anthropic_api_key:
-            api_key = self.anthropic_api_key
-        else:
-            api_key = os.getenv("ANTHROPIC_API_KEY")
+        api_key = self.anthropic_api_key or os.getenv("ANTHROPIC_API_KEY")
         return anthropic.Anthropic(api_key=api_key)
 
     def validation(self, model, voice_mode):
@@ -142,21 +124,14 @@ class Config:
             or model == "gpt-4.1-with-ocr"
             or model == "o1-with-ocr",
         )
-        self.require_api_key(
-            "GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision"
-        )
-        self.require_api_key(
-            "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
-        )
+        self.require_api_key("GOOGLE_API_KEY", "Google API key", model == "gemini-pro-vision")
+        self.require_api_key("ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3")
         self.require_api_key("QWEN_API_KEY", "Qwen API key", model == "qwen-vl")
 
     def require_api_key(self, key_name, key_description, is_required):
         key_exists = bool(os.environ.get(key_name))
         if self.verbose:
-            print("[Config] require_api_key")
-            print("[Config] key_name", key_name)
-            print("[Config] key_description", key_description)
-            print("[Config] key_exists", key_exists)
+            print("[Config] require_api_key", key_name, key_exists)
         if is_required and not key_exists:
             self.prompt_and_save_api_key(key_name, key_description)
 
@@ -177,11 +152,34 @@ class Config:
                 self.anthropic_api_key = key_value
             elif key_name == "QWEN_API_KEY":
                 self.qwen_api_key = key_value
+
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
-            # Update the instance attribute with the new key
 
     @staticmethod
     def save_api_key_to_env(key_name, key_value):
-        with open(".env", "a") as file:
-            file.write(f"\n{key_name}='{key_value}'")
+        """
+        Write or replace a key in the local .env file.
+        - If .env does not exist, it will be created.
+        - If the key exists, its value will be replaced.
+        """
+        env_path = ".env"
+        lines = []
+        if os.path.exists(env_path):
+            with open(env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+        key_prefix = f"{key_name}="
+        found = False
+        new_lines = []
+        for line in lines:
+            if line.strip().startswith(f"{key_name}="):
+                new_lines.append(f"{key_prefix}{key_value}\n")
+                found = True
+            else:
+                new_lines.append(line)
+        if not found:
+            new_lines.append(f"{key_prefix}{key_value}\n")
+
+        with open(env_path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
