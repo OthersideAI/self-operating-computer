@@ -1,0 +1,15 @@
+{
+    "summary": "The code uses the PromptStyle library to define styles for UI elements, checks terminal support for ANSI escape codes, and sets color variables based on this.",
+    "details": [
+        {
+            "comment": "This code defines styles for dialogs, buttons, and other UI elements using the PromptStyle library. It also checks if the terminal supports ANSI escape codes for colors and defines ANSI color codes accordingly.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/operate/utils/style.py\":0-33",
+            "content": "import sys\nimport platform\nimport os\nfrom prompt_toolkit.styles import Style as PromptStyle\n# Define style\nstyle = PromptStyle.from_dict(\n    {\n        \"dialog\": \"bg:#88ff88\",\n        \"button\": \"bg:#ffffff #000000\",\n        \"dialog.body\": \"bg:#44cc44 #ffffff\",\n        \"dialog shadow\": \"bg:#003800\",\n    }\n)\n# Check if on a windows terminal that supports ANSI escape codes\ndef supports_ansi():\n    \"\"\"\n    Check if the terminal supports ANSI escape codes\n    \"\"\"\n    plat = platform.system()\n    supported_platform = plat != \"Windows\" or \"ANSICON\" in os.environ\n    is_a_tty = hasattr(sys.stdout, \"isatty\") and sys.stdout.isatty()\n    return supported_platform and is_a_tty\n# Define ANSI color codes\nANSI_GREEN = \"\\033[32m\" if supports_ansi() else \"\"  # Standard green text\nANSI_BRIGHT_GREEN = \"\\033[92m\" if supports_ansi() else \"\"  # Bright/bold green text\nANSI_RESET = \"\\033[0m\" if supports_ansi() else \"\"  # Reset to default text color\nANSI_BLUE = \"\\033[94m\" if supports_ansi() else \"\"  # Bright blue\nANSI_YELLOW = \"\\033[33m\" if supports_ansi() else \"\"  # Standard yellow text"
+        },
+        {
+            "comment": "Checks if the terminal supports ANSI escape codes and sets color variables accordingly.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/operate/utils/style.py\":34-35",
+            "content": "ANSI_RED = \"\\033[31m\" if supports_ansi() else \"\"\nANSI_BRIGHT_MAGENTA = \"\\033[95m\" if supports_ansi() else \"\"  # Bright magenta text"
+        }
+    ]
+}

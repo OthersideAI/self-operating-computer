@@ -1,0 +1,10 @@
+{
+    "summary": "This code is using setuptools to create a setup script for the \"self-operating-computer\" package. It imports the necessary modules and reads requirements from \"requirements.txt\". It also reads project description from \"README.md\", sets up dependencies, and defines entry points for console scripts.",
+    "details": [
+        {
+            "comment": "This code is using setuptools to create a setup script for the \"self-operating-computer\" package. It imports the necessary modules and reads requirements from \"requirements.txt\". It also reads project description from \"README.md\", sets up dependencies, and defines entry points for console scripts.",
+            "location": "\"/media/root/Toshiba XG3/works/self-operating-computer/docs/src/setup.py\":0-23",
+            "content": "from setuptools import setup, find_packages\n# Read the contents of your requirements.txt file\nwith open(\"requirements.txt\") as f:\n    required = f.read().splitlines()\n# Read the contents of your README.md file for the project description\nwith open(\"README.md\", \"r\", encoding=\"utf-8\") as readme_file:\n    long_description = readme_file.read()\nsetup(\n    name=\"self-operating-computer\",\n    version=\"1.1.1\",\n    packages=find_packages(),\n    install_requires=required,  # Add dependencies here\n    entry_points={\n        \"console_scripts\": [\n            \"operate=operate.main:main_entry\",\n        ],\n    },\n    long_description=long_description,  # Add project description here\n    long_description_content_type=\"text/markdown\",  # Specify Markdown format\n    # include any other necessary setup options here\n)"
+        }
+    ]
+}
