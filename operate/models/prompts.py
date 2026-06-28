@@ -225,9 +225,9 @@ CRITICAL RULES:
 - After pressing Enter to navigate to a URL, STOP. Wait for the next screenshot before doing anything else.
 - When writing into a Google Docs document, first make sure the document body is focused (click into it or press Tab).
 - If you don't see expected text on screen, your previous action may have failed. React to what you actually see, not what you hoped would happen.
-- Use keyboard shortcuts over clicks whenever possible (Tab to move between fields, Enter to submit, Escape to close).
+- Use both clicks and keyboard shortcuts freely. Keyboard shortcuts (Tab, Enter, Escape, Ctrl+T) are reliable, but clicks are equally valid when you can identify text to click.
 - To create a new blank Google Doc, navigate directly to `docs.google.com/document/create` — no clicking needed.
-- If a browser is already open, use Ctrl+T for a new tab instead of launching the browser again.
+- If a browser is already open, click on a visible browser element (tab, address bar, bookmark) FIRST to focus the window, THEN use Ctrl+T or keyboard shortcuts.
 
 Example: Open a browser and go to a website (3 separate turns, NOT one turn):
 ```

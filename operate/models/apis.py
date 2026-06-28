@@ -429,30 +429,20 @@ async def call_deepseek_with_ocr(messages, objective, model):
                     img_w, img_h = PILImage.open(screenshot_filename).size
                     operation["x"] = round(best_elem["x"] / img_w, 3)
                     operation["y"] = round(best_elem["y"] / img_h, 3)
+                    if config.verbose:
+                        print(
+                            "[call_deepseek_with_ocr][click] matched:",
+                            best_elem["text"],
+                            "at",
+                            operation["x"],
+                            operation["y"],
+                        )
+                    processed_content.append(operation)
                 else:
                     print(
                         f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_YELLOW} Text '{text_to_click}' not found on screen (best match: {best_score:.2f}), skipping click. {ANSI_RESET}"
                     )
                     skipped_clicks = True
-                    continue
-
-                operation["x"] = coordinates["x"]
-                operation["y"] = coordinates["y"]
-
-                if config.verbose:
-                    print(
-                        "[call_deepseek_with_ocr][click] text_element_index",
-                        text_element_index,
-                    )
-                    print(
-                        "[call_deepseek_with_ocr][click] coordinates",
-                        coordinates,
-                    )
-                    print(
-                        "[call_deepseek_with_ocr][click] final operation",
-                        operation,
-                    )
-                processed_content.append(operation)
 
             else:
                 processed_content.append(operation)
