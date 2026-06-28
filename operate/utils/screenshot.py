@@ -15,7 +15,40 @@ def capture_screen_with_cursor(file_path):
         screenshot = pyautogui.screenshot()
         screenshot.save(file_path)
     elif user_platform == "Linux":
-        # Use xlib to prevent scrot dependency for Linux
+        # Try flameshot first (works on both X11 and Wayland)
+        try:
+            result = subprocess.run(
+                ["flameshot", "full", "-p", file_path],
+                capture_output=True,
+                timeout=10,
+            )
+            if result.returncode == 0 and os.path.exists(file_path):
+                return
+        except Exception:
+            pass
+
+        # Fallback: try gnome-screenshot
+        try:
+            result = subprocess.run(
+                ["gnome-screenshot", "-f", file_path],
+                capture_output=True,
+                timeout=10,
+            )
+            if result.returncode == 0 and os.path.exists(file_path):
+                return
+        except Exception:
+            pass
+
+        # Fallback: try mss
+        try:
+            import mss
+            with mss.MSS() as sct:
+                sct.shot(output=file_path)
+            return
+        except Exception:
+            pass
+
+        # Fallback: original X11 method
         screen = Xlib.display.Display().screen()
         size = screen.width_in_pixels, screen.height_in_pixels
         screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))
