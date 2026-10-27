@@ -569,7 +569,7 @@ async def call_o1_with_ocr(messages, objective, model):
         messages.append(vision_message)
 
         response = client.chat.completions.create(
-            model="o1",
+            model="gpt-5.6-sol",
             messages=messages,
         )
 
@@ -937,7 +937,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
 
         # anthropic api expect system prompt as an separate argument
         response = client.messages.create(
-            model="claude-3-opus-20240229",
+            model="claude-opus-4-8",
             max_tokens=3000,
             system=messages[0]["content"],
             messages=messages[1:],
@@ -955,7 +955,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
                     f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Error] JSONDecodeError: {e} {ANSI_RESET}"
                 )
             response = client.messages.create(
-                model="claude-3-opus-20240229",
+                model="claude-opus-4-8",
                 max_tokens=3000,
                 system=f"This json string is not valid, when using with json.loads(content) \
                 it throws the following error: {e}, return correct json string. \
