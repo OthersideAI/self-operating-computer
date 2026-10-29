@@ -33,8 +33,10 @@ def compress_screenshot(raw_screenshot_filename, screenshot_filename):
         if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
             # Create a white background image
             background = Image.new('RGB', img.size, (255, 255, 255))
+            # LA and palette images do not have a fourth band until converted.
+            rgba = img.convert('RGBA')
             # Paste the image onto the background, using the alpha channel as mask
-            background.paste(img, mask=img.split()[3])  # 3 is the alpha channel
+            background.paste(rgba, mask=rgba.getchannel('A'))
             # Save the result as JPEG
             background.save(screenshot_filename, 'JPEG', quality=85)  # Adjust quality as needed
         else:
