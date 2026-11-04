@@ -61,13 +61,17 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
             )
             sys.exit(1)
 
-    # Skip message dialog if prompt was given directly
+    # Skip message dialog if prompt was given directly or when there is no
+    # interactive console (for example, when launched from the GUI).
     if not terminal_prompt:
-        message_dialog(
-            title="Self-Operating Computer",
-            text="An experimental framework to enable multimodal models to operate computers",
-            style=style,
-        ).run()
+        try:
+            message_dialog(
+                title="Self-Operating Computer",
+                text="An experimental framework to enable multimodal models to operate computers",
+                style=style,
+            ).run()
+        except Exception:
+            pass
 
     else:
         print("Running direct prompt...")
@@ -90,6 +94,11 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
             print(f"{ANSI_RED}Error in capturing voice input: {e}{ANSI_RESET}")
             return  # Exit if voice input fails
     else:
+        if not sys.stdin.isatty():
+            print(
+                f"{ANSI_RED}Запуск без интерактивного терминала требует параметр --prompt.{ANSI_RESET}"
+            )
+            return
         print(
             f"[{ANSI_GREEN}Self-Operating Computer {ANSI_RESET}|{ANSI_BRIGHT_MAGENTA} {model}{ANSI_RESET}]\n{USER_QUESTION}"
         )
