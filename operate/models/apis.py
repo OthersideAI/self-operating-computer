@@ -59,6 +59,17 @@ async def get_next_action(model, messages, objective, session_id):
     if model == "llava":
         operation = call_ollama_llava(messages)
         return operation, None
+    if (
+        model == "ollama-cloud"
+        or str(model).startswith("ollama-cloud")
+        or str(model).startswith("ollama:")
+        or (
+            ":" in str(model)
+            and not str(model).lower().startswith(("gpt", "claude", "gemini"))
+        )
+    ):
+        operation = call_ollama_cloud(messages, model)
+        return operation, None
     if model == "claude-3":
         operation = await call_claude_3_with_ocr(messages, objective, model)
         return operation, None
@@ -863,6 +874,124 @@ def call_ollama_llava(messages):
         if config.verbose:
             traceback.print_exc()
         return call_ollama_llava(messages)
+
+
+def _resolve_ollama_cloud_model(model):
+    """
+    Resolve a framework model name to an Ollama Cloud model name.
+    """
+    default_model = os.getenv("OLLAMA_CLOUD_MODEL") or os.getenv("OLLAMA_MODEL") or "gemma4:31b"
+
+    if not model:
+        return default_model
+
+    model = str(model).strip()
+
+    aliases = {
+        "ollama-cloud": default_model,
+        "ollama-cloud-api": default_model,
+        "ollama-cloud-llava": default_model,
+    }
+    if model in aliases:
+        return aliases[model]
+
+    if model.startswith("ollama-cloud:") or model.startswith("ollama:"):
+        candidate = model.split(":", 1)[1].strip()
+        return candidate or default_model
+
+    # Allow framework callers to pass the Ollama model name directly.
+    if ":" in model:
+        return model
+
+    return default_model
+
+
+def call_ollama_cloud(messages, model=None):
+    if config.verbose:
+        print("[call_ollama_cloud]")
+    time.sleep(1)
+    try:
+        ollama_client = config.initialize_ollama_cloud()
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+
+        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        # Call the function to capture the screen with the cursor
+        capture_screen_with_cursor(screenshot_filename)
+
+        if len(messages) == 1:
+            user_prompt = get_user_first_message_prompt()
+        else:
+            user_prompt = get_user_prompt()
+
+        if config.verbose:
+            print(
+                "[call_ollama_cloud] user_prompt",
+                user_prompt,
+            )
+
+        vision_message = {
+            "role": "user",
+            "content": user_prompt,
+            "images": [screenshot_filename],
+        }
+        messages.append(vision_message)
+
+        ollama_model_name = _resolve_ollama_cloud_model(model)
+
+        if config.verbose:
+            print("[call_ollama_cloud] ollama model", ollama_model_name)
+
+        response = ollama_client.chat(
+            model=ollama_model_name,
+            messages=messages,
+        )
+
+        # Important: Remove the image path from the message history.
+        # Ollama will attempt to load each image reference and will
+        # eventually timeout.
+        messages[-1]["images"] = None
+
+        content = response["message"]["content"].strip()
+
+        content = clean_json(content)
+
+        assistant_message = {"role": "assistant", "content": content}
+        if config.verbose:
+            print(
+                "[call_ollama_cloud] content",
+                content,
+            )
+        content = json.loads(content)
+
+        messages.append(assistant_message)
+
+        return content
+
+    except ollama.ResponseError as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_RED}[Operate] Couldn't connect to Ollama Cloud. "
+            f"Check OLLAMA_API_KEY and try again. {ANSI_RESET}",
+            e,
+        )
+        if config.verbose:
+            traceback.print_exc()
+
+    except Exception as e:
+        print(
+            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[ollama-cloud] That did not work. Trying again {ANSI_RESET}",
+            e,
+        )
+        if config.verbose:
+            traceback.print_exc()
+        return call_ollama_cloud(messages, model)
+
+    return None
+
+
+# Backwards/alternative names used by different integrations.
+call_ollama_cloud_api = call_ollama_cloud
 
 
 async def call_claude_3_with_ocr(messages, objective, model):

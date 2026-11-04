@@ -114,6 +114,27 @@ operate -m llava
 
 Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
 
+#### Try Ollama Cloud API `-m ollama-cloud`
+Use Ollama's cloud-hosted models (for example `gemma4:31b`) without running Ollama locally.
+
+First, create an API key at https://ollama.com/settings/keys and export it:
+```bash
+export OLLAMA_API_KEY="your_api_key"
+```
+
+Optionally, choose a specific Ollama model:
+```bash
+export OLLAMA_CLOUD_MODEL="gemma4:31b"
+```
+
+Then run:
+```bash
+operate -m ollama-cloud
+```
+You can also pass an Ollama model name directly:
+```bash
+operate -m gemma4:31b
+```
 ### Voice Mode `--voice`
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
 **Clone the repo** to a directory on your computer:

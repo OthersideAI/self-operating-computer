@@ -38,7 +38,10 @@ class Config:
             None  # instance variables are backups in case saving to a `.env` fails
         )
         self.ollama_host = (
-            None  # instance variables are backups in case savint to a `.env` fails
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
+        self.ollama_api_key = (
+            None  # instance variables are backups for Ollama Cloud API
         )
         self.anthropic_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
@@ -118,15 +121,70 @@ class Config:
                     "[Config][initialize_ollama] no cached ollama host. Assuming ollama running locally."
                 )
             self.ollama_host = os.getenv("OLLAMA_HOST", None)
-        model = Client(host=self.ollama_host)
+
+        client_kwargs = {}
+        ollama_api_key = self.ollama_api_key or os.getenv("OLLAMA_API_KEY")
+        if ollama_api_key and self.ollama_host and "ollama.com" in str(self.ollama_host):
+            client_kwargs["headers"] = {
+                "Authorization": f"Bearer {ollama_api_key}"
+            }
+
+        model = Client(host=self.ollama_host, **client_kwargs)
         return model
 
+    def initialize_ollama_cloud(self):
+        if self.verbose:
+            print("[Config][initialize_ollama_cloud]")
+
+        if self.ollama_api_key:
+            if self.verbose:
+                print("[Config][initialize_ollama_cloud] using cached ollama_api_key")
+            api_key = self.ollama_api_key
+        else:
+            if self.verbose:
+                print(
+                    "[Config][initialize_ollama_cloud] no cached key, try to get from env."
+                )
+            api_key = os.getenv("OLLAMA_API_KEY")
+
+        host = os.getenv("OLLAMA_HOST", "https://ollama.com")
+        if not host or "127.0.0.1" in host or "localhost" in host:
+            host = "https://ollama.com"
+
+        client = Client(
+            host=host,
+            headers={"Authorization": f"Bearer {api_key}"},
+        )
+        return client
     def initialize_anthropic(self):
         if self.anthropic_api_key:
             api_key = self.anthropic_api_key
         else:
             api_key = os.getenv("ANTHROPIC_API_KEY")
         return anthropic.Anthropic(api_key=api_key)
+
+    def is_ollama_cloud_model(self, model):
+        if not model:
+            return False
+        model = str(model)
+        aliases = {
+            "ollama-cloud",
+            "ollama-cloud-api",
+            "ollama-cloud-llava",
+            "ollama-cloud-gemma",
+            "ollama-cloud-gemma4",
+        }
+        if model in aliases:
+            return True
+        if model.startswith("ollama-cloud") or model.startswith("ollama:"):
+            return True
+        # Direct Ollama Cloud model names such as "gemma4:31b" are cloud
+        # models when an explicit cloud marker is present, or when the value
+        # contains an Ollama-style "name:tag" reference and is not a known
+        # local-only alias.
+        if ":" in model and not model.lower().startswith(("gpt", "claude", "gemini")):
+            return True
+        return False
 
     def validation(self, model, voice_mode):
         """
@@ -149,7 +207,9 @@ class Config:
             "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
         )
         self.require_api_key("QWEN_API_KEY", "Qwen API key", model == "qwen-vl")
-
+        self.require_api_key(
+            "OLLAMA_API_KEY", "Ollama API key", self.is_ollama_cloud_model(model)
+        )
     def require_api_key(self, key_name, key_description, is_required):
         key_exists = bool(os.environ.get(key_name))
         if self.verbose:
@@ -177,6 +237,8 @@ class Config:
                 self.anthropic_api_key = key_value
             elif key_name == "QWEN_API_KEY":
                 self.qwen_api_key = key_value
+            elif key_name == "OLLAMA_API_KEY":
+                self.ollama_api_key = key_value
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
             # Update the instance attribute with the new key
