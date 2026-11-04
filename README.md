@@ -114,6 +114,20 @@ operate -m llava
 
 Learn more about Ollama at its [GitHub Repository](https://www.github.com/ollama/ollama)
 
+## Графический интерфейс (Tkinter)
+Запустите панель управления:
+```bat
+run_gui.bat
+```
+или:
+```bat
+C:\Windows\System32\soc-env\Scripts\python.exe -m operate.gui
+```
+В интерфейсе можно:
+- сохранить API-ключи и параметры Ollama Cloud в `.env`;
+- выбрать модель, ввести задачу;
+- запустить агент в отдельном терминале или прямо внутри приложения с логом.
+
 #### Try Ollama Cloud API `-m ollama-cloud`
 Use Ollama's cloud-hosted models (for example `gemma4:31b`) without running Ollama locally.
 
