@@ -27,15 +27,69 @@
 https://github.com/OthersideAI/self-operating-computer/assets/42594239/9e8abc96-c76a-46fb-9b13-03678b3c67e0
 
 
+## Быстрый старт для этого форка / Quick Start for this fork
+
+**Репозиторий / Repository:** `https://github.com/plumcat5169/self-operating-computer`
+
+### Установка / Installation
+```bat
+git clone https://github.com/plumcat5169/self-operating-computer.git
+cd self-operating-computer
+python -m pip install -r requirements.txt
+```
+
+Для голосового режима / For voice mode:
+```bat
+python -m pip install -r requirements-audio.txt
+```
+
+### Настройка Ollama Cloud
+```bat
+set OLLAMA_API_KEY=your_ollama_cloud_api_key
+set OLLAMA_CLOUD_MODEL=gemma4:31b
+```
+Или сохраните ключ в файл `.env`:
+```env
+OLLAMA_API_KEY=your_ollama_cloud_api_key
+OLLAMA_CLOUD_MODEL=gemma4:31b
+```
+
+### Запуск / Run
+Графический интерфейс / GUI:
+```bat
+run_gui.bat
+```
+или / or:
+```bat
+python -m operate.gui
+```
+
+Терминал / Terminal:
+```bat
+python -m operate.main -m ollama-cloud --prompt "open telegram"
+```
+
+Другие модели / Other models:
+```bat
+python -m operate.main -m gpt-4-with-ocr
+python -m operate.main -m gemma4:31b --prompt "open calculator"
+```
+
 ## Run `Self-Operating Computer`
 
-1. **Install the project**
+1. **Download the project from GitHub**
 ```
-pip install self-operating-computer
+git clone https://github.com/plumcat5169/self-operating-computer.git
+cd self-operating-computer
+python -m pip install -r requirements.txt
 ```
 2. **Run the project**
 ```
-operate
+python -m operate.main
+```
+or use the GUI:
+```
+run_gui.bat
 ```
 3. **Enter your OpenAI Key**: If you don't have one, you can obtain an OpenAI key [here](https://platform.openai.com/account/api-keys). If you need you change your key at a later point, run `vim .env` to open the `.env` and replace the old key. 
 
@@ -153,7 +207,7 @@ operate -m gemma4:31b
 The framework supports voice inputs for the objective. Try voice by following the instructions below. 
 **Clone the repo** to a directory on your computer:
 ```
-git clone https://github.com/OthersideAI/self-operating-computer.git
+git clone https://github.com/plumcat5169/self-operating-computer.git
 ```
 **Cd into directory**:
 ```
