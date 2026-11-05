@@ -285,17 +285,29 @@ def call_gemini_pro_vision(messages, objective):
         if config.verbose:
             print("[call_gemini_pro_vision] model", model)
 
-        response = model.generate_content([prompt, Image.open(screenshot_filename)])
+        response = model.generate_content(
+            [prompt, Image.open(screenshot_filename)])
 
         content = response.text[1:]
         if config.verbose:
             print("[call_gemini_pro_vision] response", response)
-            print("[call_gemini_pro_vision] content", content)
+            print("[call_gemini_pro_vision] raw content before parsing:", content)
 
-        content = json.loads(content)
+        content = content.strip("`").strip()
+        if not content:
+            raise ValueError(
+                "[call_gemini_pro_vision] Empty content received.")
+
+        try:
+            content = json.loads(content)
+        except json.JSONDecodeError as e:
+            print(f"[ERROR] JSONDecodeError: {e}")
+            print(f"[DEBUG] Problematic content: {content}")
+            raise
+
         if config.verbose:
             print(
-                "[get_next_action][call_gemini_pro_vision] content",
+                "[get_next_action][call_gemini_pro_vision] parsed content",
                 content,
             )
 
@@ -303,12 +315,14 @@ def call_gemini_pro_vision(messages, objective):
 
     except Exception as e:
         print(
-            f"{ANSI_GREEN}[Self-Operating Computer]{ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
+            f"{ANSI_GREEN}[Self-Operating Computer]{
+                ANSI_BRIGHT_MAGENTA}[Operate] That did not work. Trying another method {ANSI_RESET}"
         )
         if config.verbose:
             print("[Self-Operating Computer][Operate] error", e)
             traceback.print_exc()
         return call_gpt_4o(messages)
+
 
 
 async def call_gpt_4o_with_ocr(messages, objective, model):
