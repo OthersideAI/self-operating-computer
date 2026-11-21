@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import io
 import json
@@ -148,7 +149,7 @@ async def call_qwen_vl_with_ocr(messages, objective, model):
 
     # Construct the path to the file within the package
     try:
-        time.sleep(1)
+        await asyncio.sleep(1)
         client = config.initialize_qwen()
 
         confirm_system_prompt(messages, objective, model)
@@ -317,7 +318,7 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
 
     # Construct the path to the file within the package
     try:
-        time.sleep(1)
+        await asyncio.sleep(1)
         client = config.initialize_openai()
 
         confirm_system_prompt(messages, objective, model)
@@ -429,7 +430,7 @@ async def call_gpt_4_1_with_ocr(messages, objective, model):
         print("[call_gpt_4_1_with_ocr]")
 
     try:
-        time.sleep(1)
+        await asyncio.sleep(1)
         client = config.initialize_openai()
 
         confirm_system_prompt(messages, objective, model)
@@ -536,7 +537,7 @@ async def call_o1_with_ocr(messages, objective, model):
 
     # Construct the path to the file within the package
     try:
-        time.sleep(1)
+        await asyncio.sleep(1)
         client = config.initialize_openai()
 
         confirm_system_prompt(messages, objective, model)
@@ -644,7 +645,7 @@ async def call_o1_with_ocr(messages, objective, model):
 
 
 async def call_gpt_4o_labeled(messages, objective, model):
-    time.sleep(1)
+    await asyncio.sleep(1)
 
     try:
         client = config.initialize_openai()
@@ -870,7 +871,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
         print("[call_claude_3_with_ocr]")
 
     try:
-        time.sleep(1)
+        await asyncio.sleep(1)
         client = config.initialize_anthropic()
 
         confirm_system_prompt(messages, objective, model)
