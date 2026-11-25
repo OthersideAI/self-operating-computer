@@ -27,6 +27,9 @@ from operate.utils.ocr import get_text_coordinates, get_text_element
 from operate.utils.screenshot import capture_screen_with_cursor, compress_screenshot
 from operate.utils.style import ANSI_BRIGHT_MAGENTA, ANSI_GREEN, ANSI_RED, ANSI_RESET
 
+SCREENSHOTS_DIR = "screenshots"
+
+
 # Load configuration
 config = Config()
 
@@ -71,11 +74,7 @@ def call_gpt_4o(messages):
     time.sleep(1)
     client = config.initialize_openai()
     try:
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
-
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        screenshot_filename = os.path.join(SCREENSHOTS_DIR, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -270,11 +269,7 @@ def call_gemini_pro_vision(messages, objective):
     # sleep for a second
     time.sleep(1)
     try:
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
-
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        screenshot_filename = os.path.join(SCREENSHOTS_DIR, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
         # sleep for a second
@@ -321,11 +316,7 @@ async def call_gpt_4o_with_ocr(messages, objective, model):
         client = config.initialize_openai()
 
         confirm_system_prompt(messages, objective, model)
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
-
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        screenshot_filename = os.path.join(SCREENSHOTS_DIR, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -540,11 +531,7 @@ async def call_o1_with_ocr(messages, objective, model):
         client = config.initialize_openai()
 
         confirm_system_prompt(messages, objective, model)
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
-
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        screenshot_filename = os.path.join(SCREENSHOTS_DIR, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -652,11 +639,8 @@ async def call_gpt_4o_labeled(messages, objective, model):
         confirm_system_prompt(messages, objective, model)
         file_path = pkg_resources.resource_filename("operate.models.weights", "best.pt")
         yolo_model = YOLO(file_path)  # Load your trained model
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
 
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        screenshot_filename = os.path.join(SCREENSHOTS_DIR, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -793,11 +777,7 @@ def call_ollama_llava(messages):
     time.sleep(1)
     try:
         model = config.initialize_ollama()
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
-
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        screenshot_filename = os.path.join(SCREENSHOTS_DIR, "screenshot.png")
         # Call the function to capture the screen with the cursor
         capture_screen_with_cursor(screenshot_filename)
 
@@ -874,11 +854,7 @@ async def call_claude_3_with_ocr(messages, objective, model):
         client = config.initialize_anthropic()
 
         confirm_system_prompt(messages, objective, model)
-        screenshots_dir = "screenshots"
-        if not os.path.exists(screenshots_dir):
-            os.makedirs(screenshots_dir)
-
-        screenshot_filename = os.path.join(screenshots_dir, "screenshot.png")
+        screenshot_filename = os.path.join(SCREENSHOTS_DIR, "screenshot.png")
         capture_screen_with_cursor(screenshot_filename)
 
         # downsize screenshot due to 5MB size limit
