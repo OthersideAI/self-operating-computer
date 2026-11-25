@@ -112,9 +112,25 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
                 get_next_action(model, messages, objective, session_id)
             )
 
-            stop = operate(operations, model)
-            if stop:
-                break
+            # Separate "done" from other operations
+            non_done_ops = [op for op in operations if op.get("operation", "").lower() != "done"]
+            done_ops = [op for op in operations if op.get("operation", "").lower() == "done"]
+
+            # Execute non-done operations first
+            if non_done_ops:
+                stop = operate(non_done_ops, model)
+                if stop:
+                    break
+
+            # Only accept "done" if it was the ONLY operation (model is confident)
+            if done_ops and not non_done_ops:
+                stop = operate(done_ops, model)
+                if stop:
+                    break
+            elif done_ops:
+                print(
+                    f"{ANSI_YELLOW}[Self-Operating Computer] Ignored premature 'done' — still have actions to verify.{ANSI_RESET}"
+                )
 
             loop_count += 1
             if loop_count > 10:
@@ -134,6 +150,7 @@ def main(model, terminal_prompt, voice_mode=False, verbose_mode=False):
 def operate(operations, model):
     if config.verbose:
         print("[Self Operating Computer][operate]")
+    last_was_navigation = False
     for operation in operations:
         if config.verbose:
             print("[Self Operating Computer][operate] operation", operation)
@@ -149,6 +166,8 @@ def operate(operations, model):
             keys = operation.get("keys")
             operate_detail = keys
             operating_system.press(keys)
+            if "enter" in [k.lower() for k in keys]:
+                last_was_navigation = True
         elif operate_type == "write":
             content = operation.get("content")
             operate_detail = content
@@ -158,8 +177,8 @@ def operate(operations, model):
             y = operation.get("y")
             click_detail = {"x": x, "y": y}
             operate_detail = click_detail
-
             operating_system.mouse(click_detail)
+            last_was_navigation = True
         elif operate_type == "done":
             summary = operation.get("summary")
 

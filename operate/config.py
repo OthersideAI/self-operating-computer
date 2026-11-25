@@ -46,6 +46,9 @@ class Config:
         self.qwen_api_key = (
             None  # instance variables are backups in case saving to a `.env` fails
         )
+        self.deepseek_api_key = (
+            None  # instance variables are backups in case saving to a `.env` fails
+        )
 
     def initialize_openai(self):
         if self.verbose:
@@ -90,6 +93,28 @@ class Config:
         )
         client.api_key = api_key
         client.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        return client
+
+    def initialize_deepseek(self):
+        if self.verbose:
+            print("[Config][initialize_deepseek]")
+
+        if self.deepseek_api_key:
+            if self.verbose:
+                print("[Config][initialize_deepseek] using cached deepseek_api_key")
+            api_key = self.deepseek_api_key
+        else:
+            if self.verbose:
+                print(
+                    "[Config][initialize_deepseek] no cached deepseek_api_key, try to get from env."
+                )
+            api_key = os.getenv("DEEPSEEK_API_KEY")
+
+        default_base = "https://api.deepseek.com"
+        base_url = os.getenv("DEEPSEEK_API_BASE_URL", default_base)
+        client = OpenAI(api_key=api_key, base_url=base_url)
+        client.api_key = api_key
+        client.base_url = base_url
         return client
 
     def initialize_google(self):
@@ -149,6 +174,9 @@ class Config:
             "ANTHROPIC_API_KEY", "Anthropic API key", model == "claude-3"
         )
         self.require_api_key("QWEN_API_KEY", "Qwen API key", model == "qwen-vl")
+        self.require_api_key(
+            "DEEPSEEK_API_KEY", "DeepSeek API key", model == "deepseek-with-ocr"
+        )
 
     def require_api_key(self, key_name, key_description, is_required):
         key_exists = bool(os.environ.get(key_name))
@@ -177,6 +205,8 @@ class Config:
                 self.anthropic_api_key = key_value
             elif key_name == "QWEN_API_KEY":
                 self.qwen_api_key = key_value
+            elif key_name == "DEEPSEEK_API_KEY":
+                self.deepseek_api_key = key_value
             self.save_api_key_to_env(key_name, key_value)
             load_dotenv()  # Reload environment variables
             # Update the instance attribute with the new key

@@ -2,65 +2,88 @@ from operate.config import Config
 from PIL import Image, ImageDraw
 import os
 from datetime import datetime
+from difflib import SequenceMatcher
 
 # Load configuration
 config = Config()
 
 
+def _fuzzy_match(text_a, text_b):
+    """Return similarity ratio between two strings (0.0 to 1.0)"""
+    return SequenceMatcher(None, text_a.lower(), text_b.lower()).ratio()
+
+
 def get_text_element(result, search_text, image_path):
     """
-    Searches for a text element in the OCR results and returns its index. Also draws bounding boxes on the image.
+    Searches for a text element in the OCR results using exact substring match
+    followed by fuzzy matching. Returns index or None if not found.
+
     Args:
         result (list): The list of results returned by EasyOCR.
         search_text (str): The text to search for in the OCR results.
         image_path (str): Path to the original image.
 
     Returns:
-        int: The index of the element containing the search text.
-
-    Raises:
-        Exception: If the text element is not found in the results.
+        int or None: The index of the element containing the search text.
     """
     if config.verbose:
         print("[get_text_element]")
         print("[get_text_element] search_text", search_text)
-        # Create /ocr directory if it doesn't exist
         ocr_dir = "ocr"
         if not os.path.exists(ocr_dir):
             os.makedirs(ocr_dir)
-
-        # Open the original image
         image = Image.open(image_path)
         draw = ImageDraw.Draw(image)
 
-    found_index = None
+    search_lower = search_text.lower().strip()
+
+    # Phase 1: exact substring match
     for index, element in enumerate(result):
         text = element[1]
-        box = element[0]
-
-        if config.verbose:
-            # Draw bounding box in blue
-            draw.polygon([tuple(point) for point in box], outline="blue")
-
-        if search_text in text:
-            found_index = index
+        if search_lower in text.lower():
             if config.verbose:
-                print("[get_text_element][loop] found search_text, index:", index)
+                print(f"[get_text_element] exact match found at index {index}: '{text}'")
+            _draw_debug(result, index, image, draw, ocr_dir)
+            return index
 
-    if found_index is not None:
+    # Phase 2: fuzzy match (for OCR errors)
+    best_score = 0.0
+    best_index = None
+    for index, element in enumerate(result):
+        text = element[1]
+        score = _fuzzy_match(search_lower, text.lower())
+        if score > best_score:
+            best_score = score
+            best_index = index
+
+    if best_score >= 0.6 and best_index is not None:
         if config.verbose:
-            # Draw bounding box of the found text in red
-            box = result[found_index][0]
-            draw.polygon([tuple(point) for point in box], outline="red")
-            # Save the image with bounding boxes
-            datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-            ocr_image_path = os.path.join(ocr_dir, f"ocr_image_{datetime_str}.png")
-            image.save(ocr_image_path)
-            print("[get_text_element] OCR image saved at:", ocr_image_path)
+            matched_text = result[best_index][1]
+            print(f"[get_text_element] fuzzy match (score={best_score:.2f}): '{matched_text}'")
+        _draw_debug(result, best_index, image, draw, ocr_dir)
+        return best_index
 
-        return found_index
+    if config.verbose:
+        print(f"[get_text_element] not found (best fuzzy score={best_score:.2f})")
 
-    raise Exception("The text element was not found in the image")
+    return None
+
+
+def _draw_debug(result, index, image, draw, ocr_dir):
+    """Draw bounding boxes on the image for debug visualization."""
+    if not config.verbose:
+        return
+    try:
+        for element in result:
+            draw.polygon([tuple(point) for point in element[0]], outline="blue")
+        box = result[index][0]
+        draw.polygon([tuple(point) for point in box], outline="red", width=3)
+        datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        ocr_image_path = os.path.join(ocr_dir, f"ocr_image_{datetime_str}.png")
+        image.save(ocr_image_path)
+        print("[get_text_element] OCR debug image saved at:", ocr_image_path)
+    except Exception:
+        pass
 
 
 def get_text_coordinates(result, index, image_path):
