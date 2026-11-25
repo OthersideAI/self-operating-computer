@@ -1,0 +1,477 @@
+{
+    "100": {
+        "file_id": 7,
+        "content": "import os\nfrom dotenv import load_dotenv\nfrom openai import OpenAI\nclass Config:\n    \"\"\"\n    Configuration class for managing settings.\n    Attributes:\n        debug (bool): Flag indicating whether debug mode is enabled.\n        openai_api_key (str): API key for OpenAI.\n        google_api_key (str): API key for Google.\n        monitor_size (dict): Dictionary containing the width and height of the monitor.\n    \"\"\"\n    def __init__(self):\n        load_dotenv()\n        self.debug = False\n        self.openai_api_key = os.getenv(\"OPENAI_API_KEY\")\n        self.google_api_key = os.getenv(\"GOOGLE_API_KEY\")\n        self.monitor_size = {\n            \"width\": 1920,\n            \"height\": 1080,\n        }\n    def initialize_openai_client(self):\n        \"\"\"\n        Initializes and returns an OpenAI client with the configured API key.\n        Returns:\n            OpenAI or None: An instance of the OpenAI client if the API key is provided, else None.\n        \"\"\"\n        if self.openai_api_key:\n            client = OpenAI()\n            client.api_key = self.openai_api_key",
+        "type": "code",
+        "location": "/operate/settings.py:1-36"
+    },
+    "101": {
+        "file_id": 7,
+        "content": "This code defines a configuration class for managing settings such as debug mode, OpenAI and Google API keys, and monitor size. It loads environment variables from .env file using dotenv library, initializes OpenAI client if the API key is provided, and returns it or None otherwise.",
+        "type": "comment"
+    },
+    "102": {
+        "file_id": 7,
+        "content": "            client.base_url = os.getenv(\"OPENAI_API_BASE_URL\", client.base_url)\n            return client\n        return None",
+        "type": "code",
+        "location": "/operate/settings.py:37-39"
+    },
+    "103": {
+        "file_id": 7,
+        "content": "Setting OpenAI API base URL from environment variable or using current value.",
+        "type": "comment"
+    },
+    "104": {
+        "file_id": 8,
+        "content": "/operate/utils/label.py",
+        "type": "filepath"
+    },
+    "105": {
+        "file_id": 8,
+        "content": "The code includes functions for handling image data, such as drawing bounding boxes and validating overlaps, as well as encoding tasks like converting images to base64 and formatting message content by removing triple backticks and calculating click positions.",
+        "type": "summary"
+    },
+    "106": {
+        "file_id": 8,
+        "content": "import io\nimport base64\nimport json\nimport os\nimport time\nimport asyncio\nfrom PIL import Image, ImageDraw\ndef validate_and_extract_image_data(data):\n    if not data or \"messages\" not in data:\n        raise ValueError(\"Invalid request, no messages found\")\n    messages = data[\"messages\"]\n    if (\n        not messages\n        or not isinstance(messages, list)\n        or not messages[-1].get(\"image_url\")\n    ):\n        raise ValueError(\"No image provided or incorrect format\")\n    image_data = messages[-1][\"image_url\"][\"url\"]\n    if not image_data.startswith(\"data:image\"):\n        raise ValueError(\"Invalid image format\")\n    return image_data.split(\"base64,\")[-1], messages\ndef get_label_coordinates(label, label_coordinates):\n    \"\"\"\n    Retrieves the coordinates for a given label.\n    :param label: The label to find coordinates for (e.g., \"~1\").\n    :param label_coordinates: Dictionary containing labels and their coordinates.\n    :return: Coordinates of the label or None if the label is not found.\n    \"\"\"\n    return label_coordinates.get(label)",
+        "type": "code",
+        "location": "/operate/utils/label.py:1-37"
+    },
+    "107": {
+        "file_id": 8,
+        "content": "The code defines two functions:\n1. `validate_and_extract_image_data`: Validates the given data and extracts image URL if the request is valid.\n2. `get_label_coordinates`: Retrieves the coordinates for a given label from a dictionary of labels and their coordinates.",
+        "type": "comment"
+    },
+    "108": {
+        "file_id": 8,
+        "content": "def is_overlapping(box1, box2):\n    x1_box1, y1_box1, x2_box1, y2_box1 = box1\n    x1_box2, y1_box2, x2_box2, y2_box2 = box2\n    # Check if there is no overlap\n    if x1_box1 > x2_box2 or x1_box2 > x2_box1:\n        return False\n    if (\n        y1_box1 > y2_box2 or y1_box2 > y2_box1\n    ):  # Adjusted to check 100px proximity above\n        return False\n    return True\ndef add_labels(base64_data, yolo_model):\n    image_bytes = base64.b64decode(base64_data)\n    image_labeled = Image.open(io.BytesIO(image_bytes))  # Corrected this line\n    image_debug = image_labeled.copy()  # Create a copy for the debug image\n    image_original = (\n        image_labeled.copy()\n    )  # Copy of the original image for base64 return\n    results = yolo_model(image_labeled)\n    draw = ImageDraw.Draw(image_labeled)\n    debug_draw = ImageDraw.Draw(\n        image_debug\n    )  # Create a separate draw object for the debug image\n    font_size = 45\n    detections_dir = \"detections\"\n    label_coordinates = {}  # Dictionary to store coordinates",
+        "type": "code",
+        "location": "/operate/utils/label.py:40-72"
+    },
+    "109": {
+        "file_id": 8,
+        "content": "The function `is_overlapping` checks if two boxes overlap by comparing their coordinates. If there is no overlap, the function returns False; otherwise, it returns True.\n\nThe `add_labels` function decodes base64 data into image bytes and opens it as an image using PIL. It creates copies of the original image and a debug image. The YOLO model applies object detection on the image. The code then draws on the images using the ImageDraw module, and stores label coordinates in a dictionary named `label_coordinates`.",
+        "type": "comment"
+    },
+    "110": {
+        "file_id": 8,
+        "content": "    if not os.path.exists(detections_dir):\n        os.makedirs(detections_dir)\n    counter = 0\n    drawn_boxes = []  # List to keep track of boxes already drawn\n    for result in results:\n        if hasattr(result, \"boxes\"):\n            for det in result.boxes:\n                bbox = det.xyxy[0]\n                x1, y1, x2, y2 = bbox.tolist()\n                debug_label = \"D_\" + str(counter)\n                debug_index_position = (x1, y1 - font_size)\n                debug_draw.rectangle([(x1, y1), (x2, y2)], outline=\"blue\", width=1)\n                debug_draw.text(\n                    debug_index_position,\n                    debug_label,\n                    fill=\"blue\",\n                    font_size=font_size,\n                )\n                overlap = any(\n                    is_overlapping((x1, y1, x2, y2), box) for box in drawn_boxes\n                )\n                if not overlap:\n                    draw.rectangle([(x1, y1), (x2, y2)], outline=\"red\", width=1)\n                    label = \"~\" + str(counter)",
+        "type": "code",
+        "location": "/operate/utils/label.py:74-101"
+    },
+    "111": {
+        "file_id": 8,
+        "content": "Creates a directory for detections if it doesn't exist. Loops through the results, drawing bounding boxes and labels on images. Avoids redrawing over existing boxes by checking overlaps before redrawing as red boxes.",
+        "type": "comment"
+    },
+    "112": {
+        "file_id": 8,
+        "content": "                    index_position = (x1, y1 - font_size)\n                    draw.text(\n                        index_position,\n                        label,\n                        fill=\"red\",\n                        font_size=font_size,\n                    )\n                    # Add the non-overlapping box to the drawn_boxes list\n                    drawn_boxes.append((x1, y1, x2, y2))\n                    label_coordinates[label] = (x1, y1, x2, y2)\n                    counter += 1\n    # Save the image\n    timestamp = time.strftime(\"%Y%m%d-%H%M%S\")\n    output_path = os.path.join(detections_dir, f\"img_{timestamp}_labeled.png\")\n    output_path_debug = os.path.join(detections_dir, f\"img_{timestamp}_debug.png\")\n    output_path_original = os.path.join(detections_dir, f\"img_{timestamp}_original.png\")\n    image_labeled.save(output_path)\n    image_debug.save(output_path_debug)\n    image_original.save(output_path_original)\n    buffered_original = io.BytesIO()\n    image_original.save(buffered_original, format=\"PNG\")  # I guess this is needed",
+        "type": "code",
+        "location": "/operate/utils/label.py:102-128"
+    },
+    "113": {
+        "file_id": 8,
+        "content": "Code saves labeled, debug, and original images with timestamped file names. It also writes the labeled image to a BytesIO object for potential future use.",
+        "type": "comment"
+    },
+    "114": {
+        "file_id": 8,
+        "content": "    img_base64_original = base64.b64encode(buffered_original.getvalue()).decode(\"utf-8\")\n    # Convert image to base64 for return\n    buffered_labeled = io.BytesIO()\n    image_labeled.save(buffered_labeled, format=\"PNG\")  # I guess this is needed\n    img_base64_labeled = base64.b64encode(buffered_labeled.getvalue()).decode(\"utf-8\")\n    return img_base64_labeled, img_base64_original, label_coordinates\ndef parse_click_content(message_content):\n    \"\"\"\n    Parses the response message to determine if it's a CLICK or NONE action and returns the appropriate data.\n    :param message_content: The content of the response message.\n    :return: A dictionary with the relevant data or a message indicating a NONE action.\n    \"\"\"\n    try:\n        # Check for and remove erroneous ```json at the start and ``` at the end\n        if message_content.startswith(\"```json\"):\n            message_content = message_content[\n                len(\"```json\") :\n            ]  # Remove starting ```json\n            if message_content.endswith(\"```\"):",
+        "type": "code",
+        "location": "/operate/utils/label.py:129-152"
+    },
+    "115": {
+        "file_id": 8,
+        "content": "Convert image to base64 for return\nCode is saving the labeled image as PNG and encoding it in base64 format",
+        "type": "comment"
+    },
+    "116": {
+        "file_id": 8,
+        "content": "                message_content = message_content[: -len(\"```\")]  # Remove ending ```\n        # Convert JSON string to dictionary\n        return json.loads(message_content.strip())\n    except json.JSONDecodeError as e:\n        return {\"error\": \"Invalid JSON format\"}\n    return {\"error\": \"Invalid response format\"}\ndef get_click_position_in_percent(coordinates, image_size):\n    \"\"\"\n    Calculates the click position at the center of the bounding box and converts it to percentages.\n    :param coordinates: A tuple of the bounding box coordinates (x1, y1, x2, y2).\n    :param image_size: A tuple of the image dimensions (width, height).\n    :return: A tuple of the click position in percentages (x_percent, y_percent).\n    \"\"\"\n    if not coordinates or not image_size:\n        return None\n    # Calculate the center of the bounding box\n    x_center = (coordinates[0] + coordinates[2]) / 2\n    y_center = (coordinates[1] + coordinates[3]) / 2\n    # Convert to percentages\n    x_percent = (x_center / image_size[0]) * 100\n    y_percent = (y_center / image_size[1]) * 100",
+        "type": "code",
+        "location": "/operate/utils/label.py:153-180"
+    },
+    "117": {
+        "file_id": 8,
+        "content": "This function takes in a message content formatted with triple backticks and removes them. If the format is invalid, it returns an error message. It also has another function that calculates the click position at the center of a bounding box and converts it to percentages.",
+        "type": "comment"
+    },
+    "118": {
+        "file_id": 8,
+        "content": "    return x_percent, y_percent",
+        "type": "code",
+        "location": "/operate/utils/label.py:182-182"
+    },
+    "119": {
+        "file_id": 8,
+        "content": "Computes x and y percentages from input values.",
+        "type": "comment"
+    },
+    "120": {
+        "file_id": 9,
+        "content": "/operate/utils/misc.py",
+        "type": "filepath"
+    },
+    "121": {
+        "file_id": 9,
+        "content": "The code consists of two functions: `convert_percent_to_decimal()` and `extract_json_from_string()`, which handle percentages and JSON structures, respectively. Additionally, it classifies user responses as DONE, CLICK, TYPE, or SEARCH using patterns, extracts relevant data, handles exceptions for invalid inputs or processing errors, and returns \"UNKNOWN\" with original data if no match found while extracting search data using regex.",
+        "type": "summary"
+    },
+    "122": {
+        "file_id": 9,
+        "content": "import json\nimport re\ndef convert_percent_to_decimal(percent_str):\n    \"\"\"\n    Converts a percentage string to a decimal value.\n    Args:\n        percent_str (str): The percentage string to be converted.\n    Returns:\n        float: The decimal value equivalent to the percentage.\n    Raises:\n        ValueError: If the input string cannot be converted to a float.\n    Example:\n        >>> convert_percent_to_decimal(\"20%\")\n        0.2\n    \"\"\"\n    try:\n        # Remove the '%' sign and convert to float\n        decimal_value = float(percent_str.strip(\"%\"))\n        # Convert to decimal (e.g., 20% -> 0.20)\n        return decimal_value / 100\n    except ValueError as e:\n        print(f\"Error converting percent to decimal: {e}\")\n        return None\ndef extract_json_from_string(s):\n    \"\"\"\n    Extracts a JSON structure from a string and returns it as a dictionary.\n    Args:\n        s (str): The input string.\n    Returns:\n        dict: The extracted JSON structure as a dictionary, or None if no JSON structure is found or if there is an error parsing the JSON.",
+        "type": "code",
+        "location": "/operate/utils/misc.py:1-41"
+    },
+    "123": {
+        "file_id": 9,
+        "content": "This code defines two functions: `convert_percent_to_decimal()` and `extract_json_from_string()`. The first function converts a percentage string to a decimal value, while the second extracts a JSON structure from a string and returns it as a dictionary. Both functions handle exceptions in case of invalid inputs or errors during processing.",
+        "type": "comment"
+    },
+    "124": {
+        "file_id": 9,
+        "content": "    \"\"\"\n    try:\n        # Find the start of the JSON structure\n        json_start = s.find(\"{\")\n        if json_start == -1:\n            return None\n        # Extract the JSON part and convert it to a dictionary\n        json_str = s[json_start:]\n        return json.loads(json_str)\n    except Exception as e:\n        print(f\"Error parsing JSON: {e}\")\n        return None\ndef parse_response(response):\n    \"\"\"\n    Parses the given response and returns a dictionary with the type and data.\n    Args:\n        response (str): The response to parse.\n    Returns:\n        dict: A dictionary with the type and data extracted from the response.\n              The dictionary has the following structure:\n              {\n                  \"type\": <response_type>,\n                  \"data\": <response_data>\n              }\n              If the response is \"DONE\", the type is \"DONE\" and the data is None.\n              If the response starts with \"CLICK\", the type is \"CLICK\" and the data is a JSON object.\n              If the response starts with \"TYPE\", the type is \"TYPE\" and the data is the text to type.",
+        "type": "code",
+        "location": "/operate/utils/misc.py:43-74"
+    },
+    "125": {
+        "file_id": 9,
+        "content": "Extracts JSON structure from the response and returns a dictionary with type and data.\nRaises exception if error parsing JSON or if response is not in expected format.",
+        "type": "comment"
+    },
+    "126": {
+        "file_id": 9,
+        "content": "              If the response starts with \"SEARCH\", the type is \"SEARCH\" and the data is the search query.\n              If the response doesn't match any of the above patterns, the type is \"UNKNOWN\" and the data is the original response.\n    \"\"\"\n    if response == \"DONE\":\n        return {\"type\": \"DONE\", \"data\": None}\n    elif response.startswith(\"CLICK\"):\n        # Adjust the regex to match the correct format\n        click_data = re.search(r\"CLICK \\{ (.+) \\}\", response).group(1)\n        click_data_json = json.loads(f\"{{{click_data}}}\")\n        return {\"type\": \"CLICK\", \"data\": click_data_json}\n    elif response.startswith(\"TYPE\"):\n        # Extract the text to type\n        try:\n            type_data = re.search(r\"TYPE (.+)\", response, re.DOTALL).group(1)\n        except:\n            type_data = re.search(r'TYPE \"(.+)\"', response, re.DOTALL).group(1)\n        return {\"type\": \"TYPE\", \"data\": type_data}\n    elif response.startswith(\"SEARCH\"):\n        # Extract the search query\n        try:\n            search_data = re.search(r'SEARCH \"(.+)\"', response).group(1)",
+        "type": "code",
+        "location": "/operate/utils/misc.py:75-97"
+    },
+    "127": {
+        "file_id": 9,
+        "content": "This code is parsing user responses and determining the appropriate type (DONE, CLICK, TYPE, or SEARCH) based on the response string. It also extracts relevant data for each type of response. If the response doesn't match any known patterns, it is classified as \"UNKNOWN\" with the original response retained.",
+        "type": "comment"
+    },
+    "128": {
+        "file_id": 9,
+        "content": "        except:\n            search_data = re.search(r\"SEARCH (.+)\", response).group(1)\n        return {\"type\": \"SEARCH\", \"data\": search_data}\n    return {\"type\": \"UNKNOWN\", \"data\": response}",
+        "type": "code",
+        "location": "/operate/utils/misc.py:98-102"
+    },
+    "129": {
+        "file_id": 9,
+        "content": "Trying to extract search data from response using regex. If exception occurs, return search data as \"SEARCH\" type and original response as unknown type.",
+        "type": "comment"
+    },
+    "130": {
+        "file_id": 10,
+        "content": "/operate/utils/os.py",
+        "type": "filepath"
+    },
+    "131": {
+        "file_id": 10,
+        "content": "The summary is about a code that involves text input, search execution, and mouse clicks using specified coordinates, as well as a circular movement function with start/end points, radius, and duration, and a get_last_assistant_message function to retrieve the last assistant message from an array.",
+        "type": "summary"
+    },
+    "132": {
+        "file_id": 10,
+        "content": "import pyautogui\nimport platform\nimport time\nimport math\nfrom operate.utils.misc import convert_percent_to_decimal\ndef keyboard_type(text):\n    \"\"\"\n    Types the given text using the keyboard.\n    Args:\n        text (str): The text to be typed.\n    Returns:\n        str: A message indicating the typed text.\n    \"\"\"\n    text = text.replace(\"\\\\n\", \"\\n\")\n    for char in text:\n        pyautogui.write(char)\n    pyautogui.press(\"enter\")\n    return \"Type: \" + text\ndef search(text):\n    \"\"\"\n    Searches for a program or file by typing the given text in the search bar and pressing Enter.\n    Args:\n        text (str): The text to be searched.\n    Returns:\n        str: A message indicating that the program or file has been opened.\n    \"\"\"\n    if platform.system() == \"Windows\":\n        pyautogui.press(\"win\")\n    elif platform.system() == \"Linux\":\n        pyautogui.press(\"win\")\n    else:\n        # Press and release Command and Space separately\n        pyautogui.keyDown(\"command\")\n        pyautogui.press(\"space\")\n        pyautogui.keyUp(\"command\")",
+        "type": "code",
+        "location": "/operate/utils/os.py:1-44"
+    },
+    "133": {
+        "file_id": 10,
+        "content": "Code comments:\n- `keyboard_type(text)` - Types the given text using keyboard and returns a message indicating typed text.\n- `search(text)` - Searches for program or file by typing in search bar and pressing Enter. Returns a message indicating the program or file has been opened.",
+        "type": "comment"
+    },
+    "134": {
+        "file_id": 10,
+        "content": "    time.sleep(1)\n    # Now type the text\n    for char in text:\n        pyautogui.write(char)\n    pyautogui.press(\"enter\")\n    return \"Open program: \" + text\ndef click(click_detail):\n    \"\"\"\n    Perform a mouse click at the specified coordinates.\n    Args:\n        click_detail (dict): A dictionary containing the coordinates of the click.\n    Returns:\n        str: The description of the click if successful, otherwise \"We failed to click\".\n    \"\"\"\n    try:\n        x = convert_percent_to_decimal(click_detail[\"x\"])\n        y = convert_percent_to_decimal(click_detail[\"y\"])\n        if click_detail and isinstance(x, float) and isinstance(y, float):\n            click_at_percentage(x, y)\n            return click_detail[\"description\"]\n        else:\n            return \"We failed to click\"\n    except Exception as e:\n        print(f\"Error parsing JSON: {e}\")\n        return \"We failed to click\"\ndef click_at_percentage(\n    x_percentage, y_percentage, duration=0.2, circle_radius=50, circle_duration=0.5\n):\n    \"\"\"\n    Moves the m",
+        "type": "code",
+        "location": "/operate/utils/os.py:46-85"
+    },
+    "135": {
+        "file_id": 10,
+        "content": "Line 45-48: Type the text by pressing each character\nLine 49: Press enter after typing the text\nLine 50-79: Perform a mouse click at the specified coordinates\nLine 80-101: Click the program based on the given description",
+        "type": "comment"
+    },
+    "136": {
+        "file_id": 10,
+        "content": "ouse cursor to a specified percentage of the screen and performs a circular movement before clicking.\n    Args:\n        x_percentage (float): The x-coordinate percentage of the screen to move the cursor to.\n        y_percentage (float): The y-coordinate percentage of the screen to move the cursor to.\n        duration (float, optional): The duration (in seconds) of the smooth cursor movement. Defaults to 0.2.\n        circle_radius (int, optional): The radius of the circular movement. Defaults to 50.\n        circle_duration (float, optional): The duration (in seconds) of the circular movement. Defaults to 0.5.\n    Returns:\n        str: A message indicating that the click was successful.\n    \"\"\"\n    # Get the size of the primary monitor\n    screen_width, screen_height = pyautogui.size()\n    # Calculate the x and y coordinates in pixels\n    x_pixel = int(screen_width * float(x_percentage))\n    y_pixel = int(screen_height * float(y_percentage))\n    # Move to the position smoothly\n    pyautogui.moveTo(x_pixel, y_pixel, duration=duration)",
+        "type": "code",
+        "location": "/operate/utils/os.py:85-105"
+    },
+    "137": {
+        "file_id": 10,
+        "content": "Moves the cursor to a specific percentage of the screen and then performs a circular movement before clicking.",
+        "type": "comment"
+    },
+    "138": {
+        "file_id": 10,
+        "content": "    # Circular movement\n    start_time = time.time()\n    while time.time() - start_time < circle_duration:\n        angle = ((time.time() - start_time) / circle_duration) * 2 * math.pi\n        x = x_pixel + math.cos(angle) * circle_radius\n        y = y_pixel + math.sin(angle) * circle_radius\n        pyautogui.moveTo(x, y, duration=0.1)\n    # Finally, click\n    pyautogui.click(x_pixel, y_pixel)\n    return \"Successfully clicked\"\ndef get_last_assistant_message(messages):\n    \"\"\"\n    Retrieve the last message from the assistant in the messages array.\n    If the last assistant message is the first message in the array, return None.\n    \"\"\"\n    for index in reversed(range(len(messages))):\n        if messages[index][\"role\"] == \"assistant\":\n            if index == 0:  # Check if the assistant message is the first in the array\n                return None\n            else:\n                return messages[index]\n    return None  # Return None if no assistant message is found",
+        "type": "code",
+        "location": "/operate/utils/os.py:107-131"
+    },
+    "139": {
+        "file_id": 10,
+        "content": "For the code provided, here are some brief comments:\n\n1. The function is for circular movement, which takes start and end points as input parameters (x_pixel, y_pixel), circle radius, and duration. It calculates the intermediate position by using time elapsed and performs a circular movement towards the destination point.\n2. In the get_last_assistant_message function, it retrieves the last message from the assistant in the messages array. If the last assistant message is the first message in the array, return None. Otherwise, return the last assistant message.",
+        "type": "comment"
+    },
+    "140": {
+        "file_id": 11,
+        "content": "/operate/utils/screenshot.py",
+        "type": "filepath"
+    },
+    "141": {
+        "file_id": 11,
+        "content": "The code has functions to add grids to images and capture screenshots using PIL, accepting input in various formats. It saves the captured image at a specified file path or displays an error message for unsupported platforms.",
+        "type": "summary"
+    },
+    "142": {
+        "file_id": 11,
+        "content": "import os\nimport platform\nimport subprocess\nimport pyautogui\nfrom PIL import Image, ImageDraw, ImageGrab\nimport Xlib.display\nimport Xlib.X\nimport Xlib.Xutil  # not sure if Xutil is necessary\nfrom operate.settings import Config\nfrom operate.prompts import ACCURATE_PIXEL_COUNT\n# Load configuration\nconfig = Config()\nmonitor_size = config.monitor_size\ndef add_grid_to_image(original_image_path, new_image_path, grid_interval):\n    \"\"\"\n    Add a grid to an image.\n    Args:\n        original_image_path (str): The file path of the original image.\n        new_image_path (str): The file path to save the new image with the grid.\n        grid_interval (int): The interval between grid lines in pixels.\n    Returns:\n        None: The function saves the new image with the grid at the specified path.\n    \"\"\"\n    # Load the image\n    image = Image.open(original_image_path)\n    # Create a drawing object\n    draw = ImageDraw.Draw(image)\n    # Get the image size\n    width, height = image.size\n    # Reduce the font size a bit\n    font_size = int(grid_interval / 10)  # Reduced font size",
+        "type": "code",
+        "location": "/operate/utils/screenshot.py:1-39"
+    },
+    "143": {
+        "file_id": 11,
+        "content": "The code imports necessary libraries and defines a function to add a grid to an image. It loads the original image, creates a drawing object, gets the image size, and reduces the font size for the grid.",
+        "type": "comment"
+    },
+    "144": {
+        "file_id": 11,
+        "content": "    # Calculate the background size based on the font size\n    bg_width = int(font_size * 4.2)  # Adjust as necessary\n    bg_height = int(font_size * 1.2)  # Adjust as necessary\n    # Function to draw text with a white rectangle background\n    def draw_label_with_background(\n        position, text, draw, font_size, bg_width, bg_height\n    ):\n        # Adjust the position based on the background size\n        text_position = (position[0] + bg_width // 2, position[1] + bg_height // 2)\n        # Draw the text background\n        draw.rectangle(\n            [position[0], position[1], position[0] + bg_width, position[1] + bg_height],\n            fill=\"white\",\n        )\n        # Draw the text\n        draw.text(text_position, text, fill=\"black\", font_size=font_size, anchor=\"mm\")\n    # Draw vertical lines and labels at every `grid_interval` pixels\n    for x in range(grid_interval, width, grid_interval):\n        line = ((x, 0), (x, height))\n        draw.line(line, fill=\"blue\")\n        for y in range(grid_interval, height, grid_interval):",
+        "type": "code",
+        "location": "/operate/utils/screenshot.py:41-63"
+    },
+    "145": {
+        "file_id": 11,
+        "content": "This function creates a background rectangle for text and draws it with white fill. It also draws vertical lines and labels at every `grid_interval` pixels.",
+        "type": "comment"
+    },
+    "146": {
+        "file_id": 11,
+        "content": "            # Calculate the percentage of the width and height\n            x_percent = round((x / width) * 100)\n            y_percent = round((y / height) * 100)\n            draw_label_with_background(\n                (x - bg_width // 2, y - bg_height // 2),\n                f\"{x_percent}%,{y_percent}%\",\n                draw,\n                font_size,\n                bg_width,\n                bg_height,\n            )\n    # Draw horizontal lines - labels are already added with vertical lines\n    for y in range(grid_interval, height, grid_interval):\n        line = ((0, y), (width, y))\n        draw.line(line, fill=\"blue\")\n    # Save the image with the grid\n    image.save(new_image_path)\ndef capture_mini_screenshot_with_cursor(\n    file_path=os.path.join(\"screenshots\", \"screenshot_mini.png\"), x=0, y=0\n):\n    \"\"\"\n    Capture a mini screenshot with the cursor at the specified coordinates.\n    Args:\n        file_path (str, optional): The file path to save the screenshot. Defaults to \"screenshots/screenshot_mini.png\".",
+        "type": "code",
+        "location": "/operate/utils/screenshot.py:64-92"
+    },
+    "147": {
+        "file_id": 11,
+        "content": "Calculates the percentage of coordinates and draws labels with background. Draws horizontal lines for grid labels. Saves the image with the grid at specified file path.",
+        "type": "comment"
+    },
+    "148": {
+        "file_id": 11,
+        "content": "        x (int or str, optional): The x-coordinate of the cursor position. Can be specified as an integer or a percentage string. Defaults to 0.\n        y (int or str, optional): The y-coordinate of the cursor position. Can be specified as an integer or a percentage string. Defaults to 0.\n    \"\"\"\n    user_platform = platform.system()\n    if user_platform == \"Linux\":\n        x = float(x[:-1])  # convert x from \"50%\" to 50.\n        y = float(y[:-1])\n        x = (x / 100) * monitor_size[\n            \"width\"\n        ]  # convert x from 50 to 0.5 * monitor_width\n        y = (y / 100) * monitor_size[\"height\"]\n        # Define the coordinates for the rectangle\n        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)\n        x2, y2 = int(x + ACCURATE_PIXEL_COUNT / 2), int(y + ACCURATE_PIXEL_COUNT / 2)\n        screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))\n        screenshot = screenshot.resize(\n            (screenshot.width * 2, screenshot.height * 2), Image.LANCZOS\n        )  # upscale the image so it's easier to see and percentage marks more visible",
+        "type": "code",
+        "location": "/operate/utils/screenshot.py:93-114"
+    },
+    "149": {
+        "file_id": 11,
+        "content": "This code is used to take a screenshot of a specific area on the user's monitor using the Python Imaging Library (PIL) and ImageGrab modules. It takes optional x and y coordinates as inputs, which can be specified as integers or percentage strings. The function converts the input values into the appropriate format for calculating the coordinates of the rectangle to capture the screenshot. If the user is on a Linux system, it performs additional calculations to convert percentage-based input into actual pixel coordinates and upscales the image for better visibility.",
+        "type": "comment"
+    },
+    "150": {
+        "file_id": 11,
+        "content": "        screenshot.save(file_path)\n        screenshots_dir = \"screenshots\"\n        grid_screenshot_filename = os.path.join(\n            screenshots_dir, \"screenshot_mini_with_grid.png\"\n        )\n        add_grid_to_image(\n            file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)\n        )\n    elif user_platform == \"Darwin\":\n        x = float(x[:-1])  # convert x from \"50%\" to 50.\n        y = float(y[:-1])\n        x = (x / 100) * monitor_size[\n            \"width\"\n        ]  # convert x from 50 to 0.5 * monitor_width\n        y = (y / 100) * monitor_size[\"height\"]\n        x1, y1 = int(x - ACCURATE_PIXEL_COUNT / 2), int(y - ACCURATE_PIXEL_COUNT / 2)\n        width = ACCURATE_PIXEL_COUNT\n        height = ACCURATE_PIXEL_COUNT\n        # Use the screencapture utility to capture the screen with the cursor\n        rect = f\"-R{x1},{y1},{width},{height}\"\n        subprocess.run([\"screencapture\", \"-C\", rect, file_path])\n        screenshots_dir = \"screenshots\"\n        grid_screenshot_filename = os.path.join(",
+        "type": "code",
+        "location": "/operate/utils/screenshot.py:115-143"
+    },
+    "151": {
+        "file_id": 11,
+        "content": "Code is capturing a screenshot based on user platform. For non-Darwin platforms, it saves the screenshot, while for Darwin (macOS), it uses screencapture utility to capture the screen with cursor and saves the result. Both versions save the grid screenshot as well.",
+        "type": "comment"
+    },
+    "152": {
+        "file_id": 11,
+        "content": "            screenshots_dir, \"screenshot_mini_with_grid.png\"\n        )\n        add_grid_to_image(\n            file_path, grid_screenshot_filename, int(ACCURATE_PIXEL_COUNT / 2)\n        )\ndef capture_screen_with_cursor(file_path):\n    \"\"\"\n    Capture the screen with the cursor and save it to the specified file path.\n    Args:\n        file_path (str): The file path where the screenshot will be saved.\n    Raises:\n        None\n    Returns:\n        None\n    \"\"\"\n    user_platform = platform.system()\n    if user_platform == \"Windows\":\n        screenshot = pyautogui.screenshot()\n        screenshot.save(file_path)\n    elif user_platform == \"Linux\":\n        # Use xlib to prevent scrot dependency for Linux\n        screen = Xlib.display.Display().screen()\n        size = screen.width_in_pixels, screen.height_in_pixels\n        monitor_size[\"width\"] = size[0]\n        monitor_size[\"height\"] = size[1]\n        screenshot = ImageGrab.grab(bbox=(0, 0, size[0], size[1]))\n        screenshot.save(file_path)\n    elif user_platform == \"Darwin\":  # (Mac OS)",
+        "type": "code",
+        "location": "/operate/utils/screenshot.py:144-178"
+    },
+    "153": {
+        "file_id": 11,
+        "content": "This code captures a screenshot of the computer's display with cursor and saves it to the specified file path. It checks the user platform (Windows, Linux, or Mac OS) and uses appropriate libraries to capture the screenshot.",
+        "type": "comment"
+    },
+    "154": {
+        "file_id": 11,
+        "content": "        # Use the screencapture utility to capture the screen with the cursor\n        subprocess.run([\"screencapture\", \"-C\", file_path])\n    else:\n        print(f\"The platform you're using ({user_platform}) is not currently supported\")",
+        "type": "code",
+        "location": "/operate/utils/screenshot.py:179-182"
+    },
+    "155": {
+        "file_id": 11,
+        "content": "This code captures a screenshot of the computer screen with the cursor, or prints an error message if the platform is not supported.",
+        "type": "comment"
+    },
+    "156": {
+        "file_id": 12,
+        "content": "/operate/utils/style.py",
+        "type": "filepath"
+    },
+    "157": {
+        "file_id": 12,
+        "content": "The code uses the PromptStyle library to define styles for UI elements, checks terminal support for ANSI escape codes, and sets color variables based on this.",
+        "type": "summary"
+    },
+    "158": {
+        "file_id": 12,
+        "content": "import sys\nimport platform\nimport os\nfrom prompt_toolkit.styles import Style as PromptStyle\n# Define style\nstyle = PromptStyle.from_dict(\n    {\n        \"dialog\": \"bg:#88ff88\",\n        \"button\": \"bg:#ffffff #000000\",\n        \"dialog.body\": \"bg:#44cc44 #ffffff\",\n        \"dialog shadow\": \"bg:#003800\",\n    }\n)\n# Check if on a windows terminal that supports ANSI escape codes\ndef supports_ansi():\n    \"\"\"\n    Check if the terminal supports ANSI escape codes\n    \"\"\"\n    plat = platform.system()\n    supported_platform = plat != \"Windows\" or \"ANSICON\" in os.environ\n    is_a_tty = hasattr(sys.stdout, \"isatty\") and sys.stdout.isatty()\n    return supported_platform and is_a_tty\n# Define ANSI color codes\nANSI_GREEN = \"\\033[32m\" if supports_ansi() else \"\"  # Standard green text\nANSI_BRIGHT_GREEN = \"\\033[92m\" if supports_ansi() else \"\"  # Bright/bold green text\nANSI_RESET = \"\\033[0m\" if supports_ansi() else \"\"  # Reset to default text color\nANSI_BLUE = \"\\033[94m\" if supports_ansi() else \"\"  # Bright blue\nANSI_YELLOW = \"\\033[33m\" if supports_ansi() else \"\"  # Standard yellow text",
+        "type": "code",
+        "location": "/operate/utils/style.py:1-34"
+    },
+    "159": {
+        "file_id": 12,
+        "content": "This code defines styles for dialogs, buttons, and other UI elements using the PromptStyle library. It also checks if the terminal supports ANSI escape codes for colors and defines ANSI color codes accordingly.",
+        "type": "comment"
+    },
+    "160": {
+        "file_id": 12,
+        "content": "ANSI_RED = \"\\033[31m\" if supports_ansi() else \"\"\nANSI_BRIGHT_MAGENTA = \"\\033[95m\" if supports_ansi() else \"\"  # Bright magenta text",
+        "type": "code",
+        "location": "/operate/utils/style.py:35-36"
+    },
+    "161": {
+        "file_id": 12,
+        "content": "Checks if the terminal supports ANSI escape codes and sets color variables accordingly.",
+        "type": "comment"
+    },
+    "162": {
+        "file_id": 13,
+        "content": "/requirements-audio.txt",
+        "type": "filepath"
+    },
+    "163": {
+        "file_id": 13,
+        "content": "This code likely refers to a specific type of microphone called \"whisper-mic,\" which is designed for capturing quiet or whispered audio.",
+        "type": "summary"
+    },
+    "164": {
+        "file_id": 13,
+        "content": "whisper-mic",
+        "type": "code",
+        "location": "/requirements-audio.txt:1-1"
+    },
+    "165": {
+        "file_id": 13,
+        "content": "This code likely refers to a specific type of microphone called \"whisper-mic,\" which is designed for capturing quiet or whispered audio.",
+        "type": "comment"
+    },
+    "166": {
+        "file_id": 14,
+        "content": "/requirements.txt",
+        "type": "filepath"
+    },
+    "167": {
+        "file_id": 14,
+        "content": "The project requires Python packages aiohttp 3.9.1 and ultralytics 8.0.227, listed in the requirements.txt format.",
+        "type": "summary"
+    },
+    "168": {
+        "file_id": 14,
+        "content": "annotated-types==0.6.0\nanyio==3.7.1\ncertifi==2023.7.22\ncharset-normalizer==3.3.2\ncolorama==0.4.6\ncontourpy==1.2.0\ncycler==0.12.1\ndistro==1.8.0\nEasyProcess==1.1\nentrypoint2==1.1\nexceptiongroup==1.1.3\nfonttools==4.44.0\nh11==0.14.0\nhttpcore==1.0.2\nhttpx==0.25.1\nidna==3.4\nimportlib-resources==6.1.1\nkiwisolver==1.4.5\nmatplotlib==3.8.1\nMouseInfo==0.1.3\nmss==9.0.1\nnumpy==1.26.1\nopenai==1.2.3\npackaging==23.2\nPillow==10.1.0\nprompt-toolkit==3.0.39\nPyAutoGUI==0.9.54\npydantic==2.4.2\npydantic_core==2.10.1\nPyGetWindow==0.0.9\nPyMsgBox==1.0.9\npyparsing==3.1.1\npyperclip==1.8.2\nPyRect==0.2.0\npyscreenshot==3.1\nPyScreeze==0.1.29\npython3-xlib==0.15\npython-dateutil==2.8.2\npython-dotenv==1.0.0\npytweening==1.0.7\nrequests==2.31.0\nrubicon-objc==0.4.7\nsix==1.16.0\nsniffio==1.3.0\ntqdm==4.66.1\ntyping_extensions==4.8.0\nurllib3==2.0.7\nwcwidth==0.2.9\nzipp==3.17.0\ngoogle-generativeai==0.3.0",
+        "type": "code",
+        "location": "/requirements.txt:1-50"
+    },
+    "169": {
+        "file_id": 14,
+        "content": "This is a list of Python package dependencies for a project, specified in requirements.txt format.",
+        "type": "comment"
+    },
+    "170": {
+        "file_id": 14,
+        "content": "aiohttp==3.9.1\nultralytics==8.0.227",
+        "type": "code",
+        "location": "/requirements.txt:51-52"
+    },
+    "171": {
+        "file_id": 14,
+        "content": "These lines specify the required Python libraries for the project: aiohttp 3.9.1 and ultralytics 8.0.227.",
+        "type": "comment"
+    },
+    "172": {
+        "file_id": 15,
+        "content": "/run.sh",
+        "type": "filepath"
+    },
+    "173": {
+        "file_id": 15,
+        "content": "This Bash script installs SOC on Linux, requires various packages, checks OS for software installation, handles errors, and configures .env file with OpenAI API key while prompting user input and managing permissions on Mac.",
+        "type": "summary"
+    },
+    "174": {
+        "file_id": 15,
+        "content": "#!/bin/bash\n#\n#           SOC Installer Script v0.0.1\n#   GitHub: https://github.com/OthersideAI/self-operating-computer\n#   Issues: https://github.com/OthersideAI/self-operating-computer/issues\n#   Requires: bash, curl/wget, python3, pip, git\n#\n#   Please open an issue if you notice any bugs.\n#\n#\n#   This script is create by centopw\n#\n#\nclear\necho -e \"\\e[0m\\c\"\nLOG_FILE=\"install_log.txt\"\n# shellcheck disable=SC2016\necho '\n $$$$$$\\   $$$$$$\\   $$$$$$\\  \n$$  __$$\\ $$  __$$\\ $$  __$$\\ \n$$ /  \\__|$$ /  $$ |$$ /  \\__|\n\\$$$$$$\\  $$ |  $$ |$$ |      \n \\____$$\\ $$ |  $$ |$$ |      \n$$\\   $$ |$$ |  $$ |$$ |  $$\\ \n\\$$$$$$  | $$$$$$  |\\$$$$$$  |\n \\______/  \\______/  \\______/ \n    Self-Operating-Computer\n--- Created by OthersideAI ---\n'\n# Function to log errors\nlog_error() {\n    echo \"Error at $(date): $1\" >> \"$LOG_FILE\"\n}\n# Function to check if a command exists\ncommand_exists() {\n    command -v \"$1\" &> /dev/null\n}\n# Function to install packages based on the operating system\ninstall_packages() {\n    if [ \"$os\" == \"Linux\" ]; then\n        # Use the appropriate package manager for Linux",
+        "type": "code",
+        "location": "/run.sh:1-48"
+    },
+    "175": {
+        "file_id": 15,
+        "content": "The code is a Bash script for installing the Self-Operating-Computer (SOC) on a Linux system. It starts by clearing the terminal and displaying a welcome message, then defines functions to log errors, check if commands exist, and install packages based on the operating system. The script requires bash, curl/wget, python3, pip, and git.",
+        "type": "comment"
+    },
+    "176": {
+        "file_id": 15,
+        "content": "        if command_exists apt-get; then\n            sudo apt-get install -y \"$1\" || { log_error \"Unable to install $1.\"; exit 1; }\n        elif command_exists yum; then\n            sudo yum install -y \"$1\" || { log_error \"Unable to install $1.\"; exit 1; }\n        else\n            log_error \"Unsupported package manager. Please install $1 manually.\"\n            exit 1\n        fi\n    elif [ \"$os\" == \"Darwin\" ]; then\n        # Use Homebrew for macOS\n        if command_exists brew; then\n            brew install \"$1\" || { log_error \"Unable to install $1.\"; exit 1; }\n        else\n            log_error \"Homebrew not found. Please install Homebrew and then $1 manually.\"\n            exit 1\n        fi\n    elif [ \"$os\" == \"MINGW64_NT-10.0\" ]; then\n        # Use Chocolatey for Windows\n        if command_exists choco; then\n            choco install \"$1\" -y || { log_error \"Unable to install $1.\"; exit 1; }\n        else\n            log_error \"Chocolatey not found. Please install Chocolatey and then $1 manually.\"\n            exit 1",
+        "type": "code",
+        "location": "/run.sh:49-71"
+    },
+    "177": {
+        "file_id": 15,
+        "content": "This code checks the operating system and package manager to install a specified software. If the required package manager is found, it installs the software using sudo commands. If not, it logs an error and exits. For macOS, it uses Homebrew if installed; otherwise, it logs an error and exits. For Windows (MINGW64_NT-10.0), it uses Chocolatey if installed; otherwise, it logs an error and exits.",
+        "type": "comment"
+    },
+    "178": {
+        "file_id": 15,
+        "content": "        fi\n    else\n        log_error \"Unsupported operating system. Please install $1 manually.\"\n        exit 1\n    fi\n}\n# Function to run a script and log errors\nrun_script() {\n    eval \"$1\" || { log_error \"Error running $1.\"; exit 1; }\n}\n# Check the operating system\nos=$(uname -s)\n# Check if Python is installed\nif ! command_exists python3; then\n    echo \"Python not found. Installing Python...\"\n    install_packages python3\nfi\n# Check if pip is installed\nif ! command_exists pip; then\n    echo \"pip not found. Installing pip...\"\n    install_packages python3-pip\nfi\n# Check if git is installed\nif ! command_exists git; then\n    echo \"Git not found. Installing Git...\"\n    install_packages git\nfi \n# Create a Python virtual environment\nrun_script \"python3 -m venv venv\"\n# Activate the virtual environment\nsource venv/bin/activate || { log_error \"Unable to activate the virtual environment.\"; exit 1; }\n# Install project requirements\nrun_script \"pip install -r requirements.txt\"\n# Install Project and Command-Line Interface\nrun_script \"pip install .\"",
+        "type": "code",
+        "location": "/run.sh:72-115"
+    },
+    "179": {
+        "file_id": 15,
+        "content": "This code checks the operating system and ensures Python, pip, and Git are installed. It creates a Python virtual environment and installs project requirements before installing the project itself.",
+        "type": "comment"
+    },
+    "180": {
+        "file_id": 15,
+        "content": "# Check if the .env file exists and the OPENAI_API_KEY is set in it\nif [ -f .env ] && grep -q \"OPENAI_API_KEY\" .env; then\n    echo \"OpenAI API key found in .env file. Skipping prompt...\"\nelse\n    # Prompt user for Open AI key\n    read -p \"Enter your OpenAI API key: \" openai_key\n    # Set the API key as an environment variable\n    export OPENAI_API_KEY=\"$openai_key\"\n    # Create a new .env file\n    touch .env\n    # Write the API key to the .env file\n    echo \"OPENAI_API_KEY='$openai_key'\" > .env\nfi\n# Notify the user about the last step\necho \"Final Step: As a last step, the Terminal app will ask for permission for 'Screen Recording' and 'Accessibility' in the 'Security & Privacy' page of Mac's 'System Preferences.'\"\necho \"Operating system: $os\"\nif [ \"$os\" == \"Darwin\" ]; then\n    echo \"Attempting to open Security & Privacy settings...\"\n    open /System/Library/PreferencePanes/Security.prefPane\n    read -p \"Have you granted the necessary permissions in the Security & Privacy settings? (y/n): \" confirm\n    if [ \"$confirm\" != \"y\" ]; then",
+        "type": "code",
+        "location": "/run.sh:117-143"
+    },
+    "181": {
+        "file_id": 15,
+        "content": "This code checks if the .env file exists and if it contains an OPENAI_API_KEY. If not, it prompts the user to enter their OpenAI API key, stores it in a new .env file as an environment variable, and then informs the user about the final step of granting permissions for 'Screen Recording' and 'Accessibility' in Mac's System Preferences.",
+        "type": "comment"
+    },
+    "182": {
+        "file_id": 15,
+        "content": "        echo \"Please grant the necessary permissions and then rerun the script.\"\n        exit 1\n    fi\nelse\n    echo \"Not a macOS system, skipping...\"\nfi\n# End of the script\necho \"Installation complete. Enjoy using the Self-Operating Computer Framework!\"\n# Run the framework\nrun_script \"operate\"",
+        "type": "code",
+        "location": "/run.sh:144-155"
+    },
+    "183": {
+        "file_id": 15,
+        "content": "The code checks if the system is macOS. If it's not, it skips some steps and informs that it's not a macOS system. If permissions are granted, it proceeds to install the framework and runs it with \"operate\" script.",
+        "type": "comment"
+    },
+    "184": {
+        "file_id": 16,
+        "content": "/setup.py",
+        "type": "filepath"
+    },
+    "185": {
+        "file_id": 16,
+        "content": "This code is using setuptools to create a setup script for the \"self-operating-computer\" package. It imports the necessary modules and reads requirements from \"requirements.txt\". It also reads project description from \"README.md\", sets up dependencies, and defines entry points for console scripts.",
+        "type": "summary"
+    },
+    "186": {
+        "file_id": 16,
+        "content": "from setuptools import setup, find_packages\n# Read the contents of your requirements.txt file\nwith open(\"requirements.txt\") as f:\n    required = f.read().splitlines()\n# Read the contents of your README.md file for the project description\nwith open(\"README.md\", \"r\", encoding=\"utf-8\") as readme_file:\n    long_description = readme_file.read()\nsetup(\n    name=\"self-operating-computer\",\n    version=\"1.1.1\",\n    packages=find_packages(),\n    install_requires=required,  # Add dependencies here\n    entry_points={\n        \"console_scripts\": [\n            \"operate=operate.main:main_entry\",\n        ],\n    },\n    long_description=long_description,  # Add project description here\n    long_description_content_type=\"text/markdown\",  # Specify Markdown format\n    # include any other necessary setup options here\n)",
+        "type": "code",
+        "location": "/setup.py:1-24"
+    },
+    "187": {
+        "file_id": 16,
+        "content": "This code is using setuptools to create a setup script for the \"self-operating-computer\" package. It imports the necessary modules and reads requirements from \"requirements.txt\". It also reads project description from \"README.md\", sets up dependencies, and defines entry points for console scripts.",
+        "type": "comment"
+    }
+}

@@ -1,0 +1,6 @@
+docs
+.*
+*/.*
+*.pt
+CONTRIBUTING.md
+LICENSE
