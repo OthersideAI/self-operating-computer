@@ -1,0 +1,122 @@
+import sys
+import os
+import subprocess
+import platform
+import base64
+import json
+import openai
+import argparse
+
+from dotenv import load_dotenv
+
+# Define test cases
+TEST_CASES = {
+    "Go to Github.com": "A Github page is visible.",
+    "Go to Youtube.com and play a video": "The YouTube video player is visible.",
+}
+
+# Evaluation prompt format
+EVALUATION_PROMPT = """
+Evaluate the screenshot and determine if the following guideline is met:
+{{ "guideline_met": (true|false), "reason": "Explanation for why guideline was or wasn't met" }}
+"""
+
+SCREENSHOT_PATH = os.path.join('screenshots', 'screenshot.png')
+
+def supports_ansi():
+    """
+    Check if the terminal supports ANSI escape codes
+    """
+    plat = platform.system()
+    supported_platform = plat != "Windows" or "ANSICON" in os.environ
+    is_a_tty = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
+    return supported_platform and is_a_tty
+
+if supports_ansi():
+    ANSI_GREEN = "\033[32m"
+    ANSI_RESET = "\033[0m"
+else:
+    ANSI_GREEN = ""
+
+def format_evaluation_prompt(guideline):
+    prompt = EVALUATION_PROMPT.format(guideline=guideline)
+    return prompt
+
+def parse_eval_content(content):
+    try:
+        res = json.loads(content)
+        print(res["reason"])
+        return res["guideline_met"]
+    except:
+        print("Error parsing evaluation response. Exiting...")
+        exit(1)
+
+def evaluate_final_screenshot(guideline):
+    try:
+        with open(SCREENSHOT_PATH, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+            eval_message = [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": format_evaluation_prompt(guideline)},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}},
+                ],
+            }]
+
+            response = openai.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=eval_message,
+                presence_penalty=1,
+                frequency_penalty=1,
+                temperature=0.7,
+                max_tokens=300,
+            )
+
+            eval_content = response.choices[0].message.content
+            return parse_eval_content(eval_content)
+    except OSError:
+        print("Error opening the screenshot for evaluation")
+        return False
+
+def run_test_case(objective, guideline, model):
+    subprocess.run(['operate', '-m', model, '--prompt', f'"{objective}"'], stdout=subprocess.DEVNULL)
+    return evaluate_final_screenshot(guideline)
+
+def get_test_model():
+    parser = argparse.ArgumentParser(
+        description="Run the self-operating-computer with a specified model."
+    )
+    
+    parser.add_argument(
+        "-m",
+        "--model",
+        help="Specify the model to evaluate.",
+        required=False,
+        default="gpt-4-with-ocr",
+    )
+    
+    return parser.parse_args().model
+
+def main():
+    load_dotenv()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    model = get_test_model()  # Add this line to retrieve the model
+
+    passed = 0
+    failed = 0
+    for objective, guideline in TEST_CASES.items():
+        print(f"Evaluating '{objective}'")
+        result = run_test_case(objective, guideline, model)  # Pass the model as an argument
+        if result:
+            print(f"{ANSI_GREEN}PASSED{ANSI_RESET} '{objective}'")
+            passed += 1
+        else:
+            print(f"FAILED '{objective}'")
+            failed += 1
+
+    print(f"Evaluation complete: {passed} test{'s' if passed != 1 else ''} passed, {failed} test{'s' if failed != 1 else ''} failed")
+
+if __name__ == "__main__":
+    main()
